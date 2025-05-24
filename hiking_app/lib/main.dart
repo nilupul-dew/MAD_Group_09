@@ -1,4 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+
+final db = FirebaseFirestore.instance;
 
 void main() {
   runApp(const MyApp());
@@ -23,6 +27,6 @@ class MyApp extends StatelessWidget {
             child: Text("Add Document"),
           ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+    ));
   }
 }
