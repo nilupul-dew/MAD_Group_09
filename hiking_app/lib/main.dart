@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+  MyApp({super.key});
+  final FirebaseFirestore db = FirebaseFirestore.instance;
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -16,13 +17,14 @@ class MyApp extends StatelessWidget {
         body: Center(
           child: ElevatedButton(
             onPressed: () async {
-              await db.collection("test3").add({
+              await db.collection("test2").add({
                 "message": "Hello, Firestore!",
               });
             },
             child: Text("Add Document"),
           ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }
