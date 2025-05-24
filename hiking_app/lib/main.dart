@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
         body: Center(
           child: ElevatedButton(
             onPressed: () async {
-              await db.collection("test2").add({
+              await db.collection("test3").add({
                 "message": "Hello, Firestore!",
               });
             },
