@@ -1201,7 +1201,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   // New modern card style replacing _buildListTile
   Widget _buildCardItem(String title, String subtitle, String imageUrl) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6),
+      margin: const EdgeInsets.symmetric(vertical: 10),
       height: 100,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
@@ -1278,8 +1278,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Explore Campsites & Hiking Areas'),
-        backgroundColor: Colors.green,
+        title: const Text(
+          'Campsites & Hiking Areas',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color.fromARGB(255, 24, 21, 44),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -1319,7 +1322,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     ),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 16,
-                      vertical: 10,
+                      vertical: 1,
                     ),
                   ),
                 ),
@@ -1371,7 +1374,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
               ),
             ),
 
-            const SizedBox(height: 25),
+            const SizedBox(height: 15),
 
             // Most Famous Section Title
             Align(
