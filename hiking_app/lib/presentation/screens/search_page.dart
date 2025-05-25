@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:hiking_app/presentation/screens/item_page.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -79,72 +80,94 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Widget _buildGearCard(Map<String, dynamic> data) {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
-      margin: const EdgeInsets.all(8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Image.network(
-              data['image'] ?? 'https://via.placeholder.com/150',
-              height: 120,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  height: 120,
-                  width: double.infinity,
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.broken_image, size: 40),
-                );
-              },
-            ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => GearItemDetailScreen(itemData: data),
           ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  data['name'] ?? '',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 6),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      const TextSpan(
-                        text: "Capacity: ",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+        );
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        margin: const EdgeInsets.all(8),
+        elevation: 4,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
+              child: Image.network(
+                data['image'] ?? 'https://via.placeholder.com/150',
+                height: 120,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 120,
+                    color: Colors.grey[300],
+                    child: const Center(
+                      child: Icon(Icons.broken_image, size: 40),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      data['name'] ?? '',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
                       ),
-                      TextSpan(text: "${data['specs']?['capacity'] ?? 'N/A'}"),
-                    ],
-                  ),
-                  textAlign: TextAlign.center,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 6),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          const TextSpan(
+                            text: 'Capacity: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(
+                            text: '${data['specs']?['capacity'] ?? 'N/A'}',
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          const TextSpan(
+                            text: 'Available: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(text: '${data['available_qty'] ?? 0}'),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Charge per day: Rs.${data['rent_price_per_day'] ?? '0.00'}",
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  "Charge per day: Rs.${data['rent_price_per_day'] ?? '0.00'}",
-                  style: const TextStyle(color: Colors.red),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "Available: ${data['available_quantity'] ?? '0'} items",
-                  style: const TextStyle(fontSize: 12, color: Colors.green),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -241,15 +264,17 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: GridView.count(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.72,
-                      children:
-                          _gearResults
-                              .map((item) => _buildGearCard(item))
-                              .toList(),
+                    child: Expanded(
+                      child: GridView.count(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.68,
+                        children:
+                            _gearResults
+                                .map((item) => _buildGearCard(item))
+                                .toList(),
+                      ),
                     ),
                   ),
 
