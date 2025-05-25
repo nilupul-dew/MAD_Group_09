@@ -1,29 +1,38 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/models/post_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:path_provider/path_provider.dart';
 
 class FirebaseForumService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String _collection = 'posts';
 
-  // Web-compatible image upload
-
-  Future<String?> saveImageLocally(
-    Uint8List imageBytes,
-    String fileName,
-  ) async {
+  // OPTION 1: ImgBB (Free tier: unlimited uploads, 32MB per image)
+  Future<String?> uploadToImgBB(Uint8List imageBytes, String fileName) async {
     try {
-      final directory = await getApplicationDocumentsDirectory();
-      final imagePath = '${directory.path}/$fileName';
-      final imageFile = File(imagePath);
-      await imageFile.writeAsBytes(imageBytes);
-      print("✅ Image saved locally: $imagePath");
-      return imagePath;
+      const apiKey = '7a6786581dabb83cf3d9fef912b12b8f';
+
+      final base64Image = base64Encode(imageBytes);
+
+      final response = await http.post(
+        Uri.parse('https://api.imgbb.com/1/upload'),
+        body: {'key': apiKey, 'image': base64Image, 'name': fileName},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final imageUrl = data['data']['url'];
+        print("✅ Image uploaded to ImgBB: $imageUrl");
+        return imageUrl;
+      } else {
+        print("❌ ImgBB upload failed: ${response.body}");
+        return null;
+      }
     } catch (e) {
-      print("❌ Error saving image locally: $e");
+      print("❌ Error uploading to ImgBB: $e");
       return null;
     }
   }
@@ -32,8 +41,8 @@ class FirebaseForumService {
     try {
       final compressedBytes = await FlutterImageCompress.compressWithList(
         originalBytes,
-        quality: 60, // Adjust from 0 (max compression) to 100 (no compression)
-        minWidth: 800, // Optional: reduce image dimensions
+        quality: 60,
+        minWidth: 800,
         minHeight: 800,
       );
       print(
@@ -42,7 +51,7 @@ class FirebaseForumService {
       return compressedBytes;
     } catch (e) {
       print("❌ Compression failed: $e");
-      return originalBytes; // fallback to original if compression fails
+      return originalBytes;
     }
   }
 
@@ -95,22 +104,31 @@ class FirebaseForumService {
   }) async {
     print("📝 Adding post: ${post.title}");
     try {
-      String? imagePath;
+      String? imageUrl;
 
-      // Save image locally if provided
       if (imageBytes != null && imageName != null) {
         try {
+          // Compress image first
           Uint8List? processedBytes = imageBytes;
           if (!kIsWeb) {
             processedBytes = await compressImage(imageBytes);
           }
-          imagePath = await saveImageLocally(processedBytes!, imageName);
-          if (imagePath == null) {
-            print("❌ Image save failed, aborting post creation.");
+
+          // Generate unique filename
+          final timestamp = DateTime.now().millisecondsSinceEpoch;
+          final uniqueFileName = '${timestamp}_$imageName';
+
+          // Try different services in order of preference
+          imageUrl = await uploadToImgBB(processedBytes!, uniqueFileName);
+
+          if (imageUrl == null) {
+            print(
+              "❌ All image upload services failed, aborting post creation.",
+            );
             return;
           }
         } catch (e) {
-          print("❌ Error saving image: $e");
+          print("❌ Error processing image: $e");
           return;
         }
       }
@@ -121,9 +139,11 @@ class FirebaseForumService {
         'content': post.content,
         'category': post.category,
         'tags': post.tags,
-        'imageUrl': imagePath,
+        'imageUrl': imageUrl,
         'timestamp': Timestamp.fromDate(post.timestamp),
       });
+
+      print("✅ Image URL stored in DB: $imageUrl");
       print("✅ Post added with ID: ${docRef.id}");
     } catch (e) {
       print("❌ Error adding post: $e");
