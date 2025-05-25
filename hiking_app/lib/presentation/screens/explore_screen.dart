@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ExploreScreen extends StatefulWidget {
-  const ExploreScreen({super.key});
+  const ExploreScreen({Key? key}) : super(key: key);
 
   @override
   State<ExploreScreen> createState() => _ExploreScreenState();
@@ -9,6 +9,14 @@ class ExploreScreen extends StatefulWidget {
 
 class _ExploreScreenState extends State<ExploreScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final List<String> categories = [
+    'Mountains',
+    'Waterfalls',
+    'Lakes',
+    'Beaches',
+    'Forests',
+  ];
+  List<String> selectedCategories = [];
 
   void _onSearch() {
     final query = _searchController.text;
@@ -19,6 +27,30 @@ class _ExploreScreenState extends State<ExploreScreen> {
   void _onFilterPressed() {
     // TODO: Open filter dialog or screen
     print('Filter button pressed');
+  }
+
+  void _onCategorySelected(bool selected, String category) {
+    setState(() {
+      if (selected) {
+        selectedCategories.add(category);
+      } else {
+        selectedCategories.remove(category);
+      }
+    });
+    print('Selected categories: $selectedCategories');
+    // TODO: Filter list by selected categories
+  }
+
+  Widget _buildListTile(String title, String subtitle, String imageUrl) {
+    return ListTile(
+      leading: CircleAvatar(backgroundImage: NetworkImage(imageUrl)),
+      title: Text(title),
+      subtitle: Text(subtitle),
+      trailing: const Icon(Icons.arrow_forward_ios),
+      onTap: () {
+        // TODO: Navigate to detail screen for this item
+      },
+    );
   }
 
   @override
@@ -73,6 +105,28 @@ class _ExploreScreenState extends State<ExploreScreen> {
               ],
             ),
 
+            const SizedBox(height: 16),
+
+            // Categories horizontal filter chips
+            SizedBox(
+              height: 40,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: categories.length,
+                separatorBuilder: (context, index) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final category = categories[index];
+                  final isSelected = selectedCategories.contains(category);
+                  return FilterChip(
+                    label: Text(category),
+                    selected: isSelected,
+                    onSelected:
+                        (selected) => _onCategorySelected(selected, category),
+                  );
+                },
+              ),
+            ),
+
             const SizedBox(height: 20),
 
             // Most Famous Section Title
@@ -86,37 +140,35 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
             const SizedBox(height: 12),
 
-            // Placeholder for famous hiking/campsite list (scrollable)
+            // Famous hiking/campsite list (scrollable)
             Expanded(
               child: ListView(
                 children: [
-                  ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(
-                        'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=80&q=80',
-                      ),
-                    ),
-                    title: const Text('Knuckles Range'),
-                    subtitle: const Text('Sri Lanka'),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () {
-                      // TODO: Navigate to detail screen
-                    },
+                  _buildListTile(
+                    'Knuckles Range',
+                    'Sri Lanka',
+                    'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=80&q=80',
                   ),
-                  ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: NetworkImage(
-                        'https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=80&q=80',
-                      ),
-                    ),
-                    title: const Text('Ella Rock'),
-                    subtitle: const Text('Sri Lanka'),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () {
-                      // TODO: Navigate to detail screen
-                    },
+                  _buildListTile(
+                    'Ella Rock',
+                    'Sri Lanka',
+                    'https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=80&q=80',
                   ),
-                  // Add more items here...
+                  _buildListTile(
+                    'Adam’s Peak',
+                    'Sri Lanka',
+                    'https://images.unsplash.com/photo-1529612700005-0329134a4585?auto=format&fit=crop&w=80&q=80',
+                  ),
+                  _buildListTile(
+                    'Pidurangala Rock',
+                    'Sri Lanka',
+                    'https://images.unsplash.com/photo-1531184277877-59a88f8b3dbd?auto=format&fit=crop&w=80&q=80',
+                  ),
+                  _buildListTile(
+                    'Horton Plains',
+                    'Sri Lanka',
+                    'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=80&q=80',
+                  ),
                 ],
               ),
             ),
