@@ -83,4 +83,5 @@ class DefaultFirebaseOptions {
     authDomain: 'campinggearapp-e8103.firebaseapp.com',
     storageBucket: 'campinggearapp-e8103.firebasestorage.app',
   );
+
 }

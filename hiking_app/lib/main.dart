@@ -2,12 +2,18 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hiking_app/firebase_options.dart';
+import 'package:hiking_app/presentation/screens/forum_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform, // Add this line
+    );
+    print("✅ Firebase initialized successfully");
+  } catch (e) {
+    print("❌ Firebase initialization failed: $e");
+  }
   runApp(MyApp());
 }
 
@@ -16,23 +22,13 @@ class MyApp extends StatelessWidget {
   final FirebaseFirestore db = FirebaseFirestore.instance;
   // This widget is the root of your application.
   @override
+  @override
   Widget build(BuildContext context) {
+    print("🚀 MyApp build method called");
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text("Firestore Example", style: TextStyle(color: Colors.red)),
-        ),
-        body: Center(
-          child: ElevatedButton(
-            onPressed: () async {
-              await db.collection("test2").add({
-                "message": "Hello, Firestore!",
-              });
-            },
-            child: Text("Add Document"),
-          ),
-        ), // This trailing comma makes auto-formatting nicer for build methods.
-      ),
+      title: 'Camping App',
+      theme: ThemeData(primarySwatch: Colors.green),
+      home: ForumScreen(),
     );
   }
 }
