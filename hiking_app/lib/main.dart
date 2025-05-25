@@ -5,9 +5,7 @@ import 'package:hiking_app/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MyApp());
 }
 
@@ -25,8 +23,8 @@ class MyApp extends StatelessWidget {
         body: Center(
           child: ElevatedButton(
             onPressed: () async {
-              await db.collection("test2").add({
-                "message": "Hello, Firestore!",
+              await db.collection("Check").add({
+                "message": "Hello, Firestore!chamod",
               });
             },
             child: Text("Add Document"),
