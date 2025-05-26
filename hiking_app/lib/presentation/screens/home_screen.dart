@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hiking_app/presentation/widgets/bottom_nav_bar.dart';
+import 'package:hiking_app/presentation/widgets/item_card.dart';
+//import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -45,42 +47,6 @@ class HomePageContent extends StatelessWidget {
     {'icon': Icons.camera_alt, 'label': 'Camera'},
   ];
 
-  final popularItems = [
-    {
-      'name': 'Outdoor Travel Bag',
-      'price': 'LKR 1000',
-      'img': 'assets/images/bag.jpeg',
-    },
-    {
-      'name': 'Camping Tent',
-      'price': 'LKR 1500',
-      'img': 'assets/images/tent.jpeg',
-    },
-    {
-      'name': 'Camping Tent',
-      'price': 'LKR 1500',
-      'img': 'assets/images/sleep_bag.jpeg',
-    },
-  ];
-
-  final recommendedItems = [
-    {
-      'name': 'Outdoor Travel Bag',
-      'price': 'LKR 1000',
-      'img': 'assets/images/bag.jpeg',
-    },
-    {
-      'name': 'Camping Tent',
-      'price': 'LKR 1500',
-      'img': 'assets/images/tent.jpeg',
-    },
-    {
-      'name': 'Camping Tent',
-      'price': 'LKR 1500',
-      'img': 'assets/images/sleep_bag.jpeg',
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -120,11 +86,75 @@ class HomePageContent extends StatelessWidget {
             SizedBox(height: 20),
             // Popular Items
             SectionTitle(title: "Popular Items"),
-            ItemList(items: popularItems),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 12,
+                children: [
+                  ItemCard(
+                    assetImagePath: 'assets/images/bag.jpeg',
+                    title: 'Mountain Trekking Backpack',
+                    capacity: '35 - 45 L',
+                    price: 'Rs.140.00',
+                    listedBy: 'MountainRentals.lk',
+                    onTap: () => debugPrint('Tapped Backpack 2'),
+                  ),
+                  ItemCard(
+                    assetImagePath: 'assets/images/bag.jpeg',
+                    title: 'Mountain Trekking Backpack',
+                    capacity: '35 - 45 L',
+                    price: 'Rs.140.00',
+                    listedBy: 'MountainRentals.lk',
+                    onTap: () => debugPrint('Tapped Backpack 2'),
+                  ),
+                ],
+              ),
+            ),
 
-            // Recommended
+// Recommended
             SectionTitle(title: "Recommend for you"),
-            ItemList(items: recommendedItems),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 12,
+                children: [
+                  ItemCard(
+                    assetImagePath: 'assets/images/bag.jpeg',
+                    title: 'Mountain Trekking Backpack',
+                    capacity: '35 - 45 L',
+                    price: 'Rs.140.00',
+                    listedBy: 'MountainRentals.lk',
+                    onTap: () => debugPrint('Tapped Backpack 2'),
+                  ),
+                  ItemCard(
+                    assetImagePath: 'assets/images/bag.jpeg',
+                    title: 'Mountain Trekking Backpack',
+                    capacity: '35 - 45 L',
+                    price: 'Rs.140.00',
+                    listedBy: 'MountainRentals.lk',
+                    onTap: () => debugPrint('Tapped Backpack 2'),
+                  ),
+                  ItemCard(
+                    assetImagePath: 'assets/images/bag.jpeg',
+                    title: 'Mountain Trekking Backpack',
+                    capacity: '35 - 45 L',
+                    price: 'Rs.140.00',
+                    listedBy: 'MountainRentals.lk',
+                    onTap: () => debugPrint('Tapped Backpack 2'),
+                  ),
+                  ItemCard(
+                    assetImagePath: 'assets/images/bag.jpeg',
+                    title: 'Mountain Trekking Backpack',
+                    capacity: '35 - 45 L',
+                    price: 'Rs.140.00',
+                    listedBy: 'MountainRentals.lk',
+                    onTap: () => debugPrint('Tapped Backpack 2'),
+                  ),
+                ],
+              ),
+            ),
 
             // Customer Feedback
             SectionTitle(title: "Customer Feedback"),
@@ -152,14 +182,8 @@ class HomePageContent extends StatelessWidget {
             ),
 
             // Map Section
-            SectionTitle(title: "Find Shops"),
-            Container(
-              margin: EdgeInsets.all(12),
-              height: 200,
-              color: Colors.grey[300],
-              child: Center(
-                  child: Icon(Icons.map, size: 60, color: Colors.grey[600])),
-            ),
+            /*SectionTitle(title: "Find Shops"),
+            FindShopsMap(),*/
           ],
         ),
       ),
@@ -437,3 +461,51 @@ class DiscountBanner extends StatelessWidget {
     );
   }
 }
+
+/*class FindShopsMap extends StatefulWidget {
+  const FindShopsMap({super.key});
+
+  @override
+  State<FindShopsMap> createState() => _FindShopsMapState();
+}
+
+class _FindShopsMapState extends State<FindShopsMap> {
+  late GoogleMapController mapController;
+
+  final LatLng center = const LatLng(6.9271, 79.8612); // Colombo
+
+  final List<Marker> _markers = [
+    Marker(
+      markerId: MarkerId("shop1"),
+      position: LatLng(6.9271, 79.8612), // Colombo
+      infoWindow: InfoWindow(title: "Shop 1", snippet: "Colombo Center"),
+    ),
+    Marker(
+      markerId: MarkerId("shop2"),
+      position: LatLng(7.2906, 80.6337), // Kandy
+      infoWindow: InfoWindow(title: "Shop 2", snippet: "Kandy Branch"),
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.all(12),
+      height: 250,
+      child: GoogleMap(
+        onMapCreated: (controller) {
+          mapController = controller;
+        },
+        initialCameraPosition: CameraPosition(
+          target: center,
+          zoom: 7.5,
+        ),
+        markers: Set.from(_markers),
+        mapType: MapType.normal,
+        myLocationEnabled: true,
+        myLocationButtonEnabled: true,
+      ),
+    );
+  }
+}
+*/
