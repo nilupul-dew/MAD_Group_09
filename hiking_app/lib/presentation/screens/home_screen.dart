@@ -12,7 +12,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   static final List<Widget> _pages = <Widget>[
-    Center(child: Text('Home Page')),
+    HomePageContent(),
     Center(child: Text('Search Page')),
     Center(child: Text('Favorites Page')),
     Center(child: Text('Profile Page')),
@@ -33,5 +33,264 @@ class _HomeScreenState extends State<HomeScreen> {
         onItemTapped: _onItemTapped,
       ),
     );
+  }
+}
+
+class HomePageContent extends StatelessWidget {
+  final categoryIcons = [
+    {'icon': Icons.backpack, 'label': 'Backpacks'},
+    {'icon': Icons.cast, 'label': 'Tents'},
+    {'icon': Icons.directions_bike, 'label': 'Bikes'},
+    {'icon': Icons.local_fire_department, 'label': 'Cooking'},
+    {'icon': Icons.camera_alt, 'label': 'Camera'},
+  ];
+
+  final popularItems = [
+    {
+      'name': 'Outdoor Travel Bag',
+      'price': 'LKR 1000',
+      'img': 'assets/images/bag.jpeg',
+    },
+    {
+      'name': 'Camping Tent',
+      'price': 'LKR 1500',
+      'img': 'assets/images/tent.jpeg',
+    },
+    {
+      'name': 'Camping Tent',
+      'price': 'LKR 1500',
+      'img': 'assets/images/sleep_bag.jpeg',
+    },
+  ];
+
+  final recommendedItems = [
+    {
+      'name': 'Outdoor Travel Bag',
+      'price': 'LKR 1000',
+      'img': 'assets/images/bag.jpeg',
+    },
+    {
+      'name': 'Camping Tent',
+      'price': 'LKR 1500',
+      'img': 'assets/images/tent.jpeg',
+    },
+    {
+      'name': 'Camping Tent',
+      'price': 'LKR 1500',
+      'img': 'assets/images/sleep_bag.jpeg',
+    },
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Search Bar
+
+            // Category Icons
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: categoryIcons.map((cat) {
+                  return Column(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor:
+                            const Color.fromARGB(255, 226, 227, 226),
+                        child: Icon(cat['icon'] as IconData,
+                            color: const Color.fromARGB(255, 45, 46, 45)),
+                      ),
+                      SizedBox(height: 4),
+                      Text(cat['label'] as String,
+                          style: TextStyle(fontSize: 12)),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ),
+            SizedBox(height: 10),
+
+            // Discount Banner
+            Container(
+              margin: EdgeInsets.all(12),
+              padding: EdgeInsets.all(40),
+              decoration: BoxDecoration(
+                gradient:
+                    LinearGradient(colors: [Colors.orange, Colors.deepOrange]),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  Text('30% OFF',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white)),
+                  Spacer(),
+                  ElevatedButton(onPressed: () {}, child: Text("See Details"))
+                ],
+              ),
+            ),
+
+            // Popular Items
+            SectionTitle(title: "Popular Items"),
+            ItemList(items: popularItems),
+
+            // Recommended
+            SectionTitle(title: "Recommend for you"),
+            ItemList(items: recommendedItems),
+
+            // Customer Feedback
+            SectionTitle(title: "Customer Feedback"),
+            SizedBox(
+              height: 120,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                children: [
+                  FeedbackCard(
+                    imagePath: 'assets/images/john.jpeg',
+                    feedback: "Awesome service & quality gear.",
+                  ),
+                  FeedbackCard(
+                    imagePath: 'assets/images/sarah.jpeg',
+                    feedback: "Fast delivery and friendly support.",
+                  ),
+                  FeedbackCard(
+                    imagePath: 'assets/images/sarah.jpeg',
+                    feedback: "Fast delivery and friendly support.",
+                  ),
+                  // Add more FeedbackCards as needed
+                ],
+              ),
+            ),
+
+            // Map Section
+            SectionTitle(title: "Find Shops"),
+            Container(
+              margin: EdgeInsets.all(12),
+              height: 200,
+              color: Colors.grey[300],
+              child: Center(
+                  child: Icon(Icons.map, size: 60, color: Colors.grey[600])),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SectionTitle extends StatelessWidget {
+  final String title;
+  const SectionTitle({required this.title});
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 16, 12, 8),
+      child: Text(title,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+    );
+  }
+}
+
+class FeedbackCard extends StatelessWidget {
+  final String imagePath;
+  final String feedback;
+
+  const FeedbackCard({required this.imagePath, required this.feedback});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 250,
+      margin: EdgeInsets.only(right: 12),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 6,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 28,
+            backgroundImage: AssetImage(imagePath),
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              feedback,
+              style: TextStyle(fontSize: 14, color: Colors.grey[800]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ItemList extends StatelessWidget {
+  final List<Map<String, dynamic>> items;
+  const ItemList({required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 200,
+      child: ListView.builder(
+        padding: EdgeInsets.symmetric(horizontal: 12),
+        scrollDirection: Axis.horizontal,
+        itemCount: items.length,
+        itemBuilder: (_, index) {
+          final item = items[index];
+          return Container(
+            width: 160,
+            margin: EdgeInsets.only(right: 12),
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ImageWidget(imagePath: item['img']),
+                SizedBox(height: 10),
+                Text(item['name'],
+                    style: TextStyle(fontWeight: FontWeight.bold), maxLines: 2),
+                SizedBox(height: 4),
+                Text(item['price'], style: TextStyle(color: Colors.red)),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class ImageWidget extends StatelessWidget {
+  final String imagePath;
+  const ImageWidget({required this.imagePath});
+
+  @override
+  Widget build(BuildContext context) {
+    return imagePath.startsWith('http')
+        ? Image.network(imagePath,
+            height: 80, width: double.infinity, fit: BoxFit.cover)
+        : Image.asset(imagePath,
+            height: 80, width: double.infinity, fit: BoxFit.cover);
   }
 }
