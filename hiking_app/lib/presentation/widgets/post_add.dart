@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hiking_app/data/firebase_services/post_firebase.dart';
 import 'package:hiking_app/domain/models/post_model.dart';
+import 'package:hiking_app/presentation/widgets/post_edit_image_preview.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddPostScreen extends StatefulWidget {
-  const AddPostScreen({Key? key}) : super(key: key);
+  final bool isEditing;
+  final Post? post;
+
+  AddPostScreen({super.key, this.isEditing = false, this.post});
 
   @override
   State<AddPostScreen> createState() => _AddPostScreenState();
@@ -16,7 +20,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
   final _contentController = TextEditingController();
   final _tagsController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
-
+  String? _existingImageUrl;
   final FirebaseForumService _service = FirebaseForumService();
 
   String _selectedCategory = '🌲 Nature & Outdoor';
@@ -38,8 +42,15 @@ class _AddPostScreenState extends State<AddPostScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize your service here
-    // _service = YourServiceClass();
+    if (widget.isEditing && widget.post != null) {
+      _contentController.text = widget.post!.content;
+      _selectedCategory = widget.post!.category;
+      _tagsController.text = widget.post!.tags.join(', ');
+      if (widget.post!.imageUrl != null) {
+        _existingImageUrl =
+            widget.post!.imageUrl; // You’ll need to handle this in UI
+      }
+    }
   }
 
   @override
@@ -80,6 +91,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
     setState(() {
       _selectedImageBytes = null;
       _selectedImageName = null;
+      _existingImageUrl = null;
     });
   }
 
@@ -253,76 +265,27 @@ class _AddPostScreenState extends State<AddPostScreen> {
                       ),
                       const SizedBox(height: 10),
 
-                      if (_selectedImageBytes == null) ...[
+                      if (_selectedImageBytes != null) ...[
+                        ImagePreviewWidget(
+                          imageWidget: Image.memory(_selectedImageBytes!),
+                          imageName: _selectedImageName,
+                          onRemove: _removeImage,
+                          onChange: _pickImage,
+                        ),
+                      ] else if (_existingImageUrl != null) ...[
+                        ImagePreviewWidget(
+                          imageWidget: Image.network(_existingImageUrl!),
+                          imageName: 'Existing Image',
+                          onRemove: _removeImage,
+                          onChange: _pickImage,
+                        ),
+                      ] else ...[
                         ElevatedButton.icon(
                           onPressed: _pickImage,
                           icon: const Icon(Icons.image),
                           label: const Text('Add Image'),
                           style: ElevatedButton.styleFrom(
                             minimumSize: const Size(double.infinity, 50),
-                          ),
-                        ),
-                      ] else ...[
-                        Container(
-                          width: double.infinity,
-                          height: 200,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.memory(
-                              _selectedImageBytes!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  color: Colors.grey[300],
-                                  child: const Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.error,
-                                          color: Colors.red,
-                                          size: 50,
-                                        ),
-                                        Text('Error loading image'),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                'Selected: ${_selectedImageName ?? 'Unknown'}',
-                                style: const TextStyle(fontSize: 12),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            TextButton.icon(
-                              onPressed: _removeImage,
-                              icon: const Icon(Icons.delete, size: 16),
-                              label: const Text('Remove'),
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.red,
-                              ),
-                            ),
-                          ],
-                        ),
-                        ElevatedButton.icon(
-                          onPressed: _pickImage,
-                          icon: const Icon(Icons.image),
-                          label: const Text('Change Image'),
-                          style: ElevatedButton.styleFrom(
-                            minimumSize: const Size(double.infinity, 40),
                           ),
                         ),
                       ],
@@ -359,7 +322,11 @@ class _AddPostScreenState extends State<AddPostScreen> {
                             Text('Posting...'),
                           ],
                         )
-                        : const Text('Post', style: TextStyle(fontSize: 18)),
+                        : Text(
+                          // ignore: unnecessary_null_comparison
+                          widget.isEditing == null ? 'Post' : 'Update',
+                          style: const TextStyle(fontSize: 18),
+                        ),
               ),
             ],
           ),

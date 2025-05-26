@@ -1,22 +1,21 @@
 import 'dart:convert';
-// ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../domain/models/post_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
+
+import '../../domain/models/post_model.dart';
 
 class FirebaseForumService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final String _collection = 'posts';
 
-  // OPTION 1: ImgBB (Free tier: unlimited uploads, 32MB per image)
+  // 🔵 Upload image to ImgBB
   Future<String?> uploadToImgBB(Uint8List imageBytes, String fileName) async {
+    const apiKey = '7a6786581dabb83cf3d9fef912b12b8f';
+
     try {
-      const apiKey = '7a6786581dabb83cf3d9fef912b12b8f';
-
       final base64Image = base64Encode(imageBytes);
-
       final response = await http.post(
         Uri.parse('https://api.imgbb.com/1/upload'),
         body: {'key': apiKey, 'image': base64Image, 'name': fileName},
@@ -29,36 +28,34 @@ class FirebaseForumService {
         return imageUrl;
       } else {
         print("❌ ImgBB upload failed: ${response.body}");
-        return null;
       }
     } catch (e) {
       print("❌ Error uploading to ImgBB: $e");
-      return null;
     }
+    return null;
   }
 
-  //Compress image to reduce size
+  // 🟣 Compress image to reduce size
   Future<Uint8List?> compressImage(Uint8List originalBytes) async {
     try {
-      final compressedBytes = await FlutterImageCompress.compressWithList(
+      final compressed = await FlutterImageCompress.compressWithList(
         originalBytes,
         quality: 60,
         minWidth: 800,
         minHeight: 800,
       );
       print(
-        "📉 Compressed from ${originalBytes.lengthInBytes} to ${compressedBytes.lengthInBytes} bytes",
+        "📉 Compressed from ${originalBytes.lengthInBytes} → ${compressed.lengthInBytes} bytes",
       );
-      return compressedBytes;
+      return compressed;
     } catch (e) {
       print("❌ Compression failed: $e");
       return originalBytes;
     }
   }
 
-  // Fetch posts from Firestore
+  // 🟡 Fetch all posts (ordered by timestamp)
   Future<List<Post>> fetchPosts() async {
-    print("🔍 Starting to fetch posts from collection: $_collection");
     try {
       final querySnapshot =
           await _firestore
@@ -66,19 +63,9 @@ class FirebaseForumService {
               .orderBy('timestamp', descending: true)
               .get();
 
-      print("📊 Found ${querySnapshot.docs.length} documents");
-
-      if (querySnapshot.docs.isEmpty) {
-        print("⚠️ No documents found in posts collection");
-        return [];
-      }
-
       final posts =
           querySnapshot.docs.map((doc) {
-            print("📄 Processing document: ${doc.id}");
             final data = doc.data();
-            print("📝 Document data: $data");
-
             return Post(
               id: doc.id,
               userId: data['userId'] ?? '',
@@ -91,7 +78,7 @@ class FirebaseForumService {
             );
           }).toList();
 
-      print("✅ Successfully converted ${posts.length} posts");
+      print("✅ Loaded ${posts.length} posts from Firestore.");
       return posts;
     } catch (e) {
       print("❌ Error fetching posts: $e");
@@ -99,33 +86,22 @@ class FirebaseForumService {
     }
   }
 
-  // Add a new post to Firestore
+  // 🟢 Add a new post
   Future<void> addPost(
     Post post, {
     Uint8List? imageBytes,
     String? imageName,
   }) async {
-    print("📝 Adding post: ${post.title}");
     try {
       String? imageUrl;
 
       if (imageBytes != null && imageName != null) {
-        try {
-          // Generate unique filename
-          final timestamp = DateTime.now().millisecondsSinceEpoch;
-          final uniqueFileName = '${timestamp}_$imageName';
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        final uniqueFileName = '${timestamp}_$imageName';
+        imageUrl = await uploadToImgBB(imageBytes, uniqueFileName);
 
-          // Try different services in order of preference
-          imageUrl = await uploadToImgBB(imageBytes, uniqueFileName);
-
-          if (imageUrl == null) {
-            print(
-              "❌ All image upload services failed, aborting post creation.",
-            );
-            return;
-          }
-        } catch (e) {
-          print("❌ Error processing image: $e");
+        if (imageUrl == null) {
+          print("❌ Image upload failed. Post creation aborted.");
           return;
         }
       }
@@ -140,22 +116,46 @@ class FirebaseForumService {
         'timestamp': Timestamp.fromDate(post.timestamp),
       });
 
-      print("✅ Image URL stored in DB: $imageUrl");
       print("✅ Post added with ID: ${docRef.id}");
     } catch (e) {
       print("❌ Error adding post: $e");
-      throw e;
+      rethrow;
     }
   }
 
-  // Delete a post by ID
+  // 🔴 Delete post by ID
   Future<void> deletePost(String postId) async {
     try {
       await _firestore.collection(_collection).doc(postId).delete();
-      print('✅Post $postId deleted successfully.');
+      print('✅ Post "$postId" deleted successfully.');
     } catch (e) {
-      print('❌Error deleting post $postId: $e');
+      print('❌ Error deleting post "$postId": $e');
       rethrow;
     }
+  }
+
+  // 🔵 Fetch post by ID (for edit)
+  Future<Post?> fetchPostById(String postId) async {
+    try {
+      final doc = await _firestore.collection(_collection).doc(postId).get();
+      if (doc.exists) {
+        final data = doc.data();
+        if (data != null) {
+          return Post(
+            id: doc.id,
+            userId: data['userId'] ?? '',
+            title: data['title'] ?? '',
+            content: data['content'] ?? '',
+            category: data['category'] ?? '',
+            tags: List<String>.from(data['tags'] ?? []),
+            imageUrl: data['imageUrl'],
+            timestamp: (data['timestamp'] as Timestamp).toDate(),
+          );
+        }
+      }
+    } catch (e) {
+      print('❌ Error fetching post by ID "$postId": $e');
+    }
+    return null;
   }
 }

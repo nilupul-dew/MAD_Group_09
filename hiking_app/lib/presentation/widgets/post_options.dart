@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hiking_app/data/firebase_services/post_firebase.dart';
+import 'package:hiking_app/presentation/widgets/post_add.dart';
 
 // Define the primary orange color - update this to match your app's color
 const Color primaryOrange = Color(0xFFFF6B35);
@@ -42,12 +43,36 @@ class PostOptionsWidget {
                     color: primaryOrange,
                   ),
                   title: const Text('Edit Post'),
-                  onTap: () {
-                    Navigator.pop(sheetContext);
-                    if (onEdit != null) {
-                      onEdit();
-                    } else {
-                      print('Edit post: $postId');
+                  onTap: () async {
+                    Navigator.pop(context); // Close the bottom sheet
+
+                    try {
+                      final post = await FirebaseForumService().fetchPostById(
+                        postId,
+                      );
+
+                      if (post != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) =>
+                                    AddPostScreen(isEditing: true, post: post),
+                          ),
+                        );
+                      } else {
+                        print('⚠️ Post not found for ID: $postId');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Post not found')),
+                        );
+                      }
+                    } catch (e) {
+                      print('❌ Error loading post for editing: $e');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Failed to load post for editing'),
+                        ),
+                      );
                     }
                   },
                 ),
@@ -116,12 +141,36 @@ class PostOptionsWidget {
                     color: primaryOrange,
                   ),
                   title: const Text('Edit Post'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    if (onEdit != null) {
-                      onEdit();
-                    } else {
-                      print('Edit post: $postId');
+                  onTap: () async {
+                    Navigator.pop(context); // Close the bottom sheet
+
+                    try {
+                      final post = await FirebaseForumService().fetchPostById(
+                        postId,
+                      );
+
+                      if (post != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) =>
+                                    AddPostScreen(isEditing: true, post: post),
+                          ),
+                        );
+                      } else {
+                        print('⚠️ Post not found for ID: $postId');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Post not found')),
+                        );
+                      }
+                    } catch (e) {
+                      print('❌ Error loading post for editing: $e');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Failed to load post for editing'),
+                        ),
+                      );
                     }
                   },
                 ),

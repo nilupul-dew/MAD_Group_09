@@ -60,7 +60,7 @@ class _ForumScreenState extends State<ForumScreen> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddPostScreen()),
+            MaterialPageRoute(builder: (context) => AddPostScreen()),
           ).then((_) => _loadPosts());
         },
         tooltip: 'Add Post',
