@@ -21,7 +21,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: Text("Gear rental", style: TextStyle(color: Colors.red)),
+          title:
+              Text("search bar and logo", style: TextStyle(color: Colors.red)),
         ),
         body: HomeScreen(),
         // This trailing comma makes auto-formatting nicer for build methods.
