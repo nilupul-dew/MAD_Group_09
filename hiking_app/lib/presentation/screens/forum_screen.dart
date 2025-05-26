@@ -53,7 +53,8 @@ class _ForumScreenState extends State<ForumScreen> {
               ? const Center(child: Text("No posts yet. Add the first post!"))
               : ListView.builder(
                 itemCount: _posts.length,
-                itemBuilder: (_, i) => PostTile(post: _posts[i]),
+                itemBuilder:
+                    (_, i) => PostTile(post: _posts[i], onDelete: _loadPosts),
               ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

@@ -37,6 +37,7 @@ class FirebaseForumService {
     }
   }
 
+  //Compress image to reduce size
   Future<Uint8List?> compressImage(Uint8List originalBytes) async {
     try {
       final compressedBytes = await FlutterImageCompress.compressWithList(
@@ -55,6 +56,7 @@ class FirebaseForumService {
     }
   }
 
+  // Fetch posts from Firestore
   Future<List<Post>> fetchPosts() async {
     print("🔍 Starting to fetch posts from collection: $_collection");
     try {
@@ -97,6 +99,7 @@ class FirebaseForumService {
     }
   }
 
+  // Add a new post to Firestore
   Future<void> addPost(
     Post post, {
     Uint8List? imageBytes,
@@ -142,6 +145,17 @@ class FirebaseForumService {
     } catch (e) {
       print("❌ Error adding post: $e");
       throw e;
+    }
+  }
+
+  // Delete a post by ID
+  Future<void> deletePost(String postId) async {
+    try {
+      await _firestore.collection(_collection).doc(postId).delete();
+      print('✅Post $postId deleted successfully.');
+    } catch (e) {
+      print('❌Error deleting post $postId: $e');
+      rethrow;
     }
   }
 }

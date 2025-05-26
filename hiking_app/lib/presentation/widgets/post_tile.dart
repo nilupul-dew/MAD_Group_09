@@ -5,8 +5,8 @@ import 'package:timeago/timeago.dart' as timeago;
 
 class PostTile extends StatefulWidget {
   final Post post;
-
-  const PostTile({super.key, required this.post});
+  final VoidCallback? onDelete;
+  const PostTile({super.key, required this.post, this.onDelete});
 
   // Generate dummy user names based on post ID for consistency
   String _getDummyUserName() {
@@ -209,6 +209,7 @@ class _PostTileState extends State<PostTile>
                   () => PostOptionsWidget.showPostOptions(
                     context: context,
                     postId: widget.post.id,
+                    onDelete: widget.onDelete, // Callback to refresh posts
                   ),
 
               child: Padding(

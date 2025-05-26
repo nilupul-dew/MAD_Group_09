@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hiking_app/data/firebase_services/post_firebase.dart';
 
 // Define the primary orange color - update this to match your app's color
 const Color primaryOrange = Color(0xFFFF6B35);
@@ -62,7 +63,8 @@ class PostOptionsWidget {
                     Navigator.pop(sheetContext);
                     Future.delayed(Duration(milliseconds: 100), () {
                       _showDeleteConfirmation(
-                        context: rootContext, // Use original context here
+                        // ignore: use_build_context_synchronously
+                        context: rootContext,
                         postId: postId,
                         onConfirm: onDelete,
                       );
@@ -170,12 +172,15 @@ class PostOptionsWidget {
                 child: const Text('Cancel'),
               ),
               TextButton(
-                onPressed: () {
+                onPressed: () async {
                   Navigator.pop(context);
-                  if (onConfirm != null) {
-                    onConfirm();
-                  } else {
-                    print('Confirmed delete post: $postId');
+                  try {
+                    await FirebaseForumService().deletePost(postId);
+                    if (onConfirm != null) onConfirm(); // <-- reload posts here
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed to delete post: $e')),
+                    );
                   }
                 },
                 style: TextButton.styleFrom(foregroundColor: Colors.red),

@@ -87,7 +87,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
     if (tagsText.trim().isEmpty) return [];
 
     return tagsText
-        .split(',')
+        .split('#')
         .map((tag) => tag.trim())
         .where((tag) => tag.isNotEmpty)
         .toList();
