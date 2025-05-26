@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:hiking_app/data/firebase_services/item_firestore_service.dart';
+import 'package:hiking_app/domain/models/gear_item.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:hiking_app/presentation/widgets/quantity_selector.dart'; // Import your QuantitySelector
+import 'package:hiking_app/presentation/widgets/quantity_selector.dart';
 
 class GearItemDetailScreen extends StatefulWidget {
-  final Map<String, dynamic> itemData;
-  const GearItemDetailScreen({Key? key, required this.itemData})
-    : super(key: key);
+  final Item item; // Changed to use the Item model
+  // No need for itemId separately if it's part of the Item model
+
+  const GearItemDetailScreen({
+    Key? key,
+    required this.item, // Now requires an Item object
+  }) : super(key: key);
 
   @override
   State<GearItemDetailScreen> createState() => _GearItemDetailScreenState();
@@ -18,106 +24,60 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
   int _rentalDays = 1;
   DateTime _selectedDate = DateTime.now();
 
-  final String _testUserId = 'temp_test_user_id_001';
+  final String _testUserId = 'temp_test_user_id_001'; // For testing purposes
+  final ItemFirestoreService _firestoreService = ItemFirestoreService(); // Instantiate the service
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize quantity based on available quantity if needed, or keep at 1
+    // _quantity = widget.item.availableQty > 0 ? 1 : 0;
+  }
 
   Future<void> _addToCart() async {
-    final String userId = _testUserId;
+    // In a real app, you would get the current user's ID from FirebaseAuth
+    // User? currentUser = FirebaseAuth.instance.currentUser;
+    // if (currentUser == null) {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     const SnackBar(content: Text('Please log in to add items to cart.')),
+    //   );
+    //   return;
+    // }
+    // final String userId = currentUser.uid;
+
+    final String userId = _testUserId; // Using test user ID for now
+
+    if (_quantity == 0 || _rentalDays == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Quantity and rental days must be greater than 0.')),
+      );
+      return;
+    }
 
     try {
-      final String itemId = widget.itemData['id'] ?? 'unknown_item_id';
-      final String itemName = widget.itemData['name'] ?? 'N/A';
-      final String itemImageUrl =
-          widget.itemData['image'] ?? 'https://via.placeholder.com/150';
-      final double itemRentPricePerDay =
-          (widget.itemData['rent_price_per_day'] as num?)?.toDouble() ?? 0.0;
-      final int originalAvailableQty =
-          widget.itemData['available_qty'] ??
-          0; // Get original available quantity
-
-      // --- Start Transaction for adding to cart and updating stock ---
-      await FirebaseFirestore.instance.runTransaction((transaction) async {
-        // Get the latest snapshot of the gear item
-        final gearItemDocRef = FirebaseFirestore.instance
-            .collection('gear_items')
-            .doc(itemId);
-        DocumentSnapshot latestGearItemSnapshot = await transaction.get(
-          gearItemDocRef,
-        );
-
-        if (!latestGearItemSnapshot.exists) {
-          throw Exception("Item not found in inventory. Cannot add to cart.");
-        }
-
-        int currentAvailableQtyInDb =
-            (latestGearItemSnapshot.data()
-                as Map<String, dynamic>)['available_qty'] ??
-            0;
-
-        if (currentAvailableQtyInDb < _quantity) {
-          throw Exception(
-            "Not enough stock available for $itemName. Only $currentAvailableQtyInDb units remaining.",
-          );
-        }
-
-        // Decrement the available quantity in the gear_items collection
-        transaction.update(gearItemDocRef, {
-          'available_qty': currentAvailableQtyInDb - _quantity,
-        });
-
-        // Reference to the user's cart items subcollection
-        final cartItemsRef = FirebaseFirestore.instance
-            .collection('carts')
-            .doc(userId)
-            .collection('items');
-
-        // Check if the item already exists in the cart for the given rental period
-        final existingCartItemQuery =
-            await cartItemsRef
-                .where('item_id', isEqualTo: itemId)
-                .where(
-                  'start_date',
-                  isEqualTo: Timestamp.fromDate(_selectedDate),
-                )
-                .where('rental_days', isEqualTo: _rentalDays)
-                .limit(1)
-                .get();
-
-        if (existingCartItemQuery.docs.isNotEmpty) {
-          // Item already in cart with same details, update quantity
-          final existingCartItemDoc = existingCartItemQuery.docs.first;
-          int currentQuantityInCart =
-              (existingCartItemDoc.data())['quantity'] ?? 0;
-          transaction.update(existingCartItemDoc.reference, {
-            'quantity': currentQuantityInCart + _quantity,
-            'added_at': FieldValue.serverTimestamp(),
-          });
-          print('Existing cart item quantity updated for $itemName.');
-        } else {
-          // Item not in cart, add a new one
-          final Map<String, dynamic> cartItemData = {
-            'item_id': itemId,
-            'name': itemName,
-            'image_url': itemImageUrl,
-            'rent_price_per_day': itemRentPricePerDay,
-            'quantity': _quantity,
-            'rental_days': _rentalDays,
-            'start_date': Timestamp.fromDate(_selectedDate),
-            'added_at': FieldValue.serverTimestamp(),
-          };
-          transaction.set(
-            cartItemsRef.doc(),
-            cartItemData,
-          ); // Use set with auto-generated ID
-          print('New cart item added for $itemName.');
-        }
-      });
-      // --- End Transaction ---
+      // Call the service method
+      await _firestoreService.addItemToCart(
+        userId: userId,
+        itemId: widget.item.id,
+        itemName: widget.item.name,
+        itemImageUrl: widget.item.imageUrl,
+        itemRentPricePerDay: widget.item.rentPricePerDay,
+        quantity: _quantity,
+        rentalDays: _rentalDays,
+        startDate: _selectedDate,
+      );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$itemName added to cart for user: $userId!')),
+        SnackBar(content: Text('${widget.item.name} added to cart!')),
       );
+
+      // Optionally, refresh item data after adding to cart to show updated available quantity
+      // This would require fetching the item again, or passing a callback from the previous screen
+      // For now, the quantity logic in the UI already accounts for the initial available quantity.
+      // In a more robust app, you might want to re-fetch the item here to reflect the new available_qty.
+
     } catch (e) {
-      print('Error adding to cart: $e');
+      print('Error adding to cart from UI: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -130,17 +90,9 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final String name = widget.itemData['name'] ?? 'N/A';
-    final double rating =
-        (widget.itemData['rating'] as num?)?.toDouble() ?? 0.0;
-    final String color = widget.itemData['color'] ?? 'N/A';
-    final String imageUrl =
-        widget.itemData['image'] ?? 'https://via.placeholder.com/400x300';
-    final double rentPricePerDay =
-        (widget.itemData['rent_price_per_day'] as num?)?.toDouble() ?? 0.0;
-    final int availableQuantity = widget.itemData['available_qty'] ?? 0;
-    final Map<String, dynamic> specs = widget.itemData['specs'] ?? {};
-    final double totalPrice = rentPricePerDay * _rentalDays * _quantity;
+    final Item item = widget.item; // Get the item from the widget
+
+    final double totalPrice = item.rentPricePerDay * _rentalDays * _quantity;
 
     return Scaffold(
       appBar: AppBar(
@@ -161,7 +113,7 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
               width: double.infinity,
               color: Colors.grey[300],
               child: Image.network(
-                imageUrl,
+                item.imageUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
                   return Center(
@@ -189,7 +141,7 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name,
+                    item.name,
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -199,14 +151,14 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                   Row(
                     children: [
                       Text(
-                        'Color : $color',
+                        'Color : ${item.color}',
                         style: const TextStyle(fontSize: 16),
                       ),
                       const Spacer(),
                       Row(
                         children: List.generate(5, (index) {
                           return Icon(
-                            index < rating.floor()
+                            index < item.rating.floor()
                                 ? Icons.star
                                 : Icons.star_border,
                             color: Colors.amber,
@@ -215,7 +167,7 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                         }),
                       ),
                       const SizedBox(width: 4),
-                      Text('${rating.toStringAsFixed(1)} Ratings'),
+                      Text('${item.rating.toStringAsFixed(1)} Ratings'),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -223,7 +175,6 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                     children: [
                       const Text('Quantity', style: TextStyle(fontSize: 16)),
                       const Spacer(),
-                      // *** Use QuantitySelector for Quantity ***
                       QuantitySelector(
                         quantity: _quantity,
                         onDecrement: () {
@@ -233,7 +184,7 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                         },
                         onIncrement: () {
                           setState(() {
-                            if (_quantity < availableQuantity)
+                            if (_quantity < item.availableQty) // Use item.availableQty
                               _quantity++;
                             else {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -251,7 +202,7 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    '$availableQuantity Units Available',
+                    '${item.availableQty} Units Available', // Use item.availableQty
                     style: const TextStyle(color: Colors.green, fontSize: 14),
                   ),
                   const SizedBox(height: 16),
@@ -276,8 +227,8 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                       children: [
                         _buildSectionTitle('Specifications'),
                         const SizedBox(height: 8),
-                        if (specs.isNotEmpty) ...[
-                          ...specs.entries.map((entry) {
+                        if (item.specs.isNotEmpty) ...[
+                          ...item.specs.entries.map((entry) {
                             String label = _capitalize(
                               entry.key.replaceAll('_', ' '),
                             );
@@ -322,7 +273,7 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Rs.${rentPricePerDay.toStringAsFixed(2)}',
+                                  'Rs.${item.rentPricePerDay.toStringAsFixed(2)}',
                                   style: const TextStyle(
                                     fontSize: 22,
                                     fontWeight: FontWeight.bold,
@@ -342,7 +293,6 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                               'How many Days',
                               style: TextStyle(fontSize: 16),
                             ),
-                            // *** Use QuantitySelector for Rental Days ***
                             QuantitySelector(
                               quantity: _rentalDays,
                               onDecrement: () {
@@ -440,8 +390,7 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                             const SizedBox(width: 16),
                             Expanded(
                               child: ElevatedButton(
-                                onPressed:
-                                    _addToCart, // Call the _addToCart function
+                                onPressed: _addToCart,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.orange,
                                   shape: RoundedRectangleBorder(
@@ -467,7 +416,11 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Handle check out now
+                        // Handle check out now - You might want to navigate to a checkout screen
+                        // and pass the selected item details.
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Checkout functionality coming soon!')),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
