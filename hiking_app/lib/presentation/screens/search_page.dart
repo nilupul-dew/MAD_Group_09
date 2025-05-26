@@ -58,17 +58,37 @@ class _SearchScreenState extends State<SearchScreen> {
 
   // Removed _buildGearCard as it's now a separate widget
 
-  Widget _buildRecentSearchTile(String term) {
-    return ListTile(
-      leading: const Icon(Icons.history),
-      title: Text(term),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: () {
-        _searchController.text = term;
-        _performSearch();
-      },
+Widget _buildRecentSearchTile(String term) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Color(0x4DF78750), // Light background color
+          borderRadius: BorderRadius.circular(10), // Rounded corners
+          border: Border.all(color: Color(0x4DF78750),) // Subtle border
+        ),
+        child: ListTile(
+          leading: Icon(Icons.history, color: Colors.grey[600]), // Styled icon
+          title: Text(
+            term,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
+          ),
+          trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[500]),
+          onTap: () {
+            _searchController.text = term;
+            _performSearch();
+          },
+          dense: true, // Makes the tile a bit more compact
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Inner padding
+        ),
+      ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
