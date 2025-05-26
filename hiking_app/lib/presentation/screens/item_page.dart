@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
-import 'package:firebase_auth/firebase_auth.dart';     // Import Firebase Auth - Keep this for later uncommenting
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hiking_app/presentation/widgets/quantity_selector.dart'; // Import your QuantitySelector
 
 class GearItemDetailScreen extends StatefulWidget {
   final Map<String, dynamic> itemData;
-
   const GearItemDetailScreen({Key? key, required this.itemData})
-      : super(key: key);
+    : super(key: key);
 
   @override
   State<GearItemDetailScreen> createState() => _GearItemDetailScreenState();
@@ -18,67 +18,112 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
   int _rentalDays = 1;
   DateTime _selectedDate = DateTime.now();
 
-  // Uncomment this line and use it for user ID when authentication is ready:
-  // User? get currentUser => FirebaseAuth.instance.currentUser;
+  final String _testUserId = 'temp_test_user_id_001';
 
-  // FOR TESTING ONLY: Hardcoded test user ID
-  // When authentication is implemented, remove this line and uncomment the currentUser getter above.
-  final String _testUserId = 'temp_test_user_id_001'; // You can change this ID
-
-  // Function to add item to cart in Firebase
   Future<void> _addToCart() async {
-    // In a real app, you'd use the authenticated user's ID:
-    // final String? userId = currentUser?.uid;
-
-    // For now, using the hardcoded test user ID:
     final String userId = _testUserId;
 
-    // In a real app, you would add a check like this:
-    // if (userId == null) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(content: Text('Please log in to add items to cart.')),
-    //   );
-    //   return;
-    // }
-
     try {
-      final String itemId = widget.itemData['id'] ?? 'unknown_item_id'; // Assuming 'id' is available in itemData
+      final String itemId = widget.itemData['id'] ?? 'unknown_item_id';
       final String itemName = widget.itemData['name'] ?? 'N/A';
-      final String itemImageUrl = widget.itemData['image'] ?? 'https://via.placeholder.com/150';
-      final double itemRentPricePerDay = (widget.itemData['rent_price_per_day'] as num?)?.toDouble() ?? 0.0;
+      final String itemImageUrl =
+          widget.itemData['image'] ?? 'https://via.placeholder.com/150';
+      final double itemRentPricePerDay =
+          (widget.itemData['rent_price_per_day'] as num?)?.toDouble() ?? 0.0;
+      final int originalAvailableQty =
+          widget.itemData['available_qty'] ??
+          0; // Get original available quantity
 
-      // Reference to the user's cart items subcollection
-      final cartItemsRef = FirebaseFirestore.instance
-          .collection('carts')
-          .doc(userId) // Use the obtained userId (test or authenticated)
-          .collection('items');
+      // --- Start Transaction for adding to cart and updating stock ---
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        // Get the latest snapshot of the gear item
+        final gearItemDocRef = FirebaseFirestore.instance
+            .collection('gear_items')
+            .doc(itemId);
+        DocumentSnapshot latestGearItemSnapshot = await transaction.get(
+          gearItemDocRef,
+        );
 
-      // Create a map of the item data to add to Firestore
-      final Map<String, dynamic> cartItemData = {
-        'item_id': itemId, // Link to the original item document
-        'name': itemName,
-        'image_url': itemImageUrl,
-        'rent_price_per_day': itemRentPricePerDay,
-        'quantity': _quantity,
-        'rental_days': _rentalDays,
-        'start_date': Timestamp.fromDate(_selectedDate), // Store as Firestore Timestamp
-        'added_at': FieldValue.serverTimestamp(), // Timestamp when item was added
-      };
+        if (!latestGearItemSnapshot.exists) {
+          throw Exception("Item not found in inventory. Cannot add to cart.");
+        }
 
-      // Add the item to the user's cart. Firestore will auto-generate an ID for this cart item.
-      await cartItemsRef.add(cartItemData);
+        int currentAvailableQtyInDb =
+            (latestGearItemSnapshot.data()
+                as Map<String, dynamic>)['available_qty'] ??
+            0;
+
+        if (currentAvailableQtyInDb < _quantity) {
+          throw Exception(
+            "Not enough stock available for $itemName. Only $currentAvailableQtyInDb units remaining.",
+          );
+        }
+
+        // Decrement the available quantity in the gear_items collection
+        transaction.update(gearItemDocRef, {
+          'available_qty': currentAvailableQtyInDb - _quantity,
+        });
+
+        // Reference to the user's cart items subcollection
+        final cartItemsRef = FirebaseFirestore.instance
+            .collection('carts')
+            .doc(userId)
+            .collection('items');
+
+        // Check if the item already exists in the cart for the given rental period
+        final existingCartItemQuery =
+            await cartItemsRef
+                .where('item_id', isEqualTo: itemId)
+                .where(
+                  'start_date',
+                  isEqualTo: Timestamp.fromDate(_selectedDate),
+                )
+                .where('rental_days', isEqualTo: _rentalDays)
+                .limit(1)
+                .get();
+
+        if (existingCartItemQuery.docs.isNotEmpty) {
+          // Item already in cart with same details, update quantity
+          final existingCartItemDoc = existingCartItemQuery.docs.first;
+          int currentQuantityInCart =
+              (existingCartItemDoc.data())['quantity'] ?? 0;
+          transaction.update(existingCartItemDoc.reference, {
+            'quantity': currentQuantityInCart + _quantity,
+            'added_at': FieldValue.serverTimestamp(),
+          });
+          print('Existing cart item quantity updated for $itemName.');
+        } else {
+          // Item not in cart, add a new one
+          final Map<String, dynamic> cartItemData = {
+            'item_id': itemId,
+            'name': itemName,
+            'image_url': itemImageUrl,
+            'rent_price_per_day': itemRentPricePerDay,
+            'quantity': _quantity,
+            'rental_days': _rentalDays,
+            'start_date': Timestamp.fromDate(_selectedDate),
+            'added_at': FieldValue.serverTimestamp(),
+          };
+          transaction.set(
+            cartItemsRef.doc(),
+            cartItemData,
+          ); // Use set with auto-generated ID
+          print('New cart item added for $itemName.');
+        }
+      });
+      // --- End Transaction ---
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('$itemName added to cart for user: $userId!')),
       );
-
-      // Optionally, navigate to cart page or clear selections
-      // Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
-
     } catch (e) {
       print('Error adding to cart: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add to cart: $e')),
+        SnackBar(
+          content: Text(
+            'Failed to add to cart: ${e.toString().split("Exception: ").last}',
+          ),
+        ),
       );
     }
   }
@@ -86,12 +131,14 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final String name = widget.itemData['name'] ?? 'N/A';
-    final double rating = (widget.itemData['rating'] as num?)?.toDouble() ?? 0.0;
+    final double rating =
+        (widget.itemData['rating'] as num?)?.toDouble() ?? 0.0;
     final String color = widget.itemData['color'] ?? 'N/A';
-    final String imageUrl = widget.itemData['image'] ?? 'https://via.placeholder.com/400x300';
-    final double rentPricePerDay = (widget.itemData['rent_price_per_day'] as num?)?.toDouble() ?? 0.0;
+    final String imageUrl =
+        widget.itemData['image'] ?? 'https://via.placeholder.com/400x300';
+    final double rentPricePerDay =
+        (widget.itemData['rent_price_per_day'] as num?)?.toDouble() ?? 0.0;
     final int availableQuantity = widget.itemData['available_qty'] ?? 0;
-
     final Map<String, dynamic> specs = widget.itemData['specs'] ?? {};
     final double totalPrice = rentPricePerDay * _rentalDays * _quantity;
 
@@ -121,8 +168,15 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.broken_image, size: 60, color: Colors.grey[600]),
-                        Text('Image not available', style: TextStyle(color: Colors.grey[600])),
+                        Icon(
+                          Icons.broken_image,
+                          size: 60,
+                          color: Colors.grey[600],
+                        ),
+                        Text(
+                          'Image not available',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
                       ],
                     ),
                   );
@@ -152,7 +206,9 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                       Row(
                         children: List.generate(5, (index) {
                           return Icon(
-                            index < rating.floor() ? Icons.star : Icons.star_border,
+                            index < rating.floor()
+                                ? Icons.star
+                                : Icons.star_border,
                             color: Colors.amber,
                             size: 20,
                           );
@@ -167,43 +223,38 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                     children: [
                       const Text('Quantity', style: TextStyle(fontSize: 16)),
                       const Spacer(),
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.remove, size: 20),
-                              onPressed: () {
-                                setState(() {
-                                  if (_quantity > 1) _quantity--;
-                                });
-                              },
-                            ),
-                            Text(
-                              '$_quantity',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.add, size: 20),
-                              onPressed: () {
-                                setState(() {
-                                  if (_quantity < availableQuantity) _quantity++;
-                                });
-                              },
-                            ),
-                          ],
-                        ),
+                      // *** Use QuantitySelector for Quantity ***
+                      QuantitySelector(
+                        quantity: _quantity,
+                        onDecrement: () {
+                          setState(() {
+                            if (_quantity > 1) _quantity--;
+                          });
+                        },
+                        onIncrement: () {
+                          setState(() {
+                            if (_quantity < availableQuantity)
+                              _quantity++;
+                            else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Maximum available quantity reached!',
+                                  ),
+                                ),
+                              );
+                            }
+                          });
+                        },
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  Text('$availableQuantity Units Available',
-                      style: const TextStyle(color: Colors.green, fontSize: 14)),
+                  Text(
+                    '$availableQuantity Units Available',
+                    style: const TextStyle(color: Colors.green, fontSize: 14),
+                  ),
                   const SizedBox(height: 16),
-
                   // Specifications Section
                   Container(
                     width: double.infinity,
@@ -227,30 +278,22 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                         const SizedBox(height: 8),
                         if (specs.isNotEmpty) ...[
                           ...specs.entries.map((entry) {
-                            String label = _capitalize(entry.key.replaceAll('_', ' '));
+                            String label = _capitalize(
+                              entry.key.replaceAll('_', ' '),
+                            );
                             String value = entry.value.toString();
-                            if (entry.key == 'waterproof' && entry.value is bool) {
+                            if (entry.key == 'waterproof' &&
+                                entry.value is bool) {
                               value = entry.value ? 'Yes' : 'No';
                             }
                             return _buildSpecificationRow(label, value);
                           }).toList(),
                         ],
                         const SizedBox(height: 8),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: TextButton(
-                            onPressed: () {},
-                            child: const Text(
-                              'See more',
-                              style: TextStyle(color: Colors.grey, fontSize: 14),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 16),
-
                   // Rent Details Section
                   Container(
                     width: double.infinity,
@@ -289,43 +332,29 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                                 const Text('per day'),
                               ],
                             ),
-                            
                           ],
                         ),
                         const SizedBox(height: 16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text('How many Days', style: TextStyle(fontSize: 16)),
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.remove, size: 20),
-                                    onPressed: () {
-                                      setState(() {
-                                        if (_rentalDays > 1) _rentalDays--;
-                                      });
-                                    },
-                                  ),
-                                  Text(
-                                    '$_rentalDays',
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.add, size: 20),
-                                    onPressed: () {
-                                      setState(() {
-                                        _rentalDays++;
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
+                            const Text(
+                              'How many Days',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            // *** Use QuantitySelector for Rental Days ***
+                            QuantitySelector(
+                              quantity: _rentalDays,
+                              onDecrement: () {
+                                setState(() {
+                                  if (_rentalDays > 1) _rentalDays--;
+                                });
+                              },
+                              onIncrement: () {
+                                setState(() {
+                                  _rentalDays++;
+                                });
+                              },
                             ),
                           ],
                         ),
@@ -395,22 +424,37 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                                 },
                                 style: OutlinedButton.styleFrom(
                                   side: BorderSide(color: Colors.grey[400]!),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
                                 ),
-                                child: Text('Cancel', style: TextStyle(color: Colors.grey[700])),
+                                child: Text(
+                                  'Cancel',
+                                  style: TextStyle(color: Colors.grey[700]),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: _addToCart, // Call the _addToCart function
+                                onPressed:
+                                    _addToCart, // Call the _addToCart function
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.orange,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
                                 ),
-                                child: const Text('Add to Cart', style: TextStyle(color: Colors.white)),
+                                child: const Text(
+                                  'Add to Cart',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ),
                             ),
                           ],
@@ -419,7 +463,6 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -428,14 +471,18 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      child: const Text('Check Out Now', style: TextStyle(fontSize: 18, color: Colors.white)),
+                      child: const Text(
+                        'Check Out Now',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
-
                   _buildSectionTitle('Reviews'),
                   const SizedBox(height: 8),
                   _buildUserReview(
@@ -500,12 +547,17 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                     children: [
                       Text(
                         userName,
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
                       Row(
                         children: List.generate(5, (index) {
                           return Icon(
-                            index < rating.floor() ? Icons.star : Icons.star_border,
+                            index < rating.floor()
+                                ? Icons.star
+                                : Icons.star_border,
                             color: Colors.amber,
                             size: 16,
                           );
@@ -526,9 +578,12 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
 
   String _capitalize(String s) {
     if (s.isEmpty) return s;
-    return s.split(' ').map((word) {
-      if (word.isEmpty) return '';
-      return '${word[0].toUpperCase()}${word.substring(1)}';
-    }).join(' ');
+    return s
+        .split(' ')
+        .map((word) {
+          if (word.isEmpty) return '';
+          return '${word[0].toUpperCase()}${word.substring(1)}';
+        })
+        .join(' ');
   }
 }
