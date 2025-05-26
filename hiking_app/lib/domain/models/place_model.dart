@@ -1,6 +1,8 @@
 class PlaceModel {
   final String name;
   final String locationName;
+  final String province;
+  final String district;
   final String imageUrl;
   final String type;
   final String category;
@@ -10,6 +12,8 @@ class PlaceModel {
   PlaceModel({
     required this.name,
     required this.locationName,
+    required this.province,
+    required this.district,
     required this.imageUrl,
     required this.type,
     required this.category,
@@ -21,6 +25,8 @@ class PlaceModel {
     return PlaceModel(
       name: json['name'] ?? '',
       locationName: json['locationName'] ?? '',
+      province: json['province'] ?? '',
+      district: json['district'] ?? '',
       imageUrl: json['imageUrl'] ?? '',
       type: json['type'] ?? '',
       category: json['category'] ?? '',
