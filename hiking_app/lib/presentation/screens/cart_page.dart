@@ -127,7 +127,7 @@ class _CartScreenState extends State<CartScreen> {
 
           double totalDiscount = 0.0;
           if (totalProductPrice > 0) {
-            totalDiscount = 500.0; // Example discount
+            totalDiscount = 0.0; // Example discount
           }
           double orderTotal = totalProductPrice - totalDiscount;
 
