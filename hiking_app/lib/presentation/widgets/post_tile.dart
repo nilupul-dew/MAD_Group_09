@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hiking_app/presentation/widgets/post_options.dart';
 import '../../../domain/models/post_model.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
@@ -204,7 +205,12 @@ class _PostTileState extends State<PostTile>
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
-              onTap: () => _showPostOptions(context),
+              onTap:
+                  () => PostOptionsWidget.showPostOptions(
+                    context: context,
+                    postId: widget.post.id,
+                  ),
+
               child: Padding(
                 padding: const EdgeInsets.all(8),
                 child: Icon(
@@ -335,7 +341,9 @@ class _PostTileState extends State<PostTile>
           const Spacer(),
           if (widget.post.tags.isNotEmpty) ...[
             Text(
-              '${widget.post.tags.length} tags',
+              (likeCount - 10 < 0)
+                  ? '0 Comments'
+                  : '${likeCount - 10} Comments',
               style: TextStyle(color: Colors.grey[600], fontSize: 13),
             ),
           ],
@@ -396,54 +404,6 @@ class _PostTileState extends State<PostTile>
           ),
         ],
       ),
-    );
-  }
-
-  void _showPostOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder:
-          (context) => Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(top: 8),
-                  height: 4,
-                  width: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                ListTile(
-                  leading: const Icon(
-                    Icons.edit_outlined,
-                    color: primaryOrange,
-                  ),
-                  title: const Text('Edit Post'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    print('Edit post: ${widget.post.id}');
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.delete_outline, color: Colors.red),
-                  title: const Text('Delete Post'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    print('Delete post: ${widget.post.id}');
-                  },
-                ),
-                const SizedBox(height: 8),
-              ],
-            ),
-          ),
     );
   }
 
