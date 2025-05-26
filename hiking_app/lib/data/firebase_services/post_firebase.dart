@@ -74,7 +74,11 @@ class FirebaseForumService {
               category: data['category'] ?? '',
               tags: List<String>.from(data['tags'] ?? []),
               imageUrl: data['imageUrl'],
-              timestamp: (data['timestamp'] as Timestamp).toDate(),
+              timestamp:
+                  data['timestamp'] is Timestamp
+                      ? (data['timestamp'] as Timestamp).toDate()
+                      : DateTime.tryParse(data['timestamp'] ?? '') ??
+                          DateTime.now(),
             );
           }).toList();
 
@@ -149,7 +153,11 @@ class FirebaseForumService {
             category: data['category'] ?? '',
             tags: List<String>.from(data['tags'] ?? []),
             imageUrl: data['imageUrl'],
-            timestamp: (data['timestamp'] as Timestamp).toDate(),
+            timestamp:
+                data['timestamp'] is Timestamp
+                    ? (data['timestamp'] as Timestamp).toDate()
+                    : DateTime.tryParse(data['timestamp'] ?? '') ??
+                        DateTime.now(),
           );
         }
       }
@@ -157,5 +165,48 @@ class FirebaseForumService {
       print('❌ Error fetching post by ID "$postId": $e');
     }
     return null;
+  }
+
+  Future<void> updatePost(
+    Post post, {
+    Uint8List? imageBytes,
+    String? imageName,
+    String? updatedContent,
+    String? updatedCategory,
+    List<String>? updatedTags,
+  }) async {
+    try {
+      String? finalImageUrl = post.imageUrl;
+
+      // Upload new image if provided
+      if (imageBytes != null && imageName != null) {
+        final uploadedUrl = await uploadToImgBB(imageBytes, imageName);
+        if (uploadedUrl != null && uploadedUrl.isNotEmpty) {
+          finalImageUrl = uploadedUrl;
+        } else {
+          print(
+            "⚠️ Image upload failed or returned null. Keeping existing image.",
+          );
+        }
+      }
+
+      // Build the updated Post object
+      final updatedPost = post.copyWith(
+        content: updatedContent ?? post.content,
+        category: updatedCategory ?? post.category,
+        tags: updatedTags ?? post.tags,
+        imageUrl: finalImageUrl, // Use final determined image URL
+      );
+
+      await FirebaseFirestore.instance
+          .collection('posts')
+          .doc(post.id)
+          .update(updatedPost.toJson());
+
+      print("✅ Post updated: ${post.id}");
+    } catch (e) {
+      print("❌ Error updating post: $e");
+      rethrow;
+    }
   }
 }

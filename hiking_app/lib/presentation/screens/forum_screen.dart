@@ -51,17 +51,42 @@ class _ForumScreenState extends State<ForumScreen> {
               ? const Center(child: CircularProgressIndicator())
               : _posts.isEmpty
               ? const Center(child: Text("No posts yet. Add the first post!"))
-              : ListView.builder(
-                itemCount: _posts.length,
-                itemBuilder:
-                    (_, i) => PostTile(post: _posts[i], onDelete: _loadPosts),
+              : RefreshIndicator(
+                onRefresh: () async => _loadPosts(),
+                child: ListView.builder(
+                  itemCount: _posts.length,
+                  itemBuilder:
+                      (_, i) => PostTile(
+                        post: _posts[i],
+                        onDelete: _loadPosts,
+                        onEdit: () async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => AddPostScreen(
+                                    isEditing: true,
+                                    post: _posts[i],
+                                  ),
+                            ),
+                          );
+                          if (result == true) {
+                            _loadPosts(); // Refresh after edit
+                          }
+                        },
+                      ),
+                ),
               ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => AddPostScreen()),
-          ).then((_) => _loadPosts());
+          ).then((result) {
+            if (result == true) {
+              _loadPosts(); // Refresh after adding
+            }
+          });
         },
         tooltip: 'Add Post',
         child: const Icon(Icons.add),

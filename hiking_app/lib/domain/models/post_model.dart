@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Post {
   final String id;
   final String userId;
@@ -20,6 +22,17 @@ class Post {
   });
 
   factory Post.fromJson(Map<String, dynamic> json, String id) {
+    final timestampData = json['timestamp'];
+    DateTime timestamp;
+
+    if (timestampData is Timestamp) {
+      timestamp = timestampData.toDate(); // Firestore Timestamp
+    } else if (timestampData is String) {
+      timestamp = DateTime.parse(timestampData); // ISO 8601 string
+    } else {
+      throw FormatException("Invalid timestamp format");
+    }
+
     return Post(
       id: id,
       userId: json['userId'],
@@ -28,7 +41,7 @@ class Post {
       category: json['category'] ?? '',
       tags: List<String>.from(json['tags'] ?? []),
       imageUrl: json['imageUrl'],
-      timestamp: DateTime.parse(json['timestamp']),
+      timestamp: timestamp,
     );
   }
 
@@ -41,4 +54,26 @@ class Post {
     'imageUrl': imageUrl,
     'timestamp': timestamp.toIso8601String(),
   };
+
+  Post copyWith({
+    String? id,
+    String? userId,
+    String? title,
+    String? content,
+    String? category,
+    List<String>? tags,
+    String? imageUrl,
+    DateTime? timestamp,
+  }) {
+    return Post(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      title: title ?? this.title,
+      content: content ?? this.content,
+      category: category ?? this.category,
+      tags: tags ?? this.tags,
+      imageUrl: imageUrl ?? this.imageUrl,
+      timestamp: timestamp ?? this.timestamp,
+    );
+  }
 }

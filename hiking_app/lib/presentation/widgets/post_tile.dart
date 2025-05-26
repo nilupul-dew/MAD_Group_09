@@ -6,7 +6,8 @@ import 'package:timeago/timeago.dart' as timeago;
 class PostTile extends StatefulWidget {
   final Post post;
   final VoidCallback? onDelete;
-  const PostTile({super.key, required this.post, this.onDelete});
+  final Future<void> Function()? onEdit;
+  const PostTile({super.key, required this.post, this.onDelete, this.onEdit});
 
   // Generate dummy user names based on post ID for consistency
   String _getDummyUserName() {
@@ -201,27 +202,28 @@ class _PostTileState extends State<PostTile>
           ),
 
           // Menu Button
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(20),
-              onTap:
-                  () => PostOptionsWidget.showPostOptions(
-                    context: context,
-                    postId: widget.post.id,
-                    onDelete: widget.onDelete, // Callback to refresh posts
+          if (widget.post.userId == 'user123')
+            // Replace with actual user ID check
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap:
+                    () => PostOptionsWidget.showPostOptions(
+                      context: context,
+                      postId: widget.post.id,
+                      onDelete: widget.onDelete,
+                    ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Icon(
+                    Icons.more_horiz,
+                    color: Colors.grey[600],
+                    size: 20,
                   ),
-
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Icon(
-                  Icons.more_horiz,
-                  color: Colors.grey[600],
-                  size: 20,
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -233,19 +235,6 @@ class _PostTileState extends State<PostTile>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Post Title
-          if (widget.post.title.isNotEmpty) ...[
-            Text(
-              widget.post.title,
-              style: const TextStyle(
-                fontSize: 17,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1C1C1E),
-                height: 1.3,
-              ),
-            ),
-            const SizedBox(height: 8),
-          ],
           // Post Content
           Text(
             widget.post.content,
@@ -253,6 +242,14 @@ class _PostTileState extends State<PostTile>
               fontSize: 15,
               height: 1.4,
               color: Color(0xFF1C1C1E),
+            ),
+          ),
+          Text(
+            widget.post.tags.map((tag) => '#$tag').join(' '),
+            style: const TextStyle(
+              fontSize: 15,
+              height: 1.4,
+              color: Color.fromARGB(255, 76, 76, 243),
             ),
           ),
         ],

@@ -36,44 +36,49 @@ class PostOptionsWidget {
                   ),
                 ),
 
-                // Edit option
+                // Edit option with confirmation-style callback
                 ListTile(
-                  leading: const Icon(
-                    Icons.edit_outlined,
-                    color: primaryOrange,
-                  ),
+                  leading: const Icon(Icons.edit_outlined, color: Colors.black),
                   title: const Text('Edit Post'),
-                  onTap: () async {
-                    Navigator.pop(context); // Close the bottom sheet
+                  onTap: () {
+                    Navigator.pop(context);
+                    Future.delayed(Duration.zero, () async {
+                      try {
+                        final post = await FirebaseForumService().fetchPostById(
+                          postId,
+                        );
 
-                    try {
-                      final post = await FirebaseForumService().fetchPostById(
-                        postId,
-                      );
+                        if (post != null) {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => AddPostScreen(
+                                    isEditing: true,
+                                    post: post,
+                                  ),
+                            ),
+                          );
 
-                      if (post != null) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) =>
-                                    AddPostScreen(isEditing: true, post: post),
+                          if (result == true) {
+                            if (onEdit != null)
+                              onEdit(); // Callback to reload posts, just like delete uses onConfirm
+                          }
+                        } else {
+                          print('⚠️ Post not found for ID: $postId');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Post not found')),
+                          );
+                        }
+                      } catch (e) {
+                        print('❌ Error loading post for editing: $e');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Failed to load post for editing'),
                           ),
                         );
-                      } else {
-                        print('⚠️ Post not found for ID: $postId');
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Post not found')),
-                        );
                       }
-                    } catch (e) {
-                      print('❌ Error loading post for editing: $e');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Failed to load post for editing'),
-                        ),
-                      );
-                    }
+                    });
                   },
                 ),
 
@@ -134,7 +139,7 @@ class PostOptionsWidget {
                   ),
                 ),
 
-                // Edit option
+                // Edit option with confirmation-like callback
                 ListTile(
                   leading: const Icon(
                     Icons.edit_outlined,
@@ -150,7 +155,7 @@ class PostOptionsWidget {
                       );
 
                       if (post != null) {
-                        Navigator.push(
+                        final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder:
@@ -158,6 +163,10 @@ class PostOptionsWidget {
                                     AddPostScreen(isEditing: true, post: post),
                           ),
                         );
+
+                        if (result == true) {
+                          onEdit!(); // Use onConfirm-style callback to reload posts
+                        }
                       } else {
                         print('⚠️ Post not found for ID: $postId');
                         ScaffoldMessenger.of(context).showSnackBar(
