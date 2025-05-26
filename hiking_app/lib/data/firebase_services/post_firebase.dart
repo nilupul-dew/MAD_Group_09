@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+// ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/models/post_model.dart';
@@ -108,18 +108,12 @@ class FirebaseForumService {
 
       if (imageBytes != null && imageName != null) {
         try {
-          // Compress image first
-          Uint8List? processedBytes = imageBytes;
-          if (!kIsWeb) {
-            processedBytes = await compressImage(imageBytes);
-          }
-
           // Generate unique filename
           final timestamp = DateTime.now().millisecondsSinceEpoch;
           final uniqueFileName = '${timestamp}_$imageName';
 
           // Try different services in order of preference
-          imageUrl = await uploadToImgBB(processedBytes!, uniqueFileName);
+          imageUrl = await uploadToImgBB(imageBytes, uniqueFileName);
 
           if (imageUrl == null) {
             print(

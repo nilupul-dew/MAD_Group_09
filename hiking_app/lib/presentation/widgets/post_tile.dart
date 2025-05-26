@@ -224,13 +224,32 @@ class _PostTileState extends State<PostTile>
   Widget _buildContent() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Text(
-        widget.post.content,
-        style: const TextStyle(
-          fontSize: 15,
-          height: 1.4,
-          color: Color(0xFF1C1C1E),
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Post Title
+          if (widget.post.title.isNotEmpty) ...[
+            Text(
+              widget.post.title,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1C1C1E),
+                height: 1.3,
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+          // Post Content
+          Text(
+            widget.post.content,
+            style: const TextStyle(
+              fontSize: 15,
+              height: 1.4,
+              color: Color(0xFF1C1C1E),
+            ),
+          ),
+        ],
       ),
     );
   }
