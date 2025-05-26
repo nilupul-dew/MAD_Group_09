@@ -48,7 +48,6 @@ class _PostTileState extends State<PostTile>
   static const Color lightOrange = Color(0xFFFF8A50);
   static const Color darkOrange = Color(0xFFB8441A);
   static const Color orangeAccent = Color(0xFFFFF3EF);
-  static const Color mutedOrange = Color(0xFFE3641F);
 
   @override
   void initState() {

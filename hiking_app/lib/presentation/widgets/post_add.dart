@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:hiking_app/data/firebase_services/post_firebase.dart';
 import 'package:hiking_app/domain/models/post_model.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:typed_data';
 
 class AddPostScreen extends StatefulWidget {
   const AddPostScreen({Key? key}) : super(key: key);

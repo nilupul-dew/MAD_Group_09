@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hiking_app/data/firebase_services/post_firebase.dart';
 import 'package:hiking_app/presentation/widgets/post_add.dart';
-import 'package:image_picker/image_picker.dart';
 import '../widgets/post_tile.dart';
 import '../../../domain/models/post_model.dart';
 
@@ -14,7 +13,6 @@ class ForumScreen extends StatefulWidget {
 
 class _ForumScreenState extends State<ForumScreen> {
   final FirebaseForumService _service = FirebaseForumService();
-  final ImagePicker _picker = ImagePicker();
 
   List<Post> _posts = [];
   bool _isLoading = true;
