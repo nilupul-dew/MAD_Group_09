@@ -115,27 +115,9 @@ class HomePageContent extends StatelessWidget {
             SizedBox(height: 10),
 
             // Discount Banner
-            Container(
-              margin: EdgeInsets.all(12),
-              padding: EdgeInsets.all(40),
-              decoration: BoxDecoration(
-                gradient:
-                    LinearGradient(colors: [Colors.orange, Colors.deepOrange]),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  Text('30% OFF',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white)),
-                  Spacer(),
-                  ElevatedButton(onPressed: () {}, child: Text("See Details"))
-                ],
-              ),
-            ),
+            DiscountBanner(),
 
+            SizedBox(height: 20),
             // Popular Items
             SectionTitle(title: "Popular Items"),
             ItemList(items: popularItems),
@@ -292,5 +274,166 @@ class ImageWidget extends StatelessWidget {
             height: 80, width: double.infinity, fit: BoxFit.cover)
         : Image.asset(imagePath,
             height: 80, width: double.infinity, fit: BoxFit.cover);
+  }
+}
+
+class DiscountBanner extends StatelessWidget {
+  const DiscountBanner({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 200,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            const Color.fromARGB(255, 254, 211, 91),
+            const Color.fromARGB(255, 251, 96, 0)
+          ],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+      ),
+      child: Stack(
+        children: [
+          // Circular badge
+          Positioned(
+            left: 20,
+            top: 20,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white70, width: 2),
+                    color: Colors.transparent,
+                  ),
+                ),
+                Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.brown.shade300,
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Positioned(
+                        top: 12,
+                        child: Text(
+                          "30%",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 25,
+                        child: Container(
+                          color: Colors.redAccent,
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          child: Text(
+                            "BEST",
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 10,
+                        child: Container(
+                          color: Colors.redAccent,
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          child: Text(
+                            "OFFER",
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Right-side content
+          Positioned(
+            left: 160,
+            top: 30,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "4 in 1",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  "DISCOUNTS",
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black,
+                    letterSpacing: 1,
+                  ),
+                ),
+                Text(
+                  "Camping Packages.",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 10),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: StadiumBorder(),
+                  ),
+                  onPressed: () {
+                    // You can add navigation or popup here
+                  },
+                  child: Text(
+                    "See Details",
+                    style: TextStyle(color: Colors.black87),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Bottom-right validity note
+          Positioned(
+            bottom: 10,
+            right: 20,
+            child: Text(
+              "Valid till 27 th of February",
+              style: TextStyle(color: Colors.white70, fontSize: 10),
+            ),
+          )
+        ],
+      ),
+    );
   }
 }
