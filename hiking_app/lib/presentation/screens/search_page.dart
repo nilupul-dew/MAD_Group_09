@@ -1,6 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// lib/presentation/screens/search_screen.dart
+import 'package:cloud_firestore/cloud_firestore.dart'; // Still needed for Timestamp if you use it directly
 import 'package:flutter/material.dart';
-import 'package:hiking_app/presentation/screens/item_page.dart';
+import 'package:hiking_app/presentation/screens/item_page.dart'; // Your Item Detail Page
+import 'package:hiking_app/domain/models/gear_item.dart'; // Import your existing Item model
+import 'package:hiking_app/data/firebase_services/search_firestore_service.dart'; // New: Import SearchFirestoreService
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -11,7 +14,10 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, dynamic>> _gearResults = [];
+  final SearchFirestoreService _searchService =
+      SearchFirestoreService(); // Use the new service
+
+  List<Item> _gearResults = []; // Changed to List<Item>
   List<Map<String, dynamic>> _shopResults = [];
   List<Map<String, dynamic>> _recentSearches = [];
 
@@ -22,56 +28,28 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _fetchRecentSearches() async {
-    final snapshot =
-        await FirebaseFirestore.instance
-            .collection('recent_searches')
-            .orderBy('timestamp', descending: true)
-            .limit(5)
-            .get();
-
+    final recentSearches = await _searchService.fetchRecentSearches();
     setState(() {
-      _recentSearches =
-          snapshot.docs.map((doc) => {'term': doc['term']}).toList();
+      _recentSearches = recentSearches;
     });
   }
 
   Future<void> _performSearch() async {
-    final keyword = _searchController.text.trim().toLowerCase();
-    if (keyword.isEmpty) return;
+    final keyword =
+        _searchController.text.trim(); // Keep original casing for saving
+    if (keyword.isEmpty) {
+      setState(() {
+        _gearResults = [];
+        _shopResults = [];
+      });
+      return;
+    }
 
-    // Save search
-    await FirebaseFirestore.instance.collection('recent_searches').add({
-      'term': keyword,
-      'timestamp': Timestamp.now(),
-    });
-
+    await _searchService.saveSearchTerm(keyword);
     _fetchRecentSearches(); // Refresh recent list
 
-    final gearSnapshot =
-        await FirebaseFirestore.instance.collection('gear_items').get();
-
-    final shopSnapshot =
-        await FirebaseFirestore.instance.collection('shops').get();
-
-    final gearMatches =
-        gearSnapshot.docs
-            .where(
-              (doc) => (doc['name_lowercase'] ?? '').toString().contains(
-                keyword.toLowerCase(),
-              ),
-            )
-            .map((doc) => doc.data() as Map<String, dynamic>)
-            .toList();
-
-    final shopMatches =
-        shopSnapshot.docs
-            .where(
-              (doc) => (doc['name_lowercase'] ?? '').toString().contains(
-                keyword.toLowerCase(),
-              ),
-            )
-            .map((doc) => doc.data() as Map<String, dynamic>)
-            .toList();
+    final gearMatches = await _searchService.searchGearItems(keyword);
+    final shopMatches = await _searchService.searchShops(keyword);
 
     setState(() {
       _gearResults = gearMatches;
@@ -79,88 +57,107 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  Widget _buildGearCard(Map<String, dynamic> data) {
-  return GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => GearItemDetailScreen(itemData: data),
-        ),
-      );
-    },
-    child: Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      margin: const EdgeInsets.all(8),
-      elevation: 4,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Image.network(
-              data['image'] ?? 'https://via.placeholder.com/150',
-              height: 120,
-              width: double.infinity,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  height: 120,
-                  color: Colors.grey[300],
-                  child: const Center(child: Icon(Icons.broken_image, size: 40)),
-                );
-              },
-            ),
+  // Changed parameter type to Item
+  Widget _buildGearCard(Item item) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            // FIX: Pass the Item object directly.
+            // The ItemPage (GearItemDetailScreen) no longer expects 'itemId' separately.
+            builder:
+                (context) => GearItemDetailScreen(
+                  // Use GearItemDetailScreen as per your confirmation
+                  item: item, // Pass the Item object
+                ),
           ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(data['name'] ?? '',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 14),
-                      textAlign: TextAlign.center),
-                  const SizedBox(height: 6),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        const TextSpan(
-                            text: 'Capacity: ',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: '${data['specs']?['capacity'] ?? 'N/A'}'),
-                      ],
+        );
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        margin: const EdgeInsets.all(8),
+        elevation: 4,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
+              child: Image.network(
+                item.imageUrl, // Use item.imageUrl
+                height: 120,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 120,
+                    color: Colors.grey[300],
+                    child: const Center(
+                      child: Icon(Icons.broken_image, size: 40),
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        const TextSpan(
-                            text: 'Available: ',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: '${data['available_qty'] ?? 0}'),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Charge per day: Rs.${data['rent_price_per_day'] ?? '0.00'}",
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ],
+                  );
+                },
               ),
             ),
-          ),
-        ],
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      item.name, // Use item.name
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 6),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          const TextSpan(
+                            text: 'Capacity: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(
+                            text: '${item.specs['capacity'] ?? 'N/A'}',
+                          ), // Access specs
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          const TextSpan(
+                            text: 'Available: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(
+                            text: '${item.availableQty}',
+                          ), // Use item.availableQty
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Charge per day: Rs.${item.rentPricePerDay}", // Use item.rentPricePerDay
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
-
-
+    );
+  }
 
   Widget _buildRecentSearchTile(String term) {
     return ListTile(
@@ -186,7 +183,7 @@ class _SearchScreenState extends State<SearchScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(25),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black12,
                     blurRadius: 6,
@@ -207,6 +204,9 @@ class _SearchScreenState extends State<SearchScreen> {
                           vertical: 14,
                         ),
                       ),
+                      onSubmitted:
+                          (_) =>
+                              _performSearch(), // Trigger search on keyboard "done"
                     ),
                   ),
                   IconButton(
@@ -217,7 +217,9 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
           ),
-          if (_gearResults.isEmpty && _shopResults.isEmpty)
+          if (_gearResults.isEmpty &&
+              _shopResults.isEmpty &&
+              _searchController.text.isEmpty)
             Expanded(
               child: ListView(
                 children: [
@@ -236,8 +238,19 @@ class _SearchScreenState extends State<SearchScreen> {
                       .toList(),
                 ],
               ),
-            ),
-          if (_gearResults.isNotEmpty || _shopResults.isNotEmpty)
+            )
+          else if (_gearResults.isEmpty &&
+              _shopResults.isEmpty &&
+              _searchController.text.isNotEmpty)
+            const Expanded(
+              child: Center(
+                child: Text(
+                  "No results found.",
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              ),
+            )
+          else
             Expanded(
               child: ListView(
                 children: [
@@ -254,20 +267,17 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Expanded(
-                      child: GridView.count(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisCount: 2,
-                        childAspectRatio: 0.68,
-                        children:
-                            _gearResults
-                                .map((item) => _buildGearCard(item))
-                                .toList(),
-                      ),
+                    child: GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.68,
+                      children:
+                          _gearResults
+                              .map((item) => _buildGearCard(item))
+                              .toList(),
                     ),
                   ),
-
                   if (_shopResults.isNotEmpty)
                     const Padding(
                       padding: EdgeInsets.symmetric(
@@ -283,8 +293,10 @@ class _SearchScreenState extends State<SearchScreen> {
                     (shop) => ListTile(
                       leading: const Icon(Icons.store),
                       title: Text(shop['name'] ?? ''),
+                      // onTap: () { /* Navigate to shop detail if you have one */ },
                     ),
                   ),
+                  const SizedBox(height: 20), // Add some spacing at the bottom
                 ],
               ),
             ),
