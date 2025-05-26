@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../domain/models/group_trip.dart';
 
 class GroupTripForm extends StatefulWidget {
   const GroupTripForm({Key? key}) : super(key: key);
@@ -11,101 +11,296 @@ class GroupTripForm extends StatefulWidget {
 
 class _GroupTripFormState extends State<GroupTripForm> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _descController = TextEditingController();
-  final _locationController = TextEditingController();
-  final _maxMembersController = TextEditingController();
-  DateTime? _selectedDate;
+  final orangeColor = const Color(0xFFE3641F);
 
-  Future<void> _submitForm() async {
-    print("Submit button pressed"); // You already have this
+  // Controllers
+  final _tripNameController = TextEditingController();
+  final _destinationController = TextEditingController();
+  final _travellersController = TextEditingController();
+  final _budgetController = TextEditingController();
+  final _departureCityController = TextEditingController();
+  final _activitiesController = TextEditingController();
+  final _interestsController = TextEditingController();
+  final _organizerNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
 
-    // Add these debug statements
-    bool isFormValid = _formKey.currentState!.validate();
-    bool isDateSelected = _selectedDate != null;
+  String? _selectedTripType;
+  String? _selectedAccommodationType;
+  String? _selectedTransportationMode;
+  DateTime? _startDate;
+  DateTime? _endDate;
+  int _duration = 0;
 
-    print("Form valid: $isFormValid");
-    print("Date selected: $isDateSelected");
-    print("Selected date: $_selectedDate");
+  @override
+  void dispose() {
+    [
+      _tripNameController,
+      _destinationController,
+      _travellersController,
+      _budgetController,
+      _departureCityController,
+      _activitiesController,
+      _interestsController,
+      _organizerNameController,
+      _emailController,
+      _phoneController,
+    ].forEach((c) => c.dispose());
+    super.dispose();
+  }
 
-    if (isFormValid && isDateSelected) {
-      print("Attempting to save..."); // Add this
-
-      try {
-        final newTrip = GroupTrip(
-          title: _titleController.text.trim(),
-          description: _descController.text.trim(),
-          location: _locationController.text.trim(),
-          date: _selectedDate!,
-          maxMembers: int.parse(_maxMembersController.text.trim()),
-        );
-
-        print("Trip object created: ${newTrip.toMap()}"); // Add this
-
-        await FirebaseFirestore.instance
-            .collection('group_trips')
-            .add(newTrip.toMap());
-
-        print("Trip saved successfully!"); // Add this
-
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Group trip posted!')));
-        Navigator.pop(context);
-      } catch (e) {
-        print("Error saving trip: $e"); // Add this
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
-      }
-    } else {
-      print("Form validation failed or date not selected"); // Add this
+  void _calculateDuration() {
+    if (_startDate != null && _endDate != null) {
+      setState(() {
+        _duration = _endDate!.difference(_startDate!).inDays + 1;
+      });
     }
   }
 
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
+  Future<void> _selectDate(bool isStart) async {
+    final date = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().add(Duration(days: 1)),
-      firstDate: DateTime.now(),
+      initialDate:
+          isStart
+              ? (_startDate ?? DateTime.now())
+              : (_endDate ?? _startDate ?? DateTime.now()),
+      firstDate: isStart ? DateTime.now() : (_startDate ?? DateTime.now()),
       lastDate: DateTime(2100),
     );
-    if (picked != null) setState(() => _selectedDate = picked);
+
+    if (date != null) {
+      setState(() {
+        if (isStart) {
+          _startDate = date;
+          if (_endDate != null && _endDate!.isBefore(_startDate!))
+            _endDate = null;
+        } else {
+          _endDate = date;
+        }
+        _calculateDuration();
+      });
+    }
+  }
+
+  Future<void> _saveTrip() async {
+    if (!_formKey.currentState!.validate() ||
+        _startDate == null ||
+        _endDate == null ||
+        _selectedTripType == null ||
+        _selectedAccommodationType == null ||
+        _selectedTransportationMode == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill all required fields and select dates'),
+          backgroundColor: Colors.red, // Added error color
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    final user = FirebaseAuth.instance.currentUser;
+    final uid = user?.uid ?? 'testUser123';
+
+    try {
+      await FirebaseFirestore.instance.collection('group_trips').add({
+        'title': _tripNameController.text,
+        'destination': _destinationController.text,
+        'tripType': _selectedTripType!,
+        'startDate': _startDate!,
+        'endDate': _endDate!,
+        'duration': _duration,
+        'maxMembers': int.parse(_travellersController.text),
+        'budget': double.parse(_budgetController.text),
+        'accommodationType': _selectedAccommodationType!,
+        'departureCity': _departureCityController.text,
+        'transportationMode': _selectedTransportationMode!,
+        'activities': _activitiesController.text,
+        'organizerName': _organizerNameController.text,
+        'organizerEmail': _emailController.text,
+        'organizerPhone': _phoneController.text,
+        'createdBy': uid,
+        'createdAt': FieldValue.serverTimestamp(),
+        'members': [uid],
+        'memberCount': 1,
+        'status': 'active',
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Trip created successfully!')),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      print('Error saving trip: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text("Create Group Trip"),
-        backgroundColor: Colors.orange,
+        backgroundColor: orangeColor,
+        title: const Text(
+          'Create Group Trip',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         foregroundColor: Colors.white,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: ListView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildTextField(_titleController, "Trip Title"),
-              _buildTextField(_descController, "Description", maxLines: 3),
-              _buildTextField(_locationController, "Location"),
-              _buildDatePicker(context),
+              _sectionHeader('🌍 Trip Details'),
+              _buildTextField('Trip Name', _tripNameController),
+              _buildTextField('Destination', _destinationController),
+              _buildDropdown(
+                'Trip Type',
+                [
+                  'Leisure/Vacation',
+                  'Business',
+                  'Adventure',
+                  'Cultural/Educational',
+                  'Romantic Getaway',
+                  'Family Trip',
+                  'Group Travel',
+                ],
+                _selectedTripType,
+                (v) => setState(() => _selectedTripType = v),
+              ),
+
+              // Date Selection with Calendar Icons
+              Container(
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildDateTile(
+                            'Start Date',
+                            _startDate,
+                            () => _selectDate(true),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildDateTile(
+                            'End Date',
+                            _endDate,
+                            () => _selectDate(false),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_duration > 0) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: orangeColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.access_time,
+                              color: orangeColor,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Duration: $_duration days',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: orangeColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
               _buildTextField(
-                _maxMembersController,
-                "Max Participants",
+                'Max Travelers',
+                _travellersController,
                 isNumber: true,
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding: EdgeInsets.symmetric(vertical: 14),
-                ),
-                onPressed: _submitForm,
-                child: Text("Post Trip", style: TextStyle(fontSize: 16)),
+
+              _sectionHeader('💰 Budget & Stay'),
+              _buildTextField(
+                'Budget per person(LKR)',
+                _budgetController,
+                isNumber: true,
               ),
+              _buildDropdown(
+                'Accommodation',
+                [
+                  'Hotel',
+                  'Resort',
+                  'Airbnb',
+                  'Hostel',
+                  'Guesthouse',
+                  'Camping',
+                ],
+                _selectedAccommodationType,
+                (v) => setState(() => _selectedAccommodationType = v),
+              ),
+
+              _sectionHeader('🚗 Travel'),
+              _buildTextField('Departure City', _departureCityController),
+              _buildDropdown(
+                'Transportation',
+                ['Car/Road Trip', 'Train', 'Bus', 'Mixed'],
+                _selectedTransportationMode,
+                (v) => setState(() => _selectedTransportationMode = v),
+              ),
+
+              _sectionHeader('🎯 Activities'),
+              _buildMultiLineField('Activities', _activitiesController),
+
+              _sectionHeader('📞 Contact'),
+              _buildTextField('Organizer Name', _organizerNameController),
+              _buildTextField('Email', _emailController),
+              _buildTextField('Phone', _phoneController),
+
+              const SizedBox(height: 30),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _saveTrip,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: orangeColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Create Trip',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -113,38 +308,129 @@ class _GroupTripFormState extends State<GroupTripForm> {
     );
   }
 
-  Widget _buildTextField(
-    TextEditingController controller,
-    String label, {
-    bool isNumber = false,
-    int maxLines = 1,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        ),
-        validator:
-            (value) =>
-                value == null || value.trim().isEmpty ? "Required" : null,
+  Widget _sectionHeader(String text) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 16.0),
+    child: Text(
+      text,
+      style: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: orangeColor,
       ),
-    );
-  }
+    ),
+  );
 
-  Widget _buildDatePicker(BuildContext context) {
-    return ListTile(
-      title: Text(
-        _selectedDate == null
-            ? "Select Trip Date"
-            : "Date: ${_selectedDate!.toLocal().toString().split(' ')[0]}",
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    bool isNumber = false,
+  }) => Container(
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    child: TextFormField(
+      controller: controller,
+      keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: orangeColor, width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.white,
       ),
-      trailing: Icon(Icons.calendar_today, color: Colors.orange),
-      onTap: _pickDate,
-    );
-  }
+      validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+    ),
+  );
+
+  Widget _buildMultiLineField(String label, TextEditingController controller) =>
+      Container(
+        margin: const EdgeInsets.symmetric(vertical: 8.0),
+        child: TextFormField(
+          controller: controller,
+          maxLines: 3,
+          decoration: InputDecoration(
+            labelText: label,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: orangeColor, width: 2),
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+        ),
+      );
+
+  // Fixed dropdown implementation
+  Widget _buildDropdown(
+    String label,
+    List<String> options,
+    String? value,
+    ValueChanged<String?> onChanged,
+  ) => Container(
+    margin: const EdgeInsets.symmetric(vertical: 8.0),
+    child: DropdownButtonFormField<String>(
+      value: value,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: orangeColor, width: 2),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+      ),
+      items: [
+        DropdownMenuItem<String>(
+          value: null,
+          child: Text('Select $label', style: TextStyle(color: Colors.grey)),
+        ), // Added comma here
+        ...options
+            .map((opt) => DropdownMenuItem(value: opt, child: Text(opt)))
+            .toList(), // Added toList() and comma
+      ],
+      onChanged: onChanged,
+      validator: (value) => value == null ? 'Required' : null,
+    ),
+  );
+
+  Widget _buildDateTile(String label, DateTime? date, VoidCallback onTap) =>
+      InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.grey[50],
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey[300]!),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(Icons.calendar_today, color: orangeColor, size: 16),
+                  const SizedBox(width: 8),
+                  Text(
+                    date != null
+                        ? "${date.day}/${date.month}/${date.year}"
+                        : "Select",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: date != null ? Colors.black87 : Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
 }
