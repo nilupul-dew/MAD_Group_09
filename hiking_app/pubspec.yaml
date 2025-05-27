@@ -69,6 +69,7 @@ flutter:
     - assets/images/backback3.png
     - assets/images/backpack1-.png
     - assets/images/hammoch-.png
+    - assets/images/logo1.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
