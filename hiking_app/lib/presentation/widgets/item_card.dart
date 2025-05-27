@@ -7,6 +7,11 @@ class ItemCard extends StatelessWidget {
   final String price;
   final String listedBy;
   final VoidCallback onTap;
+  final Color topColor;
+  final Color bottomColor;
+  final VoidCallback onCartTap;
+  final VoidCallback onFavoriteTap;
+  final VoidCallback onShareTap;
 
   const ItemCard({
     super.key,
@@ -16,6 +21,11 @@ class ItemCard extends StatelessWidget {
     required this.price,
     required this.listedBy,
     required this.onTap,
+    required this.topColor,
+    required this.bottomColor,
+    required this.onCartTap,
+    required this.onFavoriteTap,
+    required this.onShareTap,
   });
 
   @override
@@ -33,79 +43,152 @@ class ItemCard extends StatelessWidget {
           ),
           elevation: 4,
           child: Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              // Image section
-              Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(16)),
-                    child: Image.asset(
-                      assetImagePath,
-                      height: cardWidth * 0.7,
-                      width: double.infinity,
-                      fit: BoxFit.cover,
-                    ),
+              // Image section with gradient/solid color background
+              Container(
+                height: cardWidth * 0.9,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [topColor, bottomColor],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                   ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Column(
-                      children: const [
-                        Icon(Icons.shopping_cart_outlined,
-                            color: Color.fromARGB(255, 0, 0, 0), size: 20),
-                        SizedBox(height: 8),
-                        Icon(Icons.favorite_border,
-                            color: Color.fromARGB(255, 0, 0, 0), size: 20),
-                        SizedBox(height: 8),
-                        Icon(Icons.share,
-                            color: Color.fromARGB(255, 0, 0, 0), size: 20),
-                      ],
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Image.asset(
+                        assetImagePath,
+                        height: cardWidth * 0.6,
+                        fit: BoxFit.contain,
+                      ),
                     ),
-                  ),
-                ],
+                    Positioned(
+                      top: 20,
+                      right: 12,
+                      child: Column(
+                        children: [
+                          Material(
+                            color: Colors.transparent,
+                            shape: const CircleBorder(),
+                            child: InkWell(
+                              onTap: onCartTap,
+                              customBorder: const CircleBorder(),
+                              splashColor: Colors.white24,
+                              child: const Padding(
+                                padding: EdgeInsets.all(6.0),
+                                child: Icon(Icons.shopping_cart,
+                                    color: Colors.white, size: 20),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Material(
+                            color: Colors.transparent,
+                            shape: const CircleBorder(),
+                            child: InkWell(
+                              onTap: onFavoriteTap,
+                              customBorder: const CircleBorder(),
+                              splashColor: Colors.white24,
+                              child: const Padding(
+                                padding: EdgeInsets.all(6.0),
+                                child: Icon(Icons.favorite,
+                                    color: Colors.white, size: 20),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Material(
+                            color: Colors.transparent,
+                            shape: const CircleBorder(),
+                            child: InkWell(
+                              onTap: onShareTap,
+                              customBorder: const CircleBorder(),
+                              splashColor: const Color.fromARGB(60, 16, 106, 8),
+                              child: const Padding(
+                                padding: EdgeInsets.all(6.0),
+                                child: Icon(Icons.share,
+                                    color: Colors.white, size: 20),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              // Text section
-              Padding(
-                padding: const EdgeInsets.all(8.0),
+
+              // Bottom white section
+              Container(
+                color: Colors.white,
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 8,
+                ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       title,
+                      textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 14),
                     ),
+                    const SizedBox(height: 6),
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          const TextSpan(
+                            text: 'Capacity : ',
+                            style: TextStyle(fontSize: 13),
+                          ),
+                          TextSpan(
+                            text: capacity,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                     const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Text("Capacity: "),
-                        Text(
-                          capacity,
-                          style: const TextStyle(
-                              color: Colors.green, fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          const TextSpan(
+                            text: 'Charge per day ',
+                            style: TextStyle(fontSize: 13),
+                          ),
+                          TextSpan(
+                            text: price,
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        const Text("Per day: "),
-                        Text(
-                          price,
-                          style: const TextStyle(
-                              color: Colors.red, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     Text(
-                      "Listed by: $listedBy",
-                      style:
-                          const TextStyle(color: Colors.orange, fontSize: 11),
+                      "Listed by : $listedBy",
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Colors.orange,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
