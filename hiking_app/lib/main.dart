@@ -20,10 +20,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title:
-              Text("search bar and logo", style: TextStyle(color: Colors.red)),
-        ),
         body: HomeScreen(),
         // This trailing comma makes auto-formatting nicer for build methods.
       ),
