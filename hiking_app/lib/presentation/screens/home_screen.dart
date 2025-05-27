@@ -93,7 +93,7 @@ class HomePageContent extends StatelessWidget {
                 runSpacing: 12,
                 children: [
                   ItemCard(
-                    assetImagePath: 'assets/images/bag.jpeg',
+                    assetImagePath: 'assets/images/backback2.jpeg',
                     title: 'Mountain Trekking Backpack',
                     capacity: '35 - 45 L',
                     price: 'Rs.140.00',
@@ -101,7 +101,7 @@ class HomePageContent extends StatelessWidget {
                     onTap: () => debugPrint('Tapped Backpack 2'),
                   ),
                   ItemCard(
-                    assetImagePath: 'assets/images/bag.jpeg',
+                    assetImagePath: 'assets/images/tent1.jpeg',
                     title: 'Mountain Trekking Backpack',
                     capacity: '35 - 45 L',
                     price: 'Rs.140.00',
@@ -121,7 +121,7 @@ class HomePageContent extends StatelessWidget {
                 runSpacing: 12,
                 children: [
                   ItemCard(
-                    assetImagePath: 'assets/images/bag.jpeg',
+                    assetImagePath: 'assets/images/hammoch.jpeg',
                     title: 'Mountain Trekking Backpack',
                     capacity: '35 - 45 L',
                     price: 'Rs.140.00',
@@ -129,7 +129,7 @@ class HomePageContent extends StatelessWidget {
                     onTap: () => debugPrint('Tapped Backpack 2'),
                   ),
                   ItemCard(
-                    assetImagePath: 'assets/images/bag.jpeg',
+                    assetImagePath: 'assets/images/bag1.jpg',
                     title: 'Mountain Trekking Backpack',
                     capacity: '35 - 45 L',
                     price: 'Rs.140.00',
@@ -137,7 +137,7 @@ class HomePageContent extends StatelessWidget {
                     onTap: () => debugPrint('Tapped Backpack 2'),
                   ),
                   ItemCard(
-                    assetImagePath: 'assets/images/bag.jpeg',
+                    assetImagePath: 'assets/images/backpack1.jpeg',
                     title: 'Mountain Trekking Backpack',
                     capacity: '35 - 45 L',
                     price: 'Rs.140.00',
@@ -145,7 +145,7 @@ class HomePageContent extends StatelessWidget {
                     onTap: () => debugPrint('Tapped Backpack 2'),
                   ),
                   ItemCard(
-                    assetImagePath: 'assets/images/bag.jpeg',
+                    assetImagePath: 'assets/images/sleeping_bag.jpeg',
                     title: 'Mountain Trekking Backpack',
                     capacity: '35 - 45 L',
                     price: 'Rs.140.00',
