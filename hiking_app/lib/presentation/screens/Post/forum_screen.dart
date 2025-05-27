@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:hiking_app/data/firebase_services/post_firebase.dart';
-import 'package:hiking_app/presentation/widgets/post_add.dart';
-import 'package:hiking_app/presentation/widgets/post_search_screen.dart';
-import '../widgets/post_tile.dart';
-import '../../../domain/models/post_model.dart';
+import 'package:hiking_app/data/firebase_services/Post/post_firebase.dart';
+import 'package:hiking_app/presentation/widgets/Post/post_add.dart';
+import 'package:hiking_app/presentation/widgets/Post/post_search_screen.dart';
+import '../../widgets/Post/post_tile.dart';
+import '../../../domain/models/Post/post_model.dart';
 
 class ForumScreen extends StatefulWidget {
   const ForumScreen({super.key});

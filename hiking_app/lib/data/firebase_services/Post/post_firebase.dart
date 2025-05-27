@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 
-import '../../domain/models/post_model.dart';
+import '../../../domain/models/Post/post_model.dart';
 
 class FirebaseForumService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

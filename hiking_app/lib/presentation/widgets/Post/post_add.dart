@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hiking_app/data/firebase_services/post_firebase.dart';
-import 'package:hiking_app/domain/models/post_model.dart';
-import 'package:hiking_app/presentation/widgets/post_edit_image_preview.dart';
+import 'package:hiking_app/data/firebase_services/Post/post_firebase.dart';
+import 'package:hiking_app/domain/models/Post/post_model.dart';
+import 'package:hiking_app/presentation/widgets/Post/post_edit_image_preview.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AddPostScreen extends StatefulWidget {

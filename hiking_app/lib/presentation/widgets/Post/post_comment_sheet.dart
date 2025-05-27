@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hiking_app/data/firebase_services/FirebasePostInteractionService.dart';
-import 'package:hiking_app/domain/models/comment_model.dart';
+import 'package:hiking_app/data/firebase_services/Post/FirebasePostInteractionService.dart';
+import 'package:hiking_app/domain/models/Post/comment_model.dart';
 
 class CommentsBottomSheet extends StatefulWidget {
   final String postId;
@@ -121,11 +121,11 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
                                         31,
                                         1,
                                       ),
+                                      radius: 16,
                                       child: const Icon(
                                         Icons.person,
                                         color: Colors.white,
-                                      ),
-                                      radius: 16, // slightly smaller avatar
+                                      ), // slightly smaller avatar
                                     ),
                                     const SizedBox(width: 12),
 

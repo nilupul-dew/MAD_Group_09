@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:hiking_app/presentation/widgets/post_action_buttons.dart';
-import 'package:hiking_app/presentation/widgets/post_engagementBar.dart';
-import 'package:hiking_app/presentation/widgets/post_options.dart';
-import '../../../domain/models/post_model.dart';
+import 'package:hiking_app/presentation/widgets/Post/post_action_buttons.dart';
+import 'package:hiking_app/presentation/widgets/Post/post_engagementBar.dart';
+import 'package:hiking_app/presentation/widgets/Post/post_options.dart';
+import '../../../domain/models/Post/post_model.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
 class PostTile extends StatefulWidget {

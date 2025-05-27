@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hiking_app/data/firebase_services/post_firebase.dart';
-import 'package:hiking_app/presentation/widgets/post_add.dart';
+import 'package:hiking_app/data/firebase_services/Post/post_firebase.dart';
+import 'package:hiking_app/presentation/widgets/Post/post_add.dart';
 
 // Define the primary orange color - update this to match your app's color
 const Color primaryOrange = Color(0xFFFF6B35);

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../domain/models/post_model.dart';
-import 'package:hiking_app/data/firebase_services/post_firebase.dart';
+import '../../../domain/models/Post/post_model.dart';
+import 'package:hiking_app/data/firebase_services/Post/post_firebase.dart';
 import 'post_tile.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 

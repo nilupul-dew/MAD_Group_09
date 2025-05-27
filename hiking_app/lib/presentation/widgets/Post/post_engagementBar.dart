@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hiking_app/data/firebase_services/FirebasePostInteractionService.dart';
+import 'package:hiking_app/data/firebase_services/Post/FirebasePostInteractionService.dart';
 
 Widget buildEngagementBar(BuildContext context, String postId) {
   final service = FirebasePostInteractionService();

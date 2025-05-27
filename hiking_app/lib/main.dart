@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hiking_app/firebase_options.dart';
-import 'package:hiking_app/presentation/screens/forum_screen.dart';
+import 'package:hiking_app/presentation/screens/Post/forum_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

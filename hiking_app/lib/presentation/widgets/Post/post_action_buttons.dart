@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hiking_app/data/firebase_services/FirebasePostInteractionService.dart';
-import 'package:hiking_app/domain/models/post_model.dart';
-import 'package:hiking_app/domain/models/share_model.dart';
-import 'package:hiking_app/presentation/widgets/post_comment_sheet.dart';
-import 'package:hiking_app/presentation/widgets/post_like_handlie.dart';
+import 'package:hiking_app/data/firebase_services/Post/FirebasePostInteractionService.dart';
+import 'package:hiking_app/domain/models/Post/post_model.dart';
+import 'package:hiking_app/domain/models/Post/share_model.dart';
+import 'package:hiking_app/presentation/widgets/Post/post_comment_sheet.dart';
+import 'package:hiking_app/presentation/widgets/Post/post_like_handlie.dart';
 import 'package:share_plus/share_plus.dart' as share_plus;
 
 Widget buildActionButtons(BuildContext context, Post post) {

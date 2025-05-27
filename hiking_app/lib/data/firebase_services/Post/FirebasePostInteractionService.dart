@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:hiking_app/domain/models/comment_model.dart';
-import 'package:hiking_app/domain/models/share_model.dart';
+import 'package:hiking_app/domain/models/Post/comment_model.dart';
+import 'package:hiking_app/domain/models/Post/share_model.dart';
 
 class FirebasePostInteractionService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
