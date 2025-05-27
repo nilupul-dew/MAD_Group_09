@@ -92,7 +92,7 @@ class _GroupTripFormState extends State<GroupTripForm> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please fill all required fields and select dates'),
-          backgroundColor: Colors.red, // Added error color
+          backgroundColor: Colors.red,
           duration: Duration(seconds: 2),
         ),
       );
@@ -103,6 +103,13 @@ class _GroupTripFormState extends State<GroupTripForm> {
     final uid = user?.uid ?? 'testUser123';
 
     try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
       await FirebaseFirestore.instance.collection('group_trips').add({
         'title': _tripNameController.text,
         'destination': _destinationController.text,
@@ -126,15 +133,33 @@ class _GroupTripFormState extends State<GroupTripForm> {
         'status': 'active',
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Trip created successfully!')),
-      );
+      // Close loading dialog
       Navigator.pop(context);
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('published the post'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      // Wait a bit for the user to see the message, then close the form
+      await Future.delayed(const Duration(milliseconds: 500));
+      Navigator.pop(context, true); // Return true to indicate success
     } catch (e) {
+      // Close loading dialog if it's open
+      Navigator.pop(context);
+
       print('Error saving trip: $e');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -362,7 +387,6 @@ class _GroupTripFormState extends State<GroupTripForm> {
         ),
       );
 
-  // Fixed dropdown implementation
   Widget _buildDropdown(
     String label,
     List<String> options,
@@ -386,10 +410,10 @@ class _GroupTripFormState extends State<GroupTripForm> {
         DropdownMenuItem<String>(
           value: null,
           child: Text('Select $label', style: TextStyle(color: Colors.grey)),
-        ), // Added comma here
+        ),
         ...options
             .map((opt) => DropdownMenuItem(value: opt, child: Text(opt)))
-            .toList(), // Added toList() and comma
+            .toList(),
       ],
       onChanged: onChanged,
       validator: (value) => value == null ? 'Required' : null,
