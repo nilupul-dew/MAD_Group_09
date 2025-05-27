@@ -42,6 +42,10 @@ class _ForumScreenState extends State<ForumScreen> {
 
     try {
       final posts = await _service.fetchPosts();
+
+      // Sort posts by descending timestamp
+      posts.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
       setState(() {
         _posts = posts;
         _isLoading = false;

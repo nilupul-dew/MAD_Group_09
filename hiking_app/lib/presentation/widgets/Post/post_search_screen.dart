@@ -136,8 +136,8 @@ class _PostSearchScreenState extends State<PostSearchScreen> {
           }
         },
       );
-      // Automatically stop after 5 seconds
-      Timer(const Duration(seconds: 5), () {
+      // Automatically stop after 10 seconds
+      Timer(const Duration(seconds: 10), () {
         _stopListening();
       });
     }
