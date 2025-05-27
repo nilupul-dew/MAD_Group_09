@@ -59,35 +59,40 @@ class _SearchScreenState extends State<SearchScreen> {
   // Removed _buildGearCard as it's now a separate widget
 
 Widget _buildRecentSearchTile(String term) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Color(0x4DF78750), // Light background color
-          borderRadius: BorderRadius.circular(10), // Rounded corners
-          border: Border.all(color: Color(0x4DF78750),) // Subtle border
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0), // Reduced vertical padding
+    child: InkWell( // Use InkWell for a ripple effect on tap
+      onTap: () {
+        _searchController.text = term;
+        _performSearch();
+      },
+      child: Container( // Keep a container to control height/alignment if needed, or remove it and use ListTile directly
+        padding: const EdgeInsets.symmetric(vertical: 8.0), // Padding inside the tappable area
+        decoration: const BoxDecoration(
+          // No color, no border, no shadow for a minimalistic look
         ),
-        child: ListTile(
-          leading: Icon(Icons.history, color: Colors.grey[600]), // Styled icon
-          title: Text(
-            term,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.black87,
+        child: Row(
+          children: [
+            Icon(Icons.history, color: Colors.grey[600], size: 20), // Styled icon, slightly larger
+            const SizedBox(width: 16), // Space between icon and text
+            Expanded(
+              child: Text(
+                term,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black87, // Slightly darker text for search terms
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-          trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[500]),
-          onTap: () {
-            _searchController.text = term;
-            _performSearch();
-          },
-          dense: true, // Makes the tile a bit more compact
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8), // Inner padding
+           
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
 
   @override

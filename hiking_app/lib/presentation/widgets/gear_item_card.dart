@@ -6,11 +6,7 @@ class GearItemCard extends StatelessWidget {
   final Item item;
   final VoidCallback onTap;
 
-  const GearItemCard({
-    super.key,
-    required this.item,
-    required this.onTap,
-  });
+  const GearItemCard({super.key, required this.item, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +20,9 @@ class GearItemCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               child: Image.network(
                 item.imageUrl,
                 height: 120,
@@ -34,7 +32,9 @@ class GearItemCard extends StatelessWidget {
                   return Container(
                     height: 120,
                     color: Colors.grey[300],
-                    child: const Center(child: Icon(Icons.broken_image, size: 40)),
+                    child: const Center(
+                      child: Icon(Icons.broken_image, size: 40),
+                    ),
                   );
                 },
               ),
@@ -48,22 +48,13 @@ class GearItemCard extends StatelessWidget {
                   children: [
                     Text(
                       item.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 6),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          const TextSpan(
-                            text: 'Capacity: ',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          TextSpan(text: '${item.specs['capacity'] ?? 'N/A'}'),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 4),
                     Text.rich(
                       TextSpan(
                         children: [

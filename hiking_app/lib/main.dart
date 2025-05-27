@@ -8,9 +8,7 @@ import 'package:hiking_app/presentation/screens/search_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MyApp());
 }
 
@@ -67,15 +65,6 @@ class HomeScreen extends StatelessWidget {
               },
               child: Text("Go to cart Page"),
             ),
-            ElevatedButton(
-            child: const Text("Add Sample Gear Items"),
-            onPressed: () async {
-              await addSampleGearItems();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Sample data added to Firebase")),
-              );
-            },
-          ),
           ],
         ),
       ),
