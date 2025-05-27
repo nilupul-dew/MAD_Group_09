@@ -63,12 +63,12 @@ flutter:
   assets:
     - assets/images/john.jpeg
     - assets/images/sarah.jpeg
-    - assets/images/sleeping_bag.jpeg
-    - assets/images/tent1.jpeg
-    - assets/images/bag1.jpg
-    - assets/images/backback2.jpeg
-    - assets/images/backpack1.jpeg
-    - assets/images/hammoch.jpeg
+    - assets/images/sleeping_bag-.png
+    - assets/images/tent1-.png
+    - assets/images/bag1-.png
+    - assets/images/backback3.png
+    - assets/images/backpack1-.png
+    - assets/images/hammoch-.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
