@@ -81,8 +81,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           SnackBar(content: Text("SOS tapped")),
                         );
                       },
-                      icon: Icon(Icons.warning),
-                      label: Text('SOS'),
+                      icon: Icon(
+                        Icons.warning,
+                        color: const Color.fromARGB(255, 248, 4, 4),
+                      ),
+                      label: Text('SOS',
+                          style: TextStyle(
+                              color: const Color.fromARGB(255, 253, 4, 4))),
                       backgroundColor: const Color.fromARGB(255, 255, 255, 255),
                     ),
                   ),
@@ -119,7 +124,7 @@ class HomePageContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(120),
+        preferredSize: Size.fromHeight(100),
         child: AppBar(
           backgroundColor: Colors.white,
           elevation: 1,
@@ -127,14 +132,14 @@ class HomePageContent extends StatelessWidget {
           title: Row(
             children: [
               Image.asset(
-                'assets/images/logo1.jpg',
-                height: 40,
+                'assets/images/logo1.png',
+                height: 80,
               ),
               SizedBox(width: 8),
               Text(
-                'CampRent',
+                'RentalGear',
                 style: TextStyle(
-                  color: Colors.black,
+                  color: const Color.fromARGB(255, 0, 0, 0),
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -181,40 +186,15 @@ class HomePageContent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Category Icons
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: categoryIcons.map((cat) {
-                  return Column(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor:
-                            const Color.fromARGB(255, 226, 227, 226),
-                        child: Icon(cat['icon'] as IconData,
-                            color: const Color.fromARGB(255, 45, 46, 45)),
-                      ),
-                      SizedBox(height: 4),
-                      Text(cat['label'] as String,
-                          style: TextStyle(fontSize: 12)),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-            SizedBox(height: 10),
-
             // Discount Banner
             DiscountBanner(),
-
             SizedBox(height: 20),
             // Popular Items
             SectionTitle(title: "Popular Items"),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Wrap(
-                spacing: 8,
+                spacing: 10,
                 runSpacing: 12,
                 children: [
                   ItemCard(
@@ -249,7 +229,7 @@ class HomePageContent extends StatelessWidget {
               ),
             ),
 
-// Recommended
+// Recommended for you
             SectionTitle(title: "Recommend for you"),
             Padding(
               padding: const EdgeInsets.all(8.0),
