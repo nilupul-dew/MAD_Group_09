@@ -551,7 +551,7 @@ class FeedbackCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 280,
-      margin: EdgeInsets.only(right: 12),
+      margin: EdgeInsets.only(right: 12, bottom: 40),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
