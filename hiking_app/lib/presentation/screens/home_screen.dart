@@ -93,7 +93,7 @@ class HomePageContent extends StatelessWidget {
                 runSpacing: 12,
                 children: [
                   ItemCard(
-                    assetImagePath: 'assets/images/backback2.jpeg',
+                    assetImagePath: 'assets/images/backback3.png',
                     title: 'Waterproof Outdoor Travel Backpack',
                     capacity: '40 - 50 L',
                     price: 'Rs.150.00',
@@ -107,7 +107,7 @@ class HomePageContent extends StatelessWidget {
                     onShareTap: () => Navigator.pushNamed(context, '/share'),
                   ),
                   ItemCard(
-                    assetImagePath: 'assets/images/tent1.jpeg',
+                    assetImagePath: 'assets/images/tent1-.png',
                     title: 'Waterproof Outdoor Travel Backpack',
                     capacity: '40 - 50 L',
                     price: 'Rs.150.00',
@@ -133,7 +133,7 @@ class HomePageContent extends StatelessWidget {
                 runSpacing: 12,
                 children: [
                   ItemCard(
-                    assetImagePath: 'assets/images/hammoch.jpeg',
+                    assetImagePath: 'assets/images/hammoch-.png',
                     title: 'Waterproof Outdoor Travel Backpack',
                     capacity: '40 - 50 L',
                     price: 'Rs.150.00',
@@ -147,7 +147,7 @@ class HomePageContent extends StatelessWidget {
                     onShareTap: () => Navigator.pushNamed(context, '/share'),
                   ),
                   ItemCard(
-                    assetImagePath: 'assets/images/bag1.jpg',
+                    assetImagePath: 'assets/images/bag1-.png',
                     title: 'Waterproof Outdoor Travel Backpack',
                     capacity: '40 - 50 L',
                     price: 'Rs.150.00',
@@ -161,7 +161,7 @@ class HomePageContent extends StatelessWidget {
                     onShareTap: () => Navigator.pushNamed(context, '/share'),
                   ),
                   ItemCard(
-                    assetImagePath: 'assets/images/backpack1.jpeg',
+                    assetImagePath: 'assets/images/backpack1-.png',
                     title: 'Waterproof Outdoor Travel Backpack',
                     capacity: '40 - 50 L',
                     price: 'Rs.150.00',
@@ -175,7 +175,7 @@ class HomePageContent extends StatelessWidget {
                     onShareTap: () => Navigator.pushNamed(context, '/share'),
                   ),
                   ItemCard(
-                    assetImagePath: 'assets/images/sleeping_bag.jpeg',
+                    assetImagePath: 'assets/images/sleeping_bag-.png',
                     title: 'Waterproof Outdoor Travel Backpack',
                     capacity: '40 - 50 L',
                     price: 'Rs.150.00',
