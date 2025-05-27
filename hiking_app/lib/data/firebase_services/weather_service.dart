@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:hiking_app/domain/models/weather_model.dart';
 
 class WeatherService {
-  final String apiKey = 'YOUR_OPENWEATHERMAP_API_KEY';
+  final String apiKey = '2a8c6b6a7cfda04afbc3645345e1c03a';
 
   Future<Weather> fetchWeather(double lat, double lon) async {
     final url = Uri.parse(
