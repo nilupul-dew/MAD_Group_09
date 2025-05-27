@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../domain/models/post_model.dart';
 import 'package:hiking_app/data/firebase_services/post_firebase.dart';
 import 'post_tile.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class PostSearchScreen extends StatefulWidget {
   const PostSearchScreen({super.key});
@@ -16,17 +19,37 @@ class _PostSearchScreenState extends State<PostSearchScreen> {
   final FirebaseForumService _service = FirebaseForumService();
   List<Post> _searchResults = [];
   List<String> _recentSearches = [];
+  List<String> _suggestions = [];
+  List<String> _allTags = [];
+
+  //voice input
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+  String _voiceInput = "";
 
   @override
   void initState() {
     super.initState();
+    _speech = stt.SpeechToText();
     _loadRecentSearches();
+    _loadAllTags();
   }
 
   Future<void> _loadRecentSearches() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _recentSearches = prefs.getStringList('recent_searches') ?? [];
+    });
+  }
+
+  Future<void> _loadAllTags() async {
+    final posts = await _service.fetchPosts();
+    final tagSet = <String>{};
+    for (var post in posts) {
+      tagSet.addAll(post.tags);
+    }
+    setState(() {
+      _allTags = tagSet.toList();
     });
   }
 
@@ -48,21 +71,81 @@ class _PostSearchScreenState extends State<PostSearchScreen> {
     await _saveSearch(query);
     final results = await _service.fetchPosts();
 
-    final queryWords = query.split(' '); // e.g., ["chariot", "path"]
+    final queryWords = query.split(' ');
 
     setState(() {
       _searchResults =
           results.where((post) {
             final lowerTags =
                 post.tags.map((tag) => tag.toLowerCase()).toList();
-            // Match if any query word is found in any tag
             return queryWords.any(
               (word) => lowerTags.any((tag) => tag.contains(word)),
             );
           }).toList();
+      _suggestions.clear();
     });
 
-    print("✅ Found ${_searchResults.length} matching posts.");
+    print("✅ Found \${_searchResults.length} matching posts.");
+  }
+
+  void _updateSuggestions(String input) {
+    final normalized = input.trim().toLowerCase();
+    setState(() {
+      _suggestions =
+          _allTags
+              .where((tag) => tag.toLowerCase().contains(normalized))
+              .toList();
+    });
+  }
+
+  void _removeSearch(String query) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _recentSearches.remove(query);
+    });
+    await prefs.setStringList('recent_searches', _recentSearches);
+  }
+
+  void _clearAllRecentSearches() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _recentSearches.clear();
+    });
+    await prefs.remove('recent_searches');
+  }
+
+  //Voice to text functionality
+  void _startListening() async {
+    bool available = await _speech.initialize(
+      onStatus: (val) => print('🔊 STATUS: $val'),
+      onError: (val) => print('❌ ERROR: $val'),
+    );
+    if (available) {
+      print('🎤 Voice input initialized');
+      setState(() => _isListening = true);
+      _speech.listen(
+        onResult: (val) {
+          print('🎤 onResult triggered');
+          setState(() {
+            _voiceInput = val.recognizedWords;
+            _searchController.text = _voiceInput;
+          });
+          print('🎤 Recognized words: $_voiceInput');
+          if (val.hasConfidenceRating && val.confidence > 0) {
+            _searchPosts(_voiceInput);
+          }
+        },
+      );
+      // Automatically stop after 5 seconds
+      Timer(const Duration(seconds: 5), () {
+        _stopListening();
+      });
+    }
+  }
+
+  void _stopListening() {
+    _speech.stop();
+    setState(() => _isListening = false);
   }
 
   @override
@@ -85,63 +168,102 @@ class _PostSearchScreenState extends State<PostSearchScreen> {
               child: TextField(
                 controller: _searchController,
                 autofocus: true,
-                textInputAction:
-                    TextInputAction.search, // 🔍 Makes keyboard show 'Search'
+                textInputAction: TextInputAction.search,
                 decoration: const InputDecoration(
                   hintText: 'Search posts...',
                   border: InputBorder.none,
                 ),
-                onSubmitted: _searchPosts, // ✅ triggers on 'Enter'
+                onChanged: _updateSuggestions,
+                onSubmitted: _searchPosts,
               ),
             ),
             IconButton(
               icon: const Icon(Icons.search),
               onPressed: () {
-                _searchPosts(_searchController.text); // ✅ triggers on icon tap
+                _searchPosts(_searchController.text);
               },
+            ),
+            IconButton(
+              icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
+              onPressed: _isListening ? _stopListening : _startListening,
             ),
           ],
         ),
       ),
-
-      body:
-          _searchResults.isNotEmpty
-              ? ListView.builder(
-                itemCount: _searchResults.length,
-                itemBuilder:
-                    (context, index) => PostTile(post: _searchResults[index]),
-              )
-              : Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Recent Searches',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+      body: Column(
+        children: [
+          if (_suggestions.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Wrap(
+                spacing: 8,
+                children:
+                    _suggestions
+                        .map(
+                          (s) => ActionChip(
+                            label: Text(s),
+                            onPressed: () {
+                              _searchController.text = s;
+                              _searchPosts(s);
+                            },
+                          ),
+                        )
+                        .toList(),
+              ),
+            ),
+          Expanded(
+            child:
+                _searchResults.isNotEmpty
+                    ? ListView.builder(
+                      itemCount: _searchResults.length,
+                      itemBuilder:
+                          (context, index) =>
+                              PostTile(post: _searchResults[index]),
+                    )
+                    : Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Recent Searches',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: _clearAllRecentSearches,
+                                child: const Text("Clear All"),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 8,
+                            children:
+                                _recentSearches
+                                    .map(
+                                      (query) => InputChip(
+                                        label: Text(query),
+                                        onPressed: () {
+                                          _searchController.text = query;
+                                          _searchPosts(query);
+                                        },
+                                        onDeleted: () => _removeSearch(query),
+                                      ),
+                                    )
+                                    .toList(),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      children:
-                          _recentSearches
-                              .map(
-                                (query) => ActionChip(
-                                  label: Text(query),
-                                  onPressed: () {
-                                    _searchController.text = query;
-                                    _searchPosts(query);
-                                  },
-                                ),
-                              )
-                              .toList(),
-                    ),
-                  ],
-                ),
-              ),
+          ),
+        ],
+      ),
     );
   }
 }
