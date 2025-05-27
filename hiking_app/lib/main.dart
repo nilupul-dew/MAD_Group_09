@@ -1,35 +1,31 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'package:hiking_app/firebase_options.dart';
+import 'package:hiking_app/presentation/screens/explore_screen.dart';
+import 'package:hiking_app/presentation/viewmodels/place_viewmodel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
-  final FirebaseFirestore db = FirebaseFirestore.instance;
-  // This widget is the root of your application.
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text("Firestore Example", style: TextStyle(color: Colors.red)),
+    return ChangeNotifierProvider(
+      create: (_) => PlaceViewModel()..loadPlaces(), // Load places on start
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Hiking App',
+        theme: ThemeData(
+          primarySwatch: Colors.green,
+          scaffoldBackgroundColor: Colors.grey[100],
         ),
-        body: Center(
-          child: ElevatedButton(
-            onPressed: () async {
-              await db.collection("Check").add({
-                "message": "Hello, Firestore!chamod",
-              });
-            },
-            child: Text("Add Document"),
-          ),
-        ), // This trailing comma makes auto-formatting nicer for build methods.
+        home: const ExploreScreen(),
       ),
     );
   }
