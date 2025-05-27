@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:hiking_app/data/firebase_services/post_firebase.dart';
 import 'package:hiking_app/presentation/widgets/post_add.dart';
+import 'package:hiking_app/presentation/widgets/post_search_screen.dart';
 import '../widgets/post_tile.dart';
 import '../../../domain/models/post_model.dart';
 
@@ -16,17 +18,27 @@ class _ForumScreenState extends State<ForumScreen> {
 
   List<Post> _posts = [];
   bool _isLoading = true;
+  bool _showFAB = true;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _loadPosts();
+
+    _scrollController.addListener(() {
+      final direction = _scrollController.position.userScrollDirection;
+
+      if (direction == ScrollDirection.reverse && _showFAB) {
+        setState(() => _showFAB = false);
+      } else if (direction == ScrollDirection.forward && !_showFAB) {
+        setState(() => _showFAB = true);
+      }
+    });
   }
 
   void _loadPosts() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
       final posts = await _service.fetchPosts();
@@ -36,16 +48,19 @@ class _ForumScreenState extends State<ForumScreen> {
       });
     } catch (e) {
       print("❌ Error loading posts: $e");
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
     }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Community Forum")),
       body:
           _isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -53,44 +68,134 @@ class _ForumScreenState extends State<ForumScreen> {
               ? const Center(child: Text("No posts yet. Add the first post!"))
               : RefreshIndicator(
                 onRefresh: () async => _loadPosts(),
-                child: ListView.builder(
-                  itemCount: _posts.length,
-                  itemBuilder:
-                      (_, i) => PostTile(
-                        post: _posts[i],
-                        onDelete: _loadPosts,
-                        onEdit: () async {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => AddPostScreen(
-                                    isEditing: true,
-                                    post: _posts[i],
-                                  ),
+                child: CustomScrollView(
+                  controller: _scrollController,
+                  slivers: [
+                    SliverAppBar(
+                      floating: true,
+                      snap: true,
+                      backgroundColor: Colors.white,
+                      elevation: 1,
+                      automaticallyImplyLeading: false,
+                      titleSpacing: 16,
+                      title: Row(
+                        children: [
+                          // 👤 User Avatar
+                          Container(
+                            height: 44,
+                            width: 44,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color(0xFFFFA726),
+                                  Color(0xFFFFCC80),
+                                ], // primaryOrange & lightOrange
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
                             ),
-                          );
-                          if (result == true) {
-                            _loadPosts(); // Refresh after edit
-                          }
-                        },
+                            child: const Icon(
+                              Icons.person,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          // 🔍 Search field (non-interactive placeholder)
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                // Open Search Screen
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const PostSearchScreen(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                height: 40,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                  ),
+                                ),
+                                alignment: Alignment.centerLeft,
+                                child: const Text(
+                                  "Where's your next adventure?",
+                                  style: TextStyle(
+                                    color: Colors.black54,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 12),
+
+                          // ➕ Add Post Button
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundColor: const Color(0xFFF5F5F5),
+                            child: IconButton(
+                              icon: const Icon(Icons.add, color: Colors.black),
+                              onPressed: () async {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => AddPostScreen(),
+                                  ),
+                                );
+                                if (result == true) _loadPosts();
+                              },
+                            ),
+                          ),
+
+                          const SizedBox(width: 8),
+
+                          // 👥 Group Trip Button (for future)
+                          const CircleAvatar(
+                            radius: 20,
+                            backgroundColor: Color(0xFFF5F5F5),
+                            child: Icon(Icons.group, color: Colors.black),
+                          ),
+                        ],
                       ),
+                    ),
+
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, i) => PostTile(
+                          post: _posts[i],
+                          onDelete: _loadPosts,
+                          onEdit: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) => AddPostScreen(
+                                      isEditing: true,
+                                      post: _posts[i],
+                                    ),
+                              ),
+                            );
+                            if (result == true) _loadPosts();
+                          },
+                        ),
+                        childCount: _posts.length,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AddPostScreen()),
-          ).then((result) {
-            if (result == true) {
-              _loadPosts(); // Refresh after adding
-            }
-          });
-        },
-        tooltip: 'Add Post',
-        child: const Icon(Icons.add),
-      ),
     );
   }
 }

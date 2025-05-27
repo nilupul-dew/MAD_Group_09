@@ -56,6 +56,7 @@ class FirebaseForumService {
 
   // 🟡 Fetch all posts (ordered by timestamp)
   Future<List<Post>> fetchPosts() async {
+    print("🔄 Fetching posts from Firestore...");
     try {
       final querySnapshot =
           await _firestore
