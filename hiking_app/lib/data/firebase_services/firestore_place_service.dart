@@ -39,11 +39,9 @@ class FirestorePlaceService {
 
   Future<List<PlaceModel>> getAllPlaces() async {
     final snapshot = await _firestore.collection('places').get();
-
-    return snapshot.docs.map((doc) {
-      final data = doc.data();
-      return PlaceModel.fromJson(data);
-    }).toList();
+    return snapshot.docs
+        .map((doc) => PlaceModel.fromJson(_convertFirestoreDoc(doc)))
+        .toList();
   }
 
   Future<List<PlaceModel>> searchPlaces(String query) async {
@@ -54,7 +52,9 @@ class FirestorePlaceService {
             .where('name', isLessThanOrEqualTo: query + '\uf8ff')
             .get();
 
-    return snapshot.docs.map((doc) => PlaceModel.fromJson(doc.data())).toList();
+    return snapshot.docs
+        .map((doc) => PlaceModel.fromJson(_convertFirestoreDoc(doc)))
+        .toList();
   }
 
   Future<List<PlaceModel>> filterPlacesByCategory(String category) async {
@@ -64,18 +64,24 @@ class FirestorePlaceService {
             .where('category', isEqualTo: category)
             .get();
 
-    return snapshot.docs.map((doc) => PlaceModel.fromJson(doc.data())).toList();
+    return snapshot.docs
+        .map((doc) => PlaceModel.fromJson(_convertFirestoreDoc(doc)))
+        .toList();
   }
 
-  Future<void> addPlace(PlaceModel place) async {
-    await _firestore.collection('places').add(place.toJson());
-  }
+  /// Helper to convert Firestore DocumentSnapshot to Map<String, dynamic>
+  /// that fits PlaceModel.fromJson (handles GeoPoint conversion)
+  Map<String, dynamic> _convertFirestoreDoc(QueryDocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
 
-  Future<void> updatePlace(String docId, PlaceModel place) async {
-    await _firestore.collection('places').doc(docId).update(place.toJson());
-  }
-
-  Future<void> deletePlace(String docId) async {
-    await _firestore.collection('places').doc(docId).delete();
+    // Convert Firestore GeoPoint to a nested map with latitude and longitude
+    if (data['location'] is GeoPoint) {
+      final geoPoint = data['location'] as GeoPoint;
+      data['location'] = {
+        'latitude': geoPoint.latitude,
+        'longitude': geoPoint.longitude,
+      };
+    }
+    return data;
   }
 }
