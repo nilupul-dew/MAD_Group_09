@@ -200,6 +200,8 @@ class _CartScreenState extends State<CartScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
+                          elevation: 4,
+                          shadowColor: Colors.black.withOpacity(0.12),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                         child: const Text(

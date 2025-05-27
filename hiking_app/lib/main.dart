@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hiking_app/data/firebase_services/add_sample_data.dart';
 import 'package:hiking_app/firebase_options.dart';
 import 'package:hiking_app/presentation/screens/cart_page.dart';
 import 'package:hiking_app/presentation/screens/search_page.dart';
@@ -66,6 +67,15 @@ class HomeScreen extends StatelessWidget {
               },
               child: Text("Go to cart Page"),
             ),
+            ElevatedButton(
+            child: const Text("Add Sample Gear Items"),
+            onPressed: () async {
+              await addSampleGearItems();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Sample data added to Firebase")),
+              );
+            },
+          ),
           ],
         ),
       ),

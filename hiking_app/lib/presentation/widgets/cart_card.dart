@@ -39,10 +39,12 @@ class CartCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16.0),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: const Color(
+        0xFFFEF0EA,
+      ), // Your desired hex color for the card background
+      shadowColor: Colors.black,
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Row(
@@ -105,7 +107,10 @@ class CartCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           'for $rentalDays days from ${DateFormat('MMM d').format(startDate)}',
-                          style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey[700],
+                          ),
                         ),
                       ),
                     ],
