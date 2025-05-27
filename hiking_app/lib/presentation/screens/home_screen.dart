@@ -240,26 +240,30 @@ class HomePageContent extends StatelessWidget {
             // Popular Items
             SectionTitle(title: "Popular Items"),
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Wrap(
-                spacing: 10,
-                runSpacing: 12,
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0, vertical: 8.0), // equal side margins
+              child: Row(
+                mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween, // space between cards
                 children: [
-                  ItemCard(
-                    assetImagePath: 'assets/images/backback3.png',
-                    title: 'Waterproof Outdoor Travel Backpack',
-                    capacity: '40 - 50 L',
-                    price: 'Rs.150.00',
-                    listedBy: 'EstyBags.lk',
-                    topColor: const Color.fromARGB(255, 2, 2, 2),
-                    bottomColor: const Color.fromARGB(255, 141, 142, 142),
-                    onTap: () => (),
-                    onCartTap: () => Navigator.pushNamed(context, '/cart'),
-                    onFavoriteTap: () =>
-                        Navigator.pushNamed(context, '/wishlist'),
-                    onShareTap: () => Navigator.pushNamed(context, '/share'),
+                  SizedBox(
+                    child: ItemCard(
+                      assetImagePath: 'assets/images/backback3.png',
+                      title: 'Waterproof Outdoor Travel Backpack',
+                      capacity: '40 - 50 L',
+                      price: 'Rs.150.00',
+                      listedBy: 'EstyBags.lk',
+                      topColor: const Color.fromARGB(255, 2, 2, 2),
+                      bottomColor: const Color.fromARGB(255, 141, 142, 142),
+                      onTap: () => (),
+                      onCartTap: () => Navigator.pushNamed(context, '/cart'),
+                      onFavoriteTap: () =>
+                          Navigator.pushNamed(context, '/wishlist'),
+                      onShareTap: () => Navigator.pushNamed(context, '/share'),
+                    ),
                   ),
-                  ItemCard(
+                  SizedBox(
+                      child: ItemCard(
                     assetImagePath: 'assets/images/tent1-.png',
                     title: 'Waterproof Outdoor Travel Backpack',
                     capacity: '40 - 50 L',
@@ -272,77 +276,108 @@ class HomePageContent extends StatelessWidget {
                     onFavoriteTap: () =>
                         Navigator.pushNamed(context, '/wishlist'),
                     onShareTap: () => Navigator.pushNamed(context, '/share'),
-                  )
+                  )),
                 ],
               ),
             ),
 
 // Recommended for you
             SectionTitle(title: "Recommend for you"),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 12,
-                children: [
-                  ItemCard(
-                    assetImagePath: 'assets/images/hammoch-.png',
-                    title: 'Waterproof Outdoor Travel Backpack',
-                    capacity: '40 - 50 L',
-                    price: 'Rs.150.00',
-                    listedBy: 'EstyBags.lk',
-                    topColor: const Color.fromARGB(255, 101, 1, 1),
-                    bottomColor: const Color.fromARGB(255, 170, 123, 123),
-                    onTap: () => (),
-                    onCartTap: () => Navigator.pushNamed(context, '/cart'),
-                    onFavoriteTap: () =>
-                        Navigator.pushNamed(context, '/wishlist'),
-                    onShareTap: () => Navigator.pushNamed(context, '/share'),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                double screenWidth = constraints.maxWidth;
+                double spacing = 16; // space between cards
+                double cardWidth = (screenWidth - spacing * 3) /
+                    2; // two cards + spacing between + margins
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0,
+                      vertical: 8.0), // Equal left/right margin
+                  child: Wrap(
+                    spacing: spacing,
+                    runSpacing: 16,
+                    children: [
+                      SizedBox(
+                        width: cardWidth,
+                        child: ItemCard(
+                          assetImagePath: 'assets/images/hammoch-.png',
+                          title: 'Waterproof Outdoor Travel Backpack',
+                          capacity: '40 - 50 L',
+                          price: 'Rs.150.00',
+                          listedBy: 'EstyBags.lk',
+                          topColor: const Color.fromARGB(255, 101, 1, 1),
+                          bottomColor: const Color.fromARGB(255, 170, 123, 123),
+                          onTap: () => (),
+                          onCartTap: () =>
+                              Navigator.pushNamed(context, '/cart'),
+                          onFavoriteTap: () =>
+                              Navigator.pushNamed(context, '/wishlist'),
+                          onShareTap: () =>
+                              Navigator.pushNamed(context, '/share'),
+                        ),
+                      ),
+                      SizedBox(
+                        width: cardWidth,
+                        child: ItemCard(
+                          assetImagePath: 'assets/images/bag1-.png',
+                          title: 'Waterproof Outdoor Travel Backpack',
+                          capacity: '40 - 50 L',
+                          price: 'Rs.150.00',
+                          listedBy: 'EstyBags.lk',
+                          topColor: const Color.fromARGB(255, 1, 26, 152),
+                          bottomColor: const Color.fromARGB(255, 133, 143, 159),
+                          onTap: () => (),
+                          onCartTap: () =>
+                              Navigator.pushNamed(context, '/cart'),
+                          onFavoriteTap: () =>
+                              Navigator.pushNamed(context, '/wishlist'),
+                          onShareTap: () =>
+                              Navigator.pushNamed(context, '/share'),
+                        ),
+                      ),
+                      SizedBox(
+                        width: cardWidth,
+                        child: ItemCard(
+                          assetImagePath: 'assets/images/backpack1-.png',
+                          title: 'Waterproof Outdoor Travel Backpack',
+                          capacity: '40 - 50 L',
+                          price: 'Rs.150.00',
+                          listedBy: 'EstyBags.lk',
+                          topColor: const Color.fromARGB(255, 255, 48, 227),
+                          bottomColor: const Color.fromARGB(255, 254, 162, 237),
+                          onTap: () => (),
+                          onCartTap: () =>
+                              Navigator.pushNamed(context, '/cart'),
+                          onFavoriteTap: () =>
+                              Navigator.pushNamed(context, '/wishlist'),
+                          onShareTap: () =>
+                              Navigator.pushNamed(context, '/share'),
+                        ),
+                      ),
+                      SizedBox(
+                        width: cardWidth,
+                        child: ItemCard(
+                          assetImagePath: 'assets/images/sleeping_bag-.png',
+                          title: 'Waterproof Outdoor Travel Backpack',
+                          capacity: '40 - 50 L',
+                          price: 'Rs.150.00',
+                          listedBy: 'EstyBags.lk',
+                          topColor: const Color.fromARGB(255, 30, 255, 9),
+                          bottomColor: const Color.fromARGB(255, 131, 247, 158),
+                          onTap: () => (),
+                          onCartTap: () =>
+                              Navigator.pushNamed(context, '/cart'),
+                          onFavoriteTap: () =>
+                              Navigator.pushNamed(context, '/wishlist'),
+                          onShareTap: () =>
+                              Navigator.pushNamed(context, '/share'),
+                        ),
+                      ),
+                    ],
                   ),
-                  ItemCard(
-                    assetImagePath: 'assets/images/bag1-.png',
-                    title: 'Waterproof Outdoor Travel Backpack',
-                    capacity: '40 - 50 L',
-                    price: 'Rs.150.00',
-                    listedBy: 'EstyBags.lk',
-                    topColor: const Color.fromARGB(255, 1, 26, 152),
-                    bottomColor: const Color.fromARGB(255, 133, 143, 159),
-                    onTap: () => (),
-                    onCartTap: () => Navigator.pushNamed(context, '/cart'),
-                    onFavoriteTap: () =>
-                        Navigator.pushNamed(context, '/wishlist'),
-                    onShareTap: () => Navigator.pushNamed(context, '/share'),
-                  ),
-                  ItemCard(
-                    assetImagePath: 'assets/images/backpack1-.png',
-                    title: 'Waterproof Outdoor Travel Backpack',
-                    capacity: '40 - 50 L',
-                    price: 'Rs.150.00',
-                    listedBy: 'EstyBags.lk',
-                    topColor: const Color.fromARGB(255, 255, 48, 227),
-                    bottomColor: const Color.fromARGB(255, 254, 162, 237),
-                    onTap: () => (),
-                    onCartTap: () => Navigator.pushNamed(context, '/cart'),
-                    onFavoriteTap: () =>
-                        Navigator.pushNamed(context, '/wishlist'),
-                    onShareTap: () => Navigator.pushNamed(context, '/share'),
-                  ),
-                  ItemCard(
-                    assetImagePath: 'assets/images/sleeping_bag-.png',
-                    title: 'Waterproof Outdoor Travel Backpack',
-                    capacity: '40 - 50 L',
-                    price: 'Rs.150.00',
-                    listedBy: 'EstyBags.lk',
-                    topColor: const Color.fromARGB(255, 30, 255, 9),
-                    bottomColor: const Color.fromARGB(255, 131, 247, 158),
-                    onTap: () => (),
-                    onCartTap: () => Navigator.pushNamed(context, '/cart'),
-                    onFavoriteTap: () =>
-                        Navigator.pushNamed(context, '/wishlist'),
-                    onShareTap: () => Navigator.pushNamed(context, '/share'),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
 
             // Customer Feedback
