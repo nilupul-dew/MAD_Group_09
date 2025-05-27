@@ -1,62 +1,276 @@
-import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:hiking_app/domain/models/place_model.dart';
-import 'package:url_launcher/url_launcher.dart';
+// import 'package:flutter/material.dart';
+// import 'package:url_launcher/url_launcher.dart';
+// import 'package:carousel_slider/carousel_slider.dart';
+// import 'package:hiking_app/domain/models/place_model.dart';
 
-class PlaceDetailScreen extends StatelessWidget {
+// class PlaceDetailScreen extends StatelessWidget {
+//   final PlaceModel place;
+
+//   const PlaceDetailScreen({Key? key, required this.place}) : super(key: key);
+
+//   // Launch Google Maps with coordinates
+//   void _launchMaps(double lat, double lng) async {
+//     final url = Uri.parse(
+//       'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
+//     );
+//     if (await canLaunchUrl(url)) {
+//       await launchUrl(url);
+//     } else {
+//       throw 'Could not open maps.';
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text(place.name),
+//         backgroundColor: const Color.fromARGB(255, 244, 244, 245),
+//       ),
+//       body: SingleChildScrollView(
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             // Image Carousel
+//             if (place.images.isNotEmpty)
+//               CarouselSlider(
+//                 options: CarouselOptions(
+//                   height: 250,
+//                   viewportFraction: 1.0,
+//                   enableInfiniteScroll: false,
+//                 ),
+//                 items:
+//                     place.images.map((imageUrl) {
+//                       return Image.network(
+//                         imageUrl,
+//                         fit: BoxFit.cover,
+//                         width: double.infinity,
+//                       );
+//                     }).toList(),
+//               )
+//             else
+//               // fallback to main image if no images list
+//               Image.network(
+//                 place.imageUrl,
+//                 height: 250,
+//                 width: double.infinity,
+//                 fit: BoxFit.cover,
+//               ),
+
+//             const SizedBox(height: 16),
+
+//             // Place info: name, province, district
+//             Padding(
+//               padding: const EdgeInsets.symmetric(horizontal: 16.0),
+//               child: Text(
+//                 place.name,
+//                 style: const TextStyle(
+//                   fontSize: 24,
+//                   fontWeight: FontWeight.bold,
+//                 ),
+//               ),
+//             ),
+//             Padding(
+//               padding: const EdgeInsets.symmetric(
+//                 horizontal: 16.0,
+//                 vertical: 4,
+//               ),
+//               child: Text(
+//                 '${place.province}, ${place.district}',
+//                 style: const TextStyle(fontSize: 16, color: Colors.grey),
+//               ),
+//             ),
+
+//             const SizedBox(height: 16),
+
+//             // Description
+//             Padding(
+//               padding: const EdgeInsets.symmetric(horizontal: 16.0),
+//               child: Text(
+//                 place.description,
+//                 style: const TextStyle(fontSize: 16),
+//               ),
+//             ),
+
+//             const SizedBox(height: 20),
+
+//             // Navigation Button
+//             Padding(
+//               padding: const EdgeInsets.symmetric(horizontal: 16.0),
+//               child: ElevatedButton.icon(
+//                 onPressed: () => _launchMaps(place.latitude, place.longitude),
+//                 icon: const Icon(Icons.navigation),
+//                 label: const Text('Navigate to Location'),
+//                 style: ElevatedButton.styleFrom(
+//                   backgroundColor: const Color.fromARGB(255, 24, 21, 44),
+//                   padding: const EdgeInsets.symmetric(vertical: 12),
+//                   textStyle: const TextStyle(fontSize: 16),
+//                 ),
+//               ),
+//             ),
+
+//             const SizedBox(height: 30),
+
+//             // TODO: Add Weather Card here
+
+//             // TODO: Add Community Posts/Reviews section here
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+//--------------above correct---------------------------//
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
+import 'package:hiking_app/domain/models/place_model.dart';
+
+class PlaceDetailScreen extends StatefulWidget {
   final PlaceModel place;
 
   const PlaceDetailScreen({Key? key, required this.place}) : super(key: key);
 
-  // Method to open Google Maps navigation
-  Future<void> _openMaps(double lat, double lng) async {
-    final googleMapsUrl =
-        'https://www.google.com/maps/search/?api=1&query=$lat,$lng';
-    if (await canLaunch(googleMapsUrl)) {
-      await launch(googleMapsUrl);
+  @override
+  State<PlaceDetailScreen> createState() => _PlaceDetailScreenState();
+}
+
+class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
+  VideoPlayerController? _videoController;
+  ChewieController? _chewieController;
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Initialize video player if videoUrl present
+    if (widget.place.videoUrl != null && widget.place.videoUrl!.isNotEmpty) {
+      _videoController = VideoPlayerController.network(widget.place.videoUrl!);
+      _chewieController = ChewieController(
+        videoPlayerController: _videoController!,
+        autoPlay: true,
+        looping: false,
+        showControls: true,
+      );
+      _videoController!.initialize().then((_) => setState(() {}));
+    }
+  }
+
+  @override
+  void dispose() {
+    _videoController?.dispose();
+    _chewieController?.dispose();
+    super.dispose();
+  }
+
+  // Launch Google Maps with coordinates
+  void _launchMaps(double lat, double lng) async {
+    final url = Uri.parse(
+      'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
+    );
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
     } else {
-      throw 'Could not open Google Maps.';
+      throw 'Could not open maps.';
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Combine video player (if any) and images into media items list
+    final List<Widget> mediaItems = [];
+
+    if (_chewieController != null && _videoController!.value.isInitialized) {
+      mediaItems.add(
+        AspectRatio(
+          aspectRatio: _videoController!.value.aspectRatio,
+          child: Chewie(controller: _chewieController!),
+        ),
+      );
+    }
+
+    if (widget.place.images.isNotEmpty) {
+      mediaItems.addAll(
+        widget.place.images.map((url) {
+          return Image.network(url, fit: BoxFit.cover, width: double.infinity);
+        }),
+      );
+    }
+
+    // If no video and no images, fallback to main image
+    if (mediaItems.isEmpty) {
+      mediaItems.add(
+        Image.network(
+          widget.place.imageUrl,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: 250,
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(place.name),
+        title: Text(widget.place.name),
         backgroundColor: const Color.fromARGB(255, 24, 21, 44),
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image carousel
-            SizedBox(
-              height: 250,
-              child: PageView.builder(
-                itemCount: place.images.isNotEmpty ? place.images.length : 1,
-                itemBuilder: (context, index) {
-                  final imageUrl =
-                      place.images.isNotEmpty
-                          ? place.images[index]
-                          : place.imageUrl; // fallback to main image
-                  return Image.network(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                  );
+            // Media Carousel
+            CarouselSlider(
+              items: mediaItems,
+              options: CarouselOptions(
+                height: 250,
+                viewportFraction: 1.0,
+                enableInfiniteScroll: false,
+                onPageChanged: (index, reason) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
                 },
               ),
             ),
 
-            const SizedBox(height: 16),
+            // Slide indicator dots
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children:
+                  mediaItems.asMap().entries.map((entry) {
+                    return GestureDetector(
+                      onTap:
+                          () => setState(() {
+                            _currentIndex = entry.key;
+                          }),
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 10,
+                        ),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color:
+                              _currentIndex == entry.key
+                                  ? Colors.blueAccent
+                                  : Colors.grey,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+            ),
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                place.name,
+                widget.place.name,
                 style: const TextStyle(
-                  fontSize: 28,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -65,65 +279,46 @@ class PlaceDetailScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Text(
-                '${place.locationName}, ${place.district}, ${place.province}',
+                '${widget.place.province}, ${widget.place.district}',
                 style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
             ),
 
+            const SizedBox(height: 16),
+
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
-                place.description,
+                widget.place.description,
                 style: const TextStyle(fontSize: 16),
               ),
             ),
 
-            // Navigation button
+            const SizedBox(height: 20),
+
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: ElevatedButton.icon(
-                onPressed: () => _openMaps(place.latitude, place.longitude),
+                onPressed:
+                    () => _launchMaps(
+                      widget.place.latitude,
+                      widget.place.longitude,
+                    ),
                 icon: const Icon(Icons.navigation),
-                label: const Text('Navigate with Google Maps'),
+                label: const Text('Navigate to Location'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color.fromARGB(255, 24, 21, 44),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  textStyle: const TextStyle(fontSize: 16),
                 ),
               ),
             ),
 
-            // Placeholder for Weather card
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Card(
-                elevation: 3,
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  child: const Text(
-                    'Weather info here (Coming Soon)',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-              ),
-            ),
+            const SizedBox(height: 30),
 
-            // Placeholder for Community Posts section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Card(
-                elevation: 3,
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  child: const Text(
-                    'Community Posts Section (Replace with your friend\'s widget)',
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ),
-              ),
-            ),
+            // TODO: Add Weather Card here
 
-            const SizedBox(height: 24),
+            // TODO: Add Community Posts/Reviews section here
           ],
         ),
       ),
