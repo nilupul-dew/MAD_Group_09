@@ -15,9 +15,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   static final List<Widget> _pages = <Widget>[
     HomePageContent(),
-    Center(child: Text('Search Page')),
-    Center(child: Text('Favorites Page')),
-    Center(child: Text('Profile Page')),
+    Center(child: Text('Items')),
+    Center(child: Text('Locations')),
+    Center(child: Text('Community')),
   ];
 
   void _onItemTapped(int index) {
@@ -112,14 +112,6 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class HomePageContent extends StatelessWidget {
-  final categoryIcons = [
-    {'icon': Icons.backpack, 'label': 'Backpacks'},
-    {'icon': Icons.cast, 'label': 'Tents'},
-    {'icon': Icons.directions_bike, 'label': 'Bikes'},
-    {'icon': Icons.local_fire_department, 'label': 'Cooking'},
-    {'icon': Icons.camera_alt, 'label': 'Camera'},
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -186,6 +178,62 @@ class HomePageContent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            //category
+// Category Section
+            SizedBox(
+              height: 100,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                itemCount: categoryIcons.length,
+                itemBuilder: (context, index) {
+                  final item = categoryIcons[index];
+                  return GestureDetector(
+                    onTap: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('${item['label']} tapped')),
+                      );
+                    },
+                    child: Container(
+                      width: 70,
+                      margin: EdgeInsets.only(right: 16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text('${item['label']} selected')),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(50),
+                            child: Container(
+                              padding: EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                item['icon'] as IconData,
+                                size: 30,
+                                color: const Color.fromARGB(255, 2, 2, 2),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            item['label'] as String,
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
             // Discount Banner
             DiscountBanner(),
             SizedBox(height: 20),
@@ -299,29 +347,33 @@ class HomePageContent extends StatelessWidget {
 
             // Customer Feedback
             SectionTitle(title: "Customer Feedback"),
-            SizedBox(
-              height: 120,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(horizontal: 12),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
                 children: [
                   FeedbackCard(
                     imagePath: 'assets/images/john.jpeg',
-                    feedback: "Awesome service & quality gear.",
+                    customerName: 'John Doe',
+                    rating: 4,
+                    feedback: 'Great service, highly recommend!',
                   ),
                   FeedbackCard(
                     imagePath: 'assets/images/sarah.jpeg',
-                    feedback: "Fast delivery and friendly support.",
+                    customerName: 'Jane Smith',
+                    rating: 5,
+                    feedback: 'Amazing experience, will come back again.',
                   ),
                   FeedbackCard(
-                    imagePath: 'assets/images/sarah.jpeg',
-                    feedback: "Fast delivery and friendly support.",
+                    imagePath: 'assets/images/john.jpeg',
+                    customerName: 'Alice Johnson',
+                    rating: 3,
+                    feedback: 'Good, but there is room for improvement.',
                   ),
-                  // Add more FeedbackCards as needed
+                  // add more cards here...
                 ],
               ),
-            ),
-
+            )
             // Map Section
             /*SectionTitle(title: "Find Shops"),
             FindShopsMap(),*/
@@ -345,16 +397,37 @@ class SectionTitle extends StatelessWidget {
   }
 }
 
+//feedback
 class FeedbackCard extends StatelessWidget {
   final String imagePath;
   final String feedback;
+  final String customerName;
+  final int rating; // 0 to 5 stars
 
-  const FeedbackCard({required this.imagePath, required this.feedback});
+  const FeedbackCard({
+    required this.imagePath,
+    required this.feedback,
+    required this.customerName,
+    required this.rating,
+    Key? key,
+  }) : super(key: key);
+
+  Widget buildStars(int rating) {
+    return Row(
+      children: List.generate(5, (index) {
+        if (index < rating) {
+          return Icon(Icons.star, color: Colors.amber, size: 18);
+        } else {
+          return Icon(Icons.star_border, color: Colors.amber, size: 18);
+        }
+      }),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 250,
+      width: 280,
       margin: EdgeInsets.only(right: 12),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -369,16 +442,41 @@ class FeedbackCard extends StatelessWidget {
         ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            radius: 28,
-            backgroundImage: AssetImage(imagePath),
+          // Left side: image + name below
+          Column(
+            children: [
+              CircleAvatar(
+                radius: 28,
+                backgroundImage: AssetImage(imagePath),
+              ),
+              SizedBox(height: 8),
+              Text(
+                customerName,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[700],
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
           ),
-          SizedBox(width: 12),
+
+          SizedBox(width: 16),
+
+          // Right side: stars + feedback text stacked vertically
           Expanded(
-            child: Text(
-              feedback,
-              style: TextStyle(fontSize: 14, color: Colors.grey[800]),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                buildStars(rating),
+                SizedBox(height: 8),
+                Text(
+                  feedback,
+                  style: TextStyle(fontSize: 14, color: Colors.grey[800]),
+                ),
+              ],
             ),
           ),
         ],
@@ -441,6 +539,14 @@ class ImageWidget extends StatelessWidget {
             height: 80, width: double.infinity, fit: BoxFit.cover);
   }
 }
+
+final categoryIcons = [
+  {'icon': Icons.backpack, 'label': 'Backpacks'},
+  {'icon': Icons.cast, 'label': 'Tents'},
+  {'icon': Icons.directions_bike, 'label': 'Bikes'},
+  {'icon': Icons.local_fire_department, 'label': 'Cooking'},
+  {'icon': Icons.camera_alt, 'label': 'Camera'},
+];
 
 class DiscountBanner extends StatelessWidget {
   const DiscountBanner({super.key});
