@@ -30,17 +30,17 @@ class BottomNavBar extends StatelessWidget {
       child: BottomNavigationBar(
         currentIndex: selectedIndex,
         onTap: onItemTapped,
-        selectedItemColor: Colors.teal,
+        selectedItemColor: const Color.fromARGB(255, 245, 112, 30),
         unselectedItemColor: Colors.grey,
         backgroundColor: Colors.transparent,
         elevation: 0,
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+          BottomNavigationBarItem(icon: Icon(Icons.inventory), label: 'Gear'),
           BottomNavigationBarItem(
-              icon: Icon(Icons.favorite), label: 'Favorites'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+              icon: Icon(Icons.location_on), label: 'Spots'),
+          BottomNavigationBarItem(icon: Icon(Icons.groups), label: 'Tribe'),
         ],
       ),
     );
