@@ -109,8 +109,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await Navigator.push(
+        onPressed: () {
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const GroupTripForm()),
           );
