@@ -26,13 +26,81 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  bool _isChatExpanded = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
+      ),
+      body: Stack(
+        children: [
+          _pages[_selectedIndex],
+
+          // Floating Chat/SOS Button with Animation
+          Positioned(
+            right: 16,
+            bottom: 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                AnimatedSlide(
+                  offset: _isChatExpanded ? Offset(0, 0) : Offset(0, 0.5),
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                  child: AnimatedOpacity(
+                    opacity: _isChatExpanded ? 1.0 : 0.0,
+                    duration: Duration(milliseconds: 300),
+                    child: FloatingActionButton.extended(
+                      heroTag: 'chat',
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Chat tapped")),
+                        );
+                      },
+                      icon: Icon(Icons.chat),
+                      label: Text('Chat'),
+                      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                AnimatedSlide(
+                  offset: _isChatExpanded ? Offset(0, 0) : Offset(0, 0.5),
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeOut,
+                  child: AnimatedOpacity(
+                    opacity: _isChatExpanded ? 1.0 : 0.0,
+                    duration: Duration(milliseconds: 300),
+                    child: FloatingActionButton.extended(
+                      heroTag: 'sos',
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("SOS tapped")),
+                        );
+                      },
+                      icon: Icon(Icons.warning),
+                      label: Text('SOS'),
+                      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                FloatingActionButton(
+                  heroTag: 'main',
+                  onPressed: () {
+                    setState(() {
+                      _isChatExpanded = !_isChatExpanded;
+                    });
+                  },
+                  child: Icon(_isChatExpanded ? Icons.close : Icons.message),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
