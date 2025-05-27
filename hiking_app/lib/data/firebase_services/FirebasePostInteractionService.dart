@@ -29,6 +29,16 @@ class FirebasePostInteractionService {
         .toList();
   }
 
+  //get comments count
+  Stream<int> getCommentsCount(String postId) {
+    return _firestore
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
+  }
+
   // Delete Comment
   Future<void> deleteComment(String postId, String commentId) async {
     await _firestore
@@ -73,15 +83,13 @@ class FirebasePostInteractionService {
   }
 
   // Get total likes count
-  Future<int> getLikesCount(String postId) async {
-    final snapshot =
-        await _firestore
-            .collection('posts')
-            .doc(postId)
-            .collection('likes')
-            .get();
-
-    return snapshot.size;
+  Stream<int> getLikesCount(String postId) {
+    return _firestore
+        .collection('posts')
+        .doc(postId)
+        .collection('likes')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
   }
 
   // Share Post
@@ -95,14 +103,12 @@ class FirebasePostInteractionService {
   }
 
   // Get shares count
-  Future<int> getSharesCount(String postId) async {
-    final snapshot =
-        await _firestore
-            .collection('posts')
-            .doc(postId)
-            .collection('shares')
-            .get();
-
-    return snapshot.size;
+  Stream<int> getSharesCount(String postId) {
+    return _firestore
+        .collection('posts')
+        .doc(postId)
+        .collection('shares')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.length);
   }
 }

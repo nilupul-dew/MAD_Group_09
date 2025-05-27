@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hiking_app/presentation/widgets/post_action_buttons.dart';
+import 'package:hiking_app/presentation/widgets/post_engagementBar.dart';
 import 'package:hiking_app/presentation/widgets/post_options.dart';
 import '../../../domain/models/post_model.dart';
 import 'package:timeago/timeago.dart' as timeago;
@@ -65,7 +66,7 @@ class _PostTileState extends State<PostTile>
             _buildImageSection(),
 
           // Engagement Bar (Like count, etc.)
-          _buildEngagementBar(),
+          buildEngagementBar(context, widget.post.id),
 
           // Action Buttons
           buildActionButtons(context, widget.post),
@@ -258,40 +259,6 @@ class _PostTileState extends State<PostTile>
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildEngagementBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          if (likeCount > 0) ...[
-            Container(
-              padding: const EdgeInsets.all(2),
-              decoration: const BoxDecoration(
-                color: primaryOrange,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.thumb_up, color: Colors.white, size: 14),
-            ),
-            const SizedBox(width: 6),
-            Text(
-              '$likeCount',
-              style: TextStyle(color: Colors.grey[600], fontSize: 13),
-            ),
-          ],
-          const Spacer(),
-          if (widget.post.tags.isNotEmpty) ...[
-            Text(
-              (likeCount - 10 < 0)
-                  ? '0 Comments'
-                  : '${likeCount - 10} Comments',
-              style: TextStyle(color: Colors.grey[600], fontSize: 13),
-            ),
-          ],
-        ],
       ),
     );
   }
