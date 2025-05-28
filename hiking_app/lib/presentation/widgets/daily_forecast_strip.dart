@@ -82,6 +82,7 @@
 //--------------------------------------------//
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:hiking_app/domain/models/weather_model.dart';
 
 class WeatherForecast {
   final String condition; // e.g., "Clear", "Rain", "Thunderstorm"
