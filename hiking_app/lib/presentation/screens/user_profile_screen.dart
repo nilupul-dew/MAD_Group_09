@@ -38,8 +38,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     'Germany',
     'France',
     'Japan',
-    'Other',
+    'Other Country',
   ];
+
+  // Mock data for camping activities - replace with real data later
+  final Map<String, dynamic> _campingStats = {
+    'totalTrips': 12,
+    'gearListed': 8,
+    'communityPosts': 24,
+    'gearRented': 15,
+    'reviewsGiven': 18,
+    'memberSince': '2023',
+    'favoriteLocations': 6,
+    'upcomingTrips': 3,
+  };
 
   @override
   void initState() {
@@ -76,8 +88,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         final data = doc.data()!;
         setState(() {
           _addressController.text = data['address'] ?? '';
-          _selectedGender = data['gender'];
-          _selectedCountry = data['country'];
+          final genderFromDB = data['gender'] as String?;
+          _selectedGender =
+              _genders.contains(genderFromDB) ? genderFromDB : null;
+          final countryFromDB = data['country'] as String?;
+          _selectedCountry =
+              _countries.contains(countryFromDB) ? countryFromDB : null;
         });
       }
     } catch (e) {
@@ -92,158 +108,498 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: const Text("Profile"),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        title: const Text(
+          "Profile",
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+          ),
+        ),
         actions: [
           if (!_isEditing)
             IconButton(
-              icon: const Icon(Icons.edit),
+              icon: const Icon(Icons.settings_outlined, color: Colors.black54),
               onPressed: () => setState(() => _isEditing = true),
             ),
           if (_isEditing) ...[
-            TextButton(onPressed: _cancelEditing, child: const Text("Cancel")),
-            TextButton(onPressed: _saveProfile, child: const Text("Save")),
+            TextButton(
+              onPressed: _cancelEditing,
+              child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: _saveProfile,
+              child: const Text(
+                "Save",
+                style: TextStyle(color: Color(0xFF2E7D32)),
+              ),
+            ),
           ],
         ],
       ),
       body:
           _isLoading
-              ? const Center(child: CircularProgressIndicator())
+              ? const Center(
+                child: CircularProgressIndicator(color: Color(0xFF2E7D32)),
+              )
               : SingleChildScrollView(
-                padding: const EdgeInsets.all(24.0),
                 child: Column(
                   children: [
-                    // Profile Image
-                    GestureDetector(
-                      onTap: _isEditing ? _pickImage : null,
-                      child: Stack(
+                    // Profile Header Section
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24.0),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF2E7D32), Color(0xFF4CAF50)],
+                        ),
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(30),
+                          bottomRight: Radius.circular(30),
+                        ),
+                      ),
+                      child: Column(
                         children: [
-                          CircleAvatar(
-                            radius: 60,
-                            backgroundColor: Colors.grey[200],
-                            backgroundImage: _getProfileImage(),
-                            child:
-                                _getProfileImage() == null
-                                    ? const Icon(
-                                      Icons.person,
-                                      size: 60,
-                                      color: Colors.grey,
-                                    )
-                                    : null,
-                          ),
-                          if (_isEditing)
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: CircleAvatar(
-                                radius: 18,
-                                backgroundColor: Colors.orange,
-                                child: const Icon(
-                                  Icons.camera_alt,
-                                  size: 18,
-                                  color: Colors.white,
+                          // Profile Image
+                          GestureDetector(
+                            onTap: _isEditing ? _pickImage : null,
+                            child: Stack(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 4,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 5),
+                                      ),
+                                    ],
+                                  ),
+                                  child: CircleAvatar(
+                                    radius: 50,
+                                    backgroundColor: Colors.white,
+                                    backgroundImage: _getProfileImage(),
+                                    child:
+                                        _getProfileImage() == null
+                                            ? const Icon(
+                                              Icons.person,
+                                              size: 50,
+                                              color: Colors.grey,
+                                            )
+                                            : null,
+                                  ),
                                 ),
+                                if (_isEditing)
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                        color: Colors.orange,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      padding: const EdgeInsets.all(8),
+                                      child: const Icon(
+                                        Icons.camera_alt,
+                                        size: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          // User Name
+                          Text(
+                            '${_firstNameController.text} ${_lastNameController.text}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            user?.email ?? '',
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          // Member Since Badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Member since ${_campingStats['memberSince']}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
+                          ),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 32),
 
-                    // Form Fields
-                    _buildTextField(
-                      "First Name",
-                      _firstNameController,
-                      enabled: _isEditing,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      "Last Name",
-                      _lastNameController,
-                      enabled: _isEditing,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTextField("Email", _emailController, enabled: false),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      "Phone",
-                      TextEditingController(
-                        text: user?.phoneNumber ?? 'Not provided',
-                      ),
-                      enabled: false,
-                    ),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      "Address",
-                      _addressController,
-                      enabled: _isEditing,
-                      maxLines: 2,
-                    ),
-                    const SizedBox(height: 16),
+                    // Stats Section
+                    Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Camping Activities',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
 
-                    // Gender Dropdown
-                    DropdownButtonFormField<String>(
-                      value: _selectedGender,
-                      decoration: const InputDecoration(
-                        labelText: "Gender",
-                        border: OutlineInputBorder(),
-                      ),
-                      items:
-                          _genders.map((gender) {
-                            return DropdownMenuItem(
-                              value: gender,
-                              child: Text(gender),
-                            );
-                          }).toList(),
-                      onChanged:
-                          _isEditing
-                              ? (value) =>
-                                  setState(() => _selectedGender = value)
-                              : null,
-                    ),
-                    const SizedBox(height: 16),
+                          // Quick Stats Grid
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildStatCard(
+                                  icon: Icons.hiking,
+                                  title: 'Total Trips',
+                                  value: '${_campingStats['totalTrips']}',
+                                  color: const Color(0xFF2E7D32),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildStatCard(
+                                  icon: Icons.backpack,
+                                  title: 'Gear Listed',
+                                  value: '${_campingStats['gearListed']}',
+                                  color: const Color(0xFFFF8F00),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildStatCard(
+                                  icon: Icons.forum,
+                                  title: 'Posts',
+                                  value: '${_campingStats['communityPosts']}',
+                                  color: const Color(0xFF1976D2),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildStatCard(
+                                  icon: Icons.star,
+                                  title: 'Reviews',
+                                  value: '${_campingStats['reviewsGiven']}',
+                                  color: const Color(0xFFE91E63),
+                                ),
+                              ),
+                            ],
+                          ),
 
-                    // Country Dropdown
-                    DropdownButtonFormField<String>(
-                      value: _selectedCountry,
-                      decoration: const InputDecoration(
-                        labelText: "Country",
-                        border: OutlineInputBorder(),
-                      ),
-                      items:
-                          _countries.map((country) {
-                            return DropdownMenuItem(
-                              value: country,
-                              child: Text(country),
-                            );
-                          }).toList(),
-                      onChanged:
-                          _isEditing
-                              ? (value) =>
-                                  setState(() => _selectedCountry = value)
-                              : null,
-                    ),
-                    const SizedBox(height: 32),
+                          const SizedBox(height: 24),
 
-                    // Logout Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: _showLogoutDialog,
-                        icon: const Icon(Icons.logout, color: Colors.red),
-                        label: const Text(
-                          "Logout",
-                          style: TextStyle(color: Colors.red),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.red),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                        ),
+                          // Activity Summary
+                          Container(
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Recent Activity',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                _buildActivityItem(
+                                  Icons.calendar_month,
+                                  'Upcoming Trips',
+                                  '${_campingStats['upcomingTrips']} trips planned',
+                                  const Color(0xFF2E7D32),
+                                ),
+                                _buildActivityItem(
+                                  Icons.favorite,
+                                  'Favorite Locations',
+                                  '${_campingStats['favoriteLocations']} saved spots',
+                                  const Color(0xFFE91E63),
+                                ),
+                                _buildActivityItem(
+                                  Icons.handshake,
+                                  'Gear Rentals',
+                                  '${_campingStats['gearRented']} items rented',
+                                  const Color(0xFFFF8F00),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // Profile Details (Expandable)
+                          if (_isEditing) ...[
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Edit Profile',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildTextField(
+                                    "First Name",
+                                    _firstNameController,
+                                    enabled: _isEditing,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildTextField(
+                                    "Last Name",
+                                    _lastNameController,
+                                    enabled: _isEditing,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildTextField(
+                                    "Email",
+                                    _emailController,
+                                    enabled: false,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildTextField(
+                                    "Address",
+                                    _addressController,
+                                    enabled: _isEditing,
+                                    maxLines: 2,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  // Gender Dropdown
+                                  DropdownButtonFormField<String>(
+                                    value: _selectedGender,
+                                    decoration: const InputDecoration(
+                                      labelText: "Gender",
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    items:
+                                        _genders.map((gender) {
+                                          return DropdownMenuItem(
+                                            value: gender,
+                                            child: Text(gender),
+                                          );
+                                        }).toList(),
+                                    onChanged:
+                                        (value) => setState(
+                                          () => _selectedGender = value,
+                                        ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  // Country Dropdown
+                                  DropdownButtonFormField<String>(
+                                    value: _selectedCountry,
+                                    decoration: const InputDecoration(
+                                      labelText: "Country",
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    items:
+                                        _countries.map((country) {
+                                          return DropdownMenuItem(
+                                            value: country,
+                                            child: Text(country),
+                                          );
+                                        }).toList(),
+                                    onChanged:
+                                        (value) => setState(
+                                          () => _selectedCountry = value,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                          ],
+
+                          // Logout Button
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: OutlinedButton.icon(
+                              onPressed: _showLogoutDialog,
+                              icon: const Icon(Icons.logout, color: Colors.red),
+                              label: const Text(
+                                "Logout",
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: Colors.red),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
+    );
+  }
+
+  Widget _buildStatCard({
+    required IconData icon,
+    required String title,
+    required String value,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.grey,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActivityItem(
+    IconData icon,
+    String title,
+    String subtitle,
+    Color color,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+                Text(
+                  subtitle,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -291,7 +647,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       _isEditing = false;
       _newProfileImage = null;
     });
-    _loadUserData(); // Reload original data
+    _loadUserData();
   }
 
   Future<void> _saveProfile() async {
@@ -316,7 +672,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
       });
 
       _showSuccess('Profile updated successfully');
-      _loadUserData(); // Reload data to get updated profile image URL
+      _loadUserData();
     } catch (e) {
       _showError('Failed to update profile: $e');
     } finally {
