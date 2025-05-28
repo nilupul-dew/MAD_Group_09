@@ -6,7 +6,7 @@ import 'otp_screen.dart';
 import 'display_name_screen.dart';
 import '../home_screen.dart';
 
-/* Edit line 257 to redirect to the home page if registered user */
+/* Edit line 274 to redirect to the home page if registered user */
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
