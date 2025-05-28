@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:hiking_app/firebase_options.dart';
 import 'package:hiking_app/presentation/screens/explore_screen.dart';
 import 'package:hiking_app/presentation/viewmodels/place_viewmodel.dart';
+//import 'package:hiking_app/presentation/screens/forecast_test_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +26,9 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.green,
           scaffoldBackgroundColor: Colors.grey[100],
         ),
+
         home: const ExploreScreen(),
+        //home: ForecastTestScreen(),
       ),
     );
   }
