@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:io';
@@ -24,10 +25,11 @@ class AuthService {
       }
       if (phoneNumber != null) {
         // For phone numbers, we'll check Firestore
-        final query = await _firestore
-            .collection('users')
-            .where('phone', isEqualTo: phoneNumber)
-            .get();
+        final query =
+            await _firestore
+                .collection('users')
+                .where('phone', isEqualTo: phoneNumber)
+                .get();
         return query.docs.isNotEmpty;
       }
       return false;
@@ -176,10 +178,10 @@ class AuthService {
         final ref = _storage.ref().child('profile_images/${user.uid}');
         await ref.putFile(profileImage);
         final downloadUrl = await ref.getDownloadURL();
-        
+
         // Update Firebase Auth profile
         await user.updatePhotoURL(downloadUrl);
-        
+
         // Update Firestore
         updateData['profileImage'] = downloadUrl;
       } catch (e) {
@@ -195,9 +197,37 @@ class AuthService {
 
   // Sign out
   Future<void> signOut() async {
-    await _googleSignIn.signOut();
-    await _facebookAuth.logOut();
-    await _auth.signOut();
+    try {
+      // Sign out from Google
+      try {
+        await _googleSignIn.signOut();
+      } catch (e) {
+        print('Google sign out error: $e');
+        // Continue with other sign outs
+      }
+
+      // Sign out from Facebook with error handling
+      try {
+        await _facebookAuth.logOut();
+      } on MissingPluginException catch (e) {
+        print('Facebook plugin not available: $e');
+        // Continue with Firebase sign out
+      } catch (e) {
+        print('Facebook sign out error: $e');
+        // Continue with Firebase sign out
+      }
+
+      // Always sign out from Firebase
+      await _auth.signOut();
+    } catch (e) {
+      print('Sign out error: $e');
+      // Still try to sign out from Firebase as fallback
+      try {
+        await _auth.signOut();
+      } catch (firebaseError) {
+        throw Exception('Complete sign out failed: $firebaseError');
+      }
+    }
   }
 
   // Check authentication state
@@ -237,14 +267,14 @@ class AuthService {
     try {
       // Delete user data from Firestore
       await _firestore.collection('users').doc(user.uid).delete();
-      
+
       // Delete profile image from Storage
       try {
         await _storage.ref().child('profile_images/${user.uid}').delete();
       } catch (e) {
         // Image might not exist, continue with account deletion
       }
-      
+
       // Delete user account
       await user.delete();
     } catch (e) {
