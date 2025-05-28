@@ -13,7 +13,7 @@ class GearItemCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         margin: const EdgeInsets.all(8),
         elevation: 4,
         child: Column(
@@ -52,7 +52,7 @@ class GearItemCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
-                      textAlign: TextAlign.center,
+                      textAlign: TextAlign.start,
                     ),
                     const SizedBox(height: 6),
                     Text.rich(
@@ -60,15 +60,21 @@ class GearItemCard extends StatelessWidget {
                         children: [
                           const TextSpan(
                             text: 'Available: ',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
                           ),
-                          TextSpan(text: '${item.availableQty}'),
+                          TextSpan(
+                            text: '${item.availableQty}',
+                            style: TextStyle(color: Colors.green),
+                          ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "Charge per day: Rs.${item.rentPricePerDay}",
+                      "Per Day: Rs.${item.rentPricePerDay}",
                       style: const TextStyle(color: Colors.red),
                     ),
                   ],
