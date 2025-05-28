@@ -78,23 +78,6 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
     }
   }
 
-  List<WeatherForecast> _generateMockForecasts() {
-    final now = DateTime.now();
-    return List.generate(3, (index) {
-      final day = now.add(Duration(days: index + 1));
-      return WeatherForecast(
-        condition:
-            index == 0
-                ? 'Clouds'
-                : index == 1
-                ? 'Rain'
-                : 'Clear',
-        temp: 25 + index.toDouble(),
-        date: day,
-      );
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final List<Widget> mediaItems = [];
