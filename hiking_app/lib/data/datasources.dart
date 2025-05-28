@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import '../../domain/models/group_trip.dart';
+import '../domain/models/group_trip_model.dart';
 
 class TripDatabase {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -11,7 +11,7 @@ class TripDatabase {
   // Create new trip
   Future<void> createTrip(Trip trip) async {
     try {
-      await _firestore.collection('trips').doc(trip.id).set(trip.toMap());
+      await _firestore.collection('trips').doc(trip.tripid).set(trip.toMap());
     } catch (e) {
       print('Error creating trip: $e');
       rethrow;

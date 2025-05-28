@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Trip {
-  final String id;
+  final String tripid;
   final String title;
   final String destination;
   final String tripType;
@@ -15,7 +15,6 @@ class Trip {
   final String departureCity;
   final String transportationMode;
   final String activities;
-  final String organizerName;
   final String organizerEmail;
   final String organizerPhone;
   final String createdBy;
@@ -25,7 +24,7 @@ class Trip {
   final String status;
 
   Trip({
-    required this.id,
+    required this.tripid,
     required this.title,
     required this.destination,
     required this.tripType,
@@ -38,7 +37,6 @@ class Trip {
     required this.departureCity,
     required this.transportationMode,
     required this.activities,
-    required this.organizerName,
     required this.organizerEmail,
     required this.organizerPhone,
     required this.createdBy,
@@ -50,7 +48,7 @@ class Trip {
 
   factory Trip.fromMap(Map<String, dynamic> data, String id) {
     return Trip(
-      id: id,
+      tripid: id,
       title: data['title'] ?? '',
       destination: data['destination'] ?? '',
       tripType: data['tripType'] ?? '',
@@ -63,7 +61,6 @@ class Trip {
       departureCity: data['departureCity'] ?? '',
       transportationMode: data['transportationMode'] ?? '',
       activities: data['activities'] ?? '',
-      organizerName: data['organizerName'] ?? '',
       organizerEmail: data['organizerEmail'] ?? '',
       organizerPhone: data['organizerPhone'] ?? '',
       createdBy: data['createdBy'] ?? '',
@@ -88,7 +85,6 @@ class Trip {
       'departureCity': departureCity,
       'transportationMode': transportationMode,
       'activities': activities,
-      'organizerName': organizerName,
       'organizerEmail': organizerEmail,
       'organizerPhone': organizerPhone,
       'createdBy': createdBy,

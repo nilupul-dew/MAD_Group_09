@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'presentation/screens/community_screen.dart';
+import 'presentation/screens/group_trip_screen.dart';
 import 'presentation/screens/group_trip_form.dart';
 
 void main() async {
@@ -22,10 +22,10 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.orange,
         scaffoldBackgroundColor: Colors.white,
       ),
-      home: const CommunityScreen(),
+      home: const GroupTripScreen(),
       routes: {
         '/create-trip': (context) => const GroupTripForm(),
-        '/community': (context) => const CommunityScreen(),
+        '/community': (context) => const GroupTripScreen(),
       },
     );
   }
