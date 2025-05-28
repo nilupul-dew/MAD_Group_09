@@ -776,6 +776,252 @@
 //   }
 // }
 //---------------------//
+// import 'package:flutter/material.dart';
+// import 'package:url_launcher/url_launcher.dart';
+// import 'package:carousel_slider/carousel_slider.dart';
+// import 'package:video_player/video_player.dart';
+// import 'package:chewie/chewie.dart';
+// import 'package:hiking_app/domain/models/place_model.dart';
+// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+// import 'package:hiking_app/presentation/widgets/daily_forecast_strip.dart';
+// import 'package:hiking_app/presentation/widgets/weather_card.dart';
+
+// class PlaceDetailScreen extends StatefulWidget {
+//   final PlaceModel place;
+
+//   const PlaceDetailScreen({Key? key, required this.place}) : super(key: key);
+
+//   @override
+//   State<PlaceDetailScreen> createState() => _PlaceDetailScreenState();
+// }
+
+// class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
+//   VideoPlayerController? _videoController;
+//   ChewieController? _chewieController;
+//   int _currentIndex = 0;
+
+//   @override
+//   void initState() {
+//     super.initState();
+
+//     if (widget.place.videoUrl != null && widget.place.videoUrl!.isNotEmpty) {
+//       _videoController = VideoPlayerController.network(widget.place.videoUrl!);
+//       _chewieController = ChewieController(
+//         videoPlayerController: _videoController!,
+//         autoPlay: true,
+//         looping: true,
+//         showControls: true,
+//       );
+//       _videoController!.initialize().then((_) => setState(() {}));
+//     }
+//   }
+
+//   @override
+//   void dispose() {
+//     _videoController?.dispose();
+//     _chewieController?.dispose();
+//     super.dispose();
+//   }
+
+//   void _launchMaps(double lat, double lng) async {
+//     final url = Uri.parse(
+//       'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
+//     );
+//     if (await canLaunchUrl(url)) {
+//       await launchUrl(url);
+//     } else {
+//       throw 'Could not open maps.';
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final List<Widget> mediaItems = [];
+
+//     if (_chewieController != null &&
+//         _videoController != null &&
+//         _videoController!.value.isInitialized) {
+//       mediaItems.add(
+//         AspectRatio(
+//           aspectRatio: _videoController!.value.aspectRatio,
+//           child: Chewie(controller: _chewieController!),
+//         ),
+//       );
+//     }
+
+//     if (widget.place.images.isNotEmpty) {
+//       mediaItems.addAll(
+//         widget.place.images.map((url) {
+//           return Image.network(url, fit: BoxFit.cover, width: double.infinity);
+//         }),
+//       );
+//     }
+
+//     if (mediaItems.isEmpty) {
+//       mediaItems.add(
+//         Image.network(
+//           widget.place.imageUrl,
+//           fit: BoxFit.cover,
+//           width: double.infinity,
+//           height: 250,
+//         ),
+//       );
+//     }
+
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text(widget.place.name),
+//         backgroundColor: const Color.fromARGB(255, 243, 243, 243),
+//         foregroundColor: Colors.black,
+//       ),
+//       body: SingleChildScrollView(
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             CarouselSlider(
+//               items: mediaItems,
+//               options: CarouselOptions(
+//                 height: 250,
+//                 viewportFraction: 1.0,
+//                 enableInfiniteScroll: false,
+//                 onPageChanged: (index, reason) {
+//                   setState(() {
+//                     _currentIndex = index;
+//                   });
+
+//                   if (_videoController != null &&
+//                       _videoController!.value.isInitialized) {
+//                     if (index == 0) {
+//                       _videoController!.play();
+//                     } else {
+//                       _videoController!.pause();
+//                     }
+//                   }
+//                 },
+//               ),
+//             ),
+
+//             Row(
+//               mainAxisAlignment: MainAxisAlignment.center,
+//               children:
+//                   mediaItems.asMap().entries.map((entry) {
+//                     return GestureDetector(
+//                       onTap:
+//                           () => setState(() {
+//                             _currentIndex = entry.key;
+//                           }),
+//                       child: Container(
+//                         width: 8,
+//                         height: 8,
+//                         margin: const EdgeInsets.symmetric(
+//                           horizontal: 4,
+//                           vertical: 10,
+//                         ),
+//                         decoration: BoxDecoration(
+//                           shape: BoxShape.circle,
+//                           color:
+//                               _currentIndex == entry.key
+//                                   ? Colors.blueAccent
+//                                   : Colors.grey,
+//                         ),
+//                       ),
+//                     );
+//                   }).toList(),
+//             ),
+
+//             Padding(
+//               padding: const EdgeInsets.symmetric(horizontal: 16),
+//               child: Text(
+//                 widget.place.name,
+//                 style: const TextStyle(
+//                   fontSize: 24,
+//                   fontWeight: FontWeight.bold,
+//                 ),
+//               ),
+//             ),
+
+//             Padding(
+//               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+//               child: Row(
+//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                 children: [
+//                   Text(
+//                     '${widget.place.province}, ${widget.place.district}',
+//                     style: const TextStyle(fontSize: 16, color: Colors.grey),
+//                   ),
+//                   ElevatedButton.icon(
+//                     onPressed:
+//                         () => _launchMaps(
+//                           widget.place.latitude,
+//                           widget.place.longitude,
+//                         ),
+//                     icon: const Icon(
+//                       FontAwesomeIcons.locationDot,
+//                       color: Color.fromARGB(255, 171, 8, 8), // Google Maps Blue
+//                       size: 24,
+//                     ),
+//                     label: const Text(
+//                       'Navigate',
+//                       style: TextStyle(color: Color(0xFF4285F4)),
+//                     ),
+//                     style: ElevatedButton.styleFrom(
+//                       backgroundColor: Colors.white,
+//                       elevation: 0,
+//                       padding: const EdgeInsets.symmetric(
+//                         horizontal: 12,
+//                         vertical: 8,
+//                       ),
+//                       shape: RoundedRectangleBorder(
+//                         borderRadius: BorderRadius.circular(20),
+//                         side: const BorderSide(color: Color(0xFF4285F4)),
+//                       ),
+//                       minimumSize: const Size(100, 40),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+
+//             const SizedBox(height: 16),
+
+//             Padding(
+//               padding: const EdgeInsets.symmetric(horizontal: 16),
+//               child: Text(
+//                 widget.place.description,
+//                 style: const TextStyle(fontSize: 16),
+//               ),
+//             ),
+
+//             const SizedBox(height: 20),
+
+//             /// weather section with card + forecast strip
+//             Padding(
+//               padding: const EdgeInsets.symmetric(horizontal: 16),
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   WeatherCard(
+//                     latitude: widget.place.latitude,
+//                     longitude: widget.place.longitude,
+//                   ),
+//                   const SizedBox(height: 12),
+//                   DailyForecastStrip(
+//                     forecasts:
+//                         [], // 👈 You need to pass real or mock forecast list here
+//                   ),
+//                 ],
+//               ),
+//             ),
+//             const SizedBox(height: 20),
+
+//             // TODO: Add Community Posts/Reviews section here
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+//-----------------------above  work -------------------//
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -957,7 +1203,7 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                         ),
                     icon: const Icon(
                       FontAwesomeIcons.locationDot,
-                      color: Color.fromARGB(255, 171, 8, 8), // Google Maps Blue
+                      color: Color.fromARGB(255, 171, 8, 8),
                       size: 24,
                     ),
                     label: const Text(
@@ -992,6 +1238,57 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
               ),
             ),
 
+            const SizedBox(height: 12),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.calendar_month, color: Colors.teal),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${widget.place.suitableMonths.join(", ")}',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(
+                        FontAwesomeIcons.personHiking,
+                        color: Color.fromARGB(255, 219, 162, 77),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${widget.place.type}',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.terrain,
+                        color: Color.fromARGB(255, 168, 85, 18),
+                        size: 22,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${widget.place.category}',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
             const SizedBox(height: 20),
 
             /// weather section with card + forecast strip
@@ -1005,10 +1302,7 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                     longitude: widget.place.longitude,
                   ),
                   const SizedBox(height: 12),
-                  DailyForecastStrip(
-                    forecasts:
-                        [], // 👈 You need to pass real or mock forecast list here
-                  ),
+                  DailyForecastStrip(forecasts: []),
                 ],
               ),
             ),
