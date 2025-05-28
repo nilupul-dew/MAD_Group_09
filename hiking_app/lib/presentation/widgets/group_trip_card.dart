@@ -66,7 +66,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
                       Text(
                         widget.data['userName'] ?? 'Nuwan Perera',
                         style: const TextStyle(
-                          fontSize: 15,
+                          fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -76,7 +76,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
                           Text(
                             timeAgo,
                             style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 11,
                               color: Colors.grey[600],
                             ),
                           ),
@@ -93,7 +93,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
                             child: Text(
                               category,
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 10,
                                 color: const Color.fromARGB(255, 3, 152, 17),
                                 fontWeight: FontWeight.w500,
                               ),
@@ -143,7 +143,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
             Text(
               widget.data['title'] ?? 'Untitled Trip',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
                 height: 1.3,
@@ -157,7 +157,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
                 Expanded(
                   child: Text(
                     widget.data['destination'] ?? '',
-                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
                   ),
                 ),
               ],
@@ -178,7 +178,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
                         const Text(
                           'START DATE',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 10,
                             color: Colors.grey,
                             fontWeight: FontWeight.w500,
                           ),
@@ -187,7 +187,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
                         Text(
                           _formatDate(startDate),
                           style: const TextStyle(
-                            fontSize: 15,
+                            fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -202,7 +202,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
                         const Text(
                           'END DATE',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 10,
                             color: Colors.grey,
                             fontWeight: FontWeight.w500,
                           ),
@@ -211,7 +211,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
                         Text(
                           _formatDate(endDate),
                           style: const TextStyle(
-                            fontSize: 15,
+                            fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -264,7 +264,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
                     Text(
                       'ACTIVITIES',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 10,
                         color: orangeColor,
                         fontWeight: FontWeight.bold,
                       ),
@@ -272,7 +272,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
                     const SizedBox(height: 4),
                     Text(
                       widget.data['activities'],
-                      style: const TextStyle(fontSize: 14),
+                      style: const TextStyle(fontSize: 12),
                     ),
                   ],
                 ),
@@ -319,7 +319,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
                         Text(
                           'Contact details',
                           style: const TextStyle(
-                            fontSize: 12,
+                            fontSize: 10,
                             color: Colors.grey,
                             fontWeight: FontWeight.w500,
                           ),
@@ -339,7 +339,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
                             child: Text(
                               widget.data['organizerEmail'],
                               style: const TextStyle(
-                                fontSize: 12,
+                                fontSize: 10,
                                 color: Colors.black,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -360,7 +360,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
                           Text(
                             widget.data['organizerPhone'],
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 10,
                               color: Colors.black,
                               fontWeight: FontWeight.w500,
                             ),
@@ -412,7 +412,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
                           ? Colors.grey.shade300
                           : Colors.deepOrangeAccent,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
@@ -427,7 +427,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
                       ? 'Trip Full'
                       : 'Join Trip',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     color:
                         isUserJoined
                             ? Colors.grey
@@ -452,7 +452,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
         Text(
           value,
           style: TextStyle(
-            fontSize: 15,
+            fontSize: 13,
             fontWeight: FontWeight.bold,
             color: valueColor,
           ),
@@ -462,7 +462,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
         Text(
           label,
           style: const TextStyle(
-            fontSize: 11,
+            fontSize: 9,
             color: Colors.grey,
             fontWeight: FontWeight.w500,
           ),
@@ -479,7 +479,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
         Text(
           label.toUpperCase(),
           style: const TextStyle(
-            fontSize: 11,
+            fontSize: 9,
             color: Colors.grey,
             fontWeight: FontWeight.w500,
           ),
@@ -487,7 +487,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
           overflow: TextOverflow.ellipsis,
         ),
       ],

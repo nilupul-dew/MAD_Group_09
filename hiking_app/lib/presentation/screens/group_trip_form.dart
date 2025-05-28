@@ -34,7 +34,6 @@ class _GroupTripFormState extends State<GroupTripForm> {
   int _duration = 0;
   bool _isLoading = false;
 
-  // Enhanced editing properties
   Map<String, dynamic>? editingTripData;
   String? editingTripId;
   bool isEditing = false;
@@ -42,7 +41,7 @@ class _GroupTripFormState extends State<GroupTripForm> {
   @override
   void initState() {
     super.initState();
-    // Handle initial data from constructor (backward compatibility)
+    // Handle initial data from constructor
     if (widget.initialData != null) {
       _loadInitialData();
     }
@@ -92,7 +91,7 @@ class _GroupTripFormState extends State<GroupTripForm> {
   }
 
   void _populateFormFields() {
-    // Enhanced population method using route arguments
+    //  population method using route arguments
     _tripNameController.text = editingTripData!['title'] ?? '';
     _destinationController.text = editingTripData!['destination'] ?? '';
     _budgetController.text = editingTripData!['budget']?.toString() ?? '';
@@ -205,7 +204,7 @@ class _GroupTripFormState extends State<GroupTripForm> {
     };
 
     try {
-      // Enhanced editing logic - check multiple sources for trip ID
+      //  editing logic - check multiple sources for trip ID
       final tripIdToUpdate = editingTripId ?? widget.tripId;
 
       if ((isEditing && editingTripId != null) || widget.tripId != null) {
@@ -266,6 +265,7 @@ class _GroupTripFormState extends State<GroupTripForm> {
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
+            fontSize: 18,
           ),
         ),
         foregroundColor: Colors.white,
@@ -351,9 +351,9 @@ class _GroupTripFormState extends State<GroupTripForm> {
     child: Text(
       text,
       style: TextStyle(
-        fontSize: 18,
+        fontSize: 14,
         fontWeight: FontWeight.bold,
-        color: orangeColor,
+        color: Colors.black,
       ),
     ),
   );
@@ -512,7 +512,7 @@ class _GroupTripFormState extends State<GroupTripForm> {
           children: [
             Text(
               label,
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              style: TextStyle(fontSize: 10, color: Colors.grey[600]),
             ),
             const SizedBox(height: 4),
             Row(
@@ -551,7 +551,7 @@ class _GroupTripFormState extends State<GroupTripForm> {
         ),
         child: Text(
           (isEditing || widget.tripId != null) ? 'Save Changes' : 'Create Trip',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
     );
