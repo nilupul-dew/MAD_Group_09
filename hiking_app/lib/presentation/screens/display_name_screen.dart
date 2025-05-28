@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/auth_service.dart';
 import 'profile_setup_screen.dart';
 
+/*This page should be replaced with home screen - especially built for testing */
+
 class DisplayNameScreen extends StatefulWidget {
   const DisplayNameScreen({super.key});
 
@@ -83,12 +85,13 @@ class _DisplayNameScreenState extends State<DisplayNameScreen> {
                   backgroundColor: Colors.orange,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        "Continue",
-                        style: TextStyle(fontSize: 16),
-                      ),
+                child:
+                    _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                          "Continue",
+                          style: TextStyle(fontSize: 16),
+                        ),
               ),
             ),
           ],
@@ -99,7 +102,7 @@ class _DisplayNameScreenState extends State<DisplayNameScreen> {
 
   Future<void> _saveDisplayName() async {
     final firstName = _firstNameController.text.trim();
-    
+
     if (firstName.isEmpty) {
       _showError('First name is required');
       return;
@@ -110,9 +113,9 @@ class _DisplayNameScreenState extends State<DisplayNameScreen> {
     try {
       final lastName = _lastNameController.text.trim();
       final displayName = lastName.isEmpty ? firstName : '$firstName $lastName';
-      
+
       await _authService.updateDisplayName(firstName, lastName);
-      
+
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -129,9 +132,9 @@ class _DisplayNameScreenState extends State<DisplayNameScreen> {
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
