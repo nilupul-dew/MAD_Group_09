@@ -158,7 +158,7 @@ class _CommunityScreenState extends State<GroupTripScreen> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: Colors.grey[300],
+                    color: Colors.grey[200],
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
