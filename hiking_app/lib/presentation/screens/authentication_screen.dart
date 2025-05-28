@@ -6,6 +6,7 @@ import 'otp_screen.dart';
 import 'display_name_screen.dart';
 import 'home_screen.dart';
 
+/* Edit line 257 to redirect to the home page if registered user */
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
@@ -16,8 +17,6 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   Country selectedCountry = Country.parse('LK');
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
 
   bool _isSignUp = true; // Toggle between sign up and sign in
@@ -91,56 +90,168 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  Future<void> _handleEmailAuth() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
+  void _showEmailAuthDialog() {
+    final TextEditingController emailController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
+    bool isDialogLoading = false;
+    bool isPasswordVisible = false;
 
-    if (email.isEmpty || password.isEmpty) {
-      _showError('Enter both email and password');
-      return;
-    }
+    showDialog(
+      context: context,
+      barrierDismissible: !isDialogLoading,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Row(
+                children: [
+                  Icon(Icons.email, color: Theme.of(context).primaryColor),
+                  const SizedBox(width: 8),
+                  Text(_isSignUp ? "Sign up with Email" : "Sign in with Email"),
+                ],
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(
+                        labelText: "Email",
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.email_outlined),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: passwordController,
+                      obscureText: !isPasswordVisible,
+                      decoration: InputDecoration(
+                        labelText: "Password",
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.lock_outline),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed:
+                              () => setDialogState(() {
+                                isPasswordVisible = !isPasswordVisible;
+                              }),
+                        ),
+                      ),
+                    ),
+                    if (!_isSignUp)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () async {
+                            final email = emailController.text.trim();
+                            if (email.isEmpty) {
+                              _showError('Please enter your email address');
+                              return;
+                            }
 
-    if (password.length < 6) {
-      _showError('Password must be at least 6 characters');
-      return;
-    }
+                            try {
+                              await _authService.resetPassword(email);
+                              _showSuccess('Reset link sent to $email');
+                            } catch (e) {
+                              _showError(e.toString());
+                            }
+                          },
+                          child: const Text("Forgot Password?"),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed:
+                      isDialogLoading ? null : () => Navigator.pop(context),
+                  child: const Text("Cancel"),
+                ),
+                ElevatedButton(
+                  onPressed:
+                      isDialogLoading
+                          ? null
+                          : () async {
+                            final email = emailController.text.trim();
+                            final password = passwordController.text.trim();
 
-    setState(() => _isLoading = true);
+                            if (email.isEmpty || password.isEmpty) {
+                              _showError('Enter both email and password');
+                              return;
+                            }
 
-    try {
-      late final userCredential;
+                            if (password.length < 6) {
+                              _showError(
+                                'Password must be at least 6 characters',
+                              );
+                              return;
+                            }
 
-      if (_isSignUp) {
-        // Check if user already exists
-        final userExists = await _authService.userExists(email: email);
-        if (userExists) {
-          _showError('User already exists. Please sign in instead.');
-          setState(() {
-            _isSignUp = false;
-            _isLoading = false;
-          });
-          return;
-        }
+                            setDialogState(() => isDialogLoading = true);
 
-        userCredential = await _authService.signUpWithEmailAndPassword(
-          email: email,
-          password: password,
+                            try {
+                              late final userCredential;
+
+                              if (_isSignUp) {
+                                final userExists = await _authService
+                                    .userExists(email: email);
+                                if (userExists) {
+                                  _showError(
+                                    'User already exists. Please sign in instead.',
+                                  );
+                                  setState(() => _isSignUp = false);
+                                  Navigator.pop(context);
+                                  return;
+                                }
+
+                                userCredential = await _authService
+                                    .signUpWithEmailAndPassword(
+                                      email: email,
+                                      password: password,
+                                    );
+                              } else {
+                                userCredential = await _authService
+                                    .signInWithEmailAndPassword(
+                                      email: email,
+                                      password: password,
+                                    );
+                              }
+
+                              if (userCredential.user != null) {
+                                Navigator.pop(context);
+                                _handleSuccessfulAuth(userCredential.user!);
+                              }
+                            } catch (e) {
+                              _showError(e.toString());
+                            } finally {
+                              setDialogState(() => isDialogLoading = false);
+                            }
+                          },
+                  child:
+                      isDialogLoading
+                          ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                          : Text(_isSignUp ? "Sign up" : "Sign in"),
+                ),
+              ],
+            );
+          },
         );
-      } else {
-        userCredential = await _authService.signInWithEmailAndPassword(
-          email: email,
-          password: password,
-        );
-      }
-
-      if (userCredential.user != null) {
-        _handleSuccessfulAuth(userCredential.user!);
-      }
-    } catch (e) {
-      _showError(e.toString());
-    } finally {
-      setState(() => _isLoading = false);
-    }
+      },
+    );
   }
 
   void _handleSuccessfulAuth(user) {
@@ -162,21 +273,6 @@ class _AuthScreenState extends State<AuthScreen> {
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
-    }
-  }
-
-  Future<void> _resetPassword() async {
-    final email = _emailController.text.trim();
-    if (email.isEmpty) {
-      _showError('Please enter your email address');
-      return;
-    }
-
-    try {
-      await _authService.resetPassword(email);
-      _showSuccess('Password reset email sent to $email');
-    } catch (e) {
-      _showError(e.toString());
     }
   }
 
@@ -203,19 +299,23 @@ class _AuthScreenState extends State<AuthScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 20),
-                Text(
-                  _isSignUp ? "Sign up" : "Sign in",
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
+                Center(
+                  child: Text(
+                    _isSignUp ? "Sign up" : "Sign in",
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  _isSignUp
-                      ? "Create your account to get started"
-                      : "Welcome back! Please sign in",
-                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                const SizedBox(height: 4),
+                Center(
+                  child: Text(
+                    _isSignUp
+                        ? "Create your account to get started."
+                        : "Welcome back! Please sign in",
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ),
                 ),
                 const SizedBox(height: 30),
 
@@ -227,9 +327,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
                     prefixText: '+${selectedCountry.phoneCode} ',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+                    border: OutlineInputBorder(),
                     labelText: 'Phone number',
                   ),
                 ),
@@ -239,8 +337,11 @@ class _AuthScreenState extends State<AuthScreen> {
                   child: ElevatedButton(
                     onPressed: _isLoading ? null : _startPhoneVerification,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
+                      backgroundColor: const Color(0xFFE3641F),
                       padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
                     ),
                     child:
                         _isLoading
@@ -270,59 +371,18 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Email/Password Section
-                TextField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: "Email",
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email_outlined),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: "Password",
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock_outlined),
-                  ),
-                ),
-
-                if (!_isSignUp) ...[
-                  const SizedBox(height: 8),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: _resetPassword,
-                      child: const Text("Forgot Password?"),
-                    ),
-                  ),
-                ],
-
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: _isLoading ? null : _handleEmailAuth,
-                    icon: const Icon(Icons.email_outlined),
-                    label: Text(
-                      _isSignUp ? "Sign up with Email" : "Sign in with Email",
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
                 // Social Sign In Buttons
                 _socialButton(
-                  icon: FontAwesomeIcons.google,
-                  iconColor: Colors.red,
+                  icon: Icons.email_outlined,
+                  iconColor: Colors.grey.shade700,
+                  label:
+                      _isSignUp ? "Sign up with Email" : "Sign in with Email",
+                  onPressed: _isLoading ? null : _showEmailAuthDialog,
+                ),
+                const SizedBox(height: 12),
+                _socialButton(
+                  icon: FontAwesomeIcons.googlePlusG,
+
                   label: "Continue with Google",
                   onPressed: _isLoading ? null : _handleGoogleSignIn,
                 ),
@@ -349,7 +409,6 @@ class _AuthScreenState extends State<AuthScreen> {
                       onPressed: () {
                         setState(() {
                           _isSignUp = !_isSignUp;
-                          _passwordController.clear();
                         });
                       },
                       child: Text(_isSignUp ? "Sign in" : "Sign up"),
@@ -411,8 +470,6 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   void dispose() {
     _phoneController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 }
