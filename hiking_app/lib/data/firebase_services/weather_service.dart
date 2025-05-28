@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
-import 'package:hiking_app/domain/models/weather_model.dart';
+//import 'package:hiking_app/domain/models/weather_model.dart';
 
 class WeatherService {
   final String apiKey = '2a8c6b6a7cfda04afbc3645345e1c03a';
@@ -19,5 +18,29 @@ class WeatherService {
     } else {
       throw Exception('Failed to load weather');
     }
+  }
+}
+
+//---------------------------------------//
+class Weather {
+  final String description;
+  final double temperature;
+  final double windSpeed;
+  final int humidity;
+
+  Weather({
+    required this.description,
+    required this.temperature,
+    required this.windSpeed,
+    required this.humidity,
+  });
+
+  factory Weather.fromJson(Map<String, dynamic> json) {
+    return Weather(
+      description: json['weather'][0]['main'],
+      temperature: json['main']['temp'].toDouble(),
+      windSpeed: json['wind']['speed'].toDouble(),
+      humidity: json['main']['humidity'].toInt(),
+    );
   }
 }
