@@ -112,7 +112,7 @@ class _DisplayNameScreenState extends State<DisplayNameScreen> {
 
     try {
       final lastName = _lastNameController.text.trim();
-      final displayName = lastName.isEmpty ? firstName : '$firstName $lastName';
+      //final displayName = lastName.isEmpty ? firstName : '$firstName $lastName';
 
       await _authService.updateDisplayName(firstName, lastName);
 
