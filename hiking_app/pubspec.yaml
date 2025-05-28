@@ -2,7 +2,7 @@ name: hiking_app
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -18,19 +18,19 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # of the product and file versions while build-number is used as the build suffix.
 version: 1.0.0+1
 
-environment:
-  sdk: ^3.7.2
-
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
 # dependencies can be manually updated by changing the version numbers below to
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
+environment:
+  sdk: ^3.6.0
+
 dependencies:
   flutter:
     sdk: flutter
-  cloud_firestore: ^4.13.1 
+  cloud_firestore: ^4.13.1
   firebase_core: ^2.30.0
   intl_phone_number_input: ^0.7.3+1
   firebase_auth: ^4.17.5
@@ -42,9 +42,11 @@ dependencies:
   image_picker: ^1.0.4
   firebase_storage: ^11.6.0
   
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+  google_maps_flutter: ^2.6.0
 
 dev_dependencies:
   flutter_test:
@@ -62,16 +64,22 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/images/john.jpeg
+    - assets/images/sarah.jpeg
+    - assets/images/sleeping_bag-.png
+    - assets/images/tent1-.png
+    - assets/images/bag1-.png
+    - assets/images/backback3.png
+    - assets/images/backpack1-.png
+    - assets/images/hammoch-.png
+    - assets/images/logo1.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
