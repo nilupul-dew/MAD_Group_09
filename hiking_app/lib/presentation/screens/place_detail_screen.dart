@@ -783,6 +783,8 @@ import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:hiking_app/domain/models/place_model.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hiking_app/presentation/widgets/daily_forecast_strip.dart';
+import 'package:hiking_app/presentation/widgets/weather_card.dart';
 
 class PlaceDetailScreen extends StatefulWidget {
   final PlaceModel place;
@@ -992,48 +994,22 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
 
             const SizedBox(height: 20),
 
-            // weather card
+            /// weather section with card + forecast strip
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                elevation: 3,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      // Weather Icon (Use Icons or network image)
-                      Icon(
-                        Icons.wb_sunny, // Example icon for clear weather
-                        size: 48,
-                        color: Colors.orangeAccent,
-                      ),
-                      const SizedBox(width: 20),
-
-                      // Weather details
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text(
-                              "Clear",
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 4),
-                            Text("Temperature: 25°C"),
-                            Text("Wind: 10 km/h"),
-                            Text("Humidity: 30%"),
-                          ],
-                        ),
-                      ),
-                    ],
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  WeatherCard(
+                    latitude: widget.place.latitude,
+                    longitude: widget.place.longitude,
                   ),
-                ),
+                  const SizedBox(height: 12),
+                  DailyForecastStrip(
+                    forecasts:
+                        [], // 👈 You need to pass real or mock forecast list here
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 20),
