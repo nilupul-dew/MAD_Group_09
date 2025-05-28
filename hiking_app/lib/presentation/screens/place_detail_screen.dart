@@ -8,7 +8,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hiking_app/domain/models/place_model.dart';
 import 'package:hiking_app/domain/models/weather_model.dart';
 import 'package:hiking_app/presentation/widgets/weather_card.dart';
-import 'package:hiking_app/presentation/widgets/daily_forecast_strip.dart';
+//import 'package:hiking_app/presentation/widgets/daily_forecast_strip.dart';
 
 class PlaceDetailScreen extends StatefulWidget {
   final PlaceModel place;
