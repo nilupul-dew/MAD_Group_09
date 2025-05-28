@@ -4,8 +4,8 @@ import 'home_screen.dart'; // Your home screen
 
 class OTPScreen extends StatefulWidget {
   final String phoneNumber;
-
-  const OTPScreen({super.key, required this.phoneNumber});
+final String verificationId;
+  const OTPScreen({super.key, required this.phoneNumber,required this.verificationId,});
 
   @override
   State<OTPScreen> createState() => _OTPScreenState();
