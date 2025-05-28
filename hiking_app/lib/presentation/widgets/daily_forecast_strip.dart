@@ -187,20 +187,221 @@
 //   }
 // }
 //---------------above work -------------------------//
+// import 'package:flutter/material.dart';
+// import 'package:intl/intl.dart';
+
+// class WeatherForecast {
+//   final String condition; // e.g., "Clear", "Rain", etc.
+//   final double temp;
+//   final DateTime date;
+
+//   WeatherForecast({
+//     required this.condition,
+//     required this.temp,
+//     required this.date,
+//   });
+// }
+
+// class DailyForecastStrip extends StatelessWidget {
+//   final List<WeatherForecast> forecasts;
+
+//   const DailyForecastStrip({super.key, required this.forecasts});
+
+//   IconData _getWeatherIcon(String condition) {
+//     switch (condition.toLowerCase()) {
+//       case 'rain':
+//         return Icons.water_drop;
+//       case 'clear':
+//         return Icons.wb_sunny;
+//       case 'clouds':
+//         return Icons.cloud;
+//       case 'thunderstorm':
+//         return Icons.flash_on;
+//       case 'snow':
+//         return Icons.ac_unit;
+//       case 'drizzle':
+//         return Icons.grain;
+//       case 'wind':
+//         return Icons.air;
+//       default:
+//         return Icons.help_outline;
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return SizedBox(
+//       height: 130,
+//       child: ListView.separated(
+//         padding: const EdgeInsets.symmetric(horizontal: 16),
+//         scrollDirection: Axis.horizontal,
+//         itemCount: forecasts.length,
+//         separatorBuilder: (_, __) => const SizedBox(width: 12),
+//         itemBuilder: (context, index) {
+//           final forecast = forecasts[index];
+//           final now = DateTime.now();
+//           final tomorrow = now.add(const Duration(days: 1));
+
+//           final isTomorrow =
+//               forecast.date.day == tomorrow.day &&
+//               forecast.date.month == tomorrow.month;
+
+//           final dayLabel =
+//               isTomorrow
+//                   ? 'TOM'
+//                   : DateFormat.E()
+//                       .format(forecast.date)
+//                       .toUpperCase(); // MON, TUE...
+
+//           return Container(
+//             width: 80,
+//             padding: const EdgeInsets.symmetric(vertical: 12),
+//             decoration: BoxDecoration(
+//               color: const Color.fromARGB(255, 248, 248, 248),
+//               borderRadius: BorderRadius.circular(16),
+//               boxShadow: [
+//                 BoxShadow(
+//                   color: Colors.black.withOpacity(0.06),
+//                   blurRadius: 4,
+//                   offset: const Offset(0, 2),
+//                 ),
+//               ],
+//             ),
+//             child: Column(
+//               mainAxisAlignment: MainAxisAlignment.spaceAround,
+//               children: [
+//                 Icon(
+//                   _getWeatherIcon(forecast.condition),
+//                   size: 28,
+//                   color: Colors.orange.shade600,
+//                 ),
+//                 Text(
+//                   '${forecast.temp.round()}°',
+//                   style: const TextStyle(
+//                     fontSize: 18,
+//                     fontWeight: FontWeight.w600,
+//                   ),
+//                 ),
+//                 Text(
+//                   dayLabel,
+//                   style: TextStyle(
+//                     fontSize: 14,
+//                     color: Colors.grey.shade600,
+//                     fontWeight: FontWeight.w500,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }
+//-----------above work ---------------//
+
+// import 'package:flutter/material.dart';
+// import 'package:intl/intl.dart';
+// import 'package:hiking_app/domain/models/weather_model.dart'; // 👈 Add this import
+
+// class DailyForecastStrip extends StatelessWidget {
+//   final List<WeatherForecast> forecasts;
+
+//   const DailyForecastStrip({super.key, required this.forecasts});
+
+//   IconData _getWeatherIcon(String condition) {
+//     switch (condition.toLowerCase()) {
+//       case 'rain':
+//         return Icons.water_drop;
+//       case 'clear':
+//         return Icons.wb_sunny;
+//       case 'clouds':
+//         return Icons.cloud;
+//       case 'thunderstorm':
+//         return Icons.flash_on;
+//       case 'snow':
+//         return Icons.ac_unit;
+//       case 'drizzle':
+//         return Icons.grain;
+//       case 'wind':
+//         return Icons.air;
+//       default:
+//         return Icons.help_outline;
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return SizedBox(
+//       height: 130,
+//       child: ListView.separated(
+//         padding: const EdgeInsets.symmetric(horizontal: 16),
+//         scrollDirection: Axis.horizontal,
+//         itemCount: forecasts.length,
+//         separatorBuilder: (_, __) => const SizedBox(width: 12),
+//         itemBuilder: (context, index) {
+//           final forecast = forecasts[index];
+//           final now = DateTime.now();
+//           final tomorrow = now.add(const Duration(days: 1));
+
+//           final isTomorrow =
+//               forecast.date.day == tomorrow.day &&
+//               forecast.date.month == tomorrow.month;
+
+//           final dayLabel =
+//               isTomorrow
+//                   ? 'TOM'
+//                   : DateFormat.E().format(forecast.date).toUpperCase();
+
+//           return Container(
+//             width: 80,
+//             padding: const EdgeInsets.symmetric(vertical: 12),
+//             decoration: BoxDecoration(
+//               color: const Color.fromARGB(255, 248, 248, 248),
+//               borderRadius: BorderRadius.circular(16),
+//               boxShadow: [
+//                 BoxShadow(
+//                   color: Colors.black.withOpacity(0.06),
+//                   blurRadius: 4,
+//                   offset: const Offset(0, 2),
+//                 ),
+//               ],
+//             ),
+//             child: Column(
+//               mainAxisAlignment: MainAxisAlignment.spaceAround,
+//               children: [
+//                 Icon(
+//                   _getWeatherIcon(forecast.condition),
+//                   size: 28,
+//                   color: Colors.orange.shade600,
+//                 ),
+//                 Text(
+//                   '${forecast.temp.round()}°',
+//                   style: const TextStyle(
+//                     fontSize: 18,
+//                     fontWeight: FontWeight.w600,
+//                   ),
+//                 ),
+//                 Text(
+//                   dayLabel,
+//                   style: TextStyle(
+//                     fontSize: 14,
+//                     color: Colors.grey.shade600,
+//                     fontWeight: FontWeight.w500,
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }
+//----------------------AW------------------------//
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-class WeatherForecast {
-  final String condition; // e.g., "Clear", "Rain", etc.
-  final double temp;
-  final DateTime date;
-
-  WeatherForecast({
-    required this.condition,
-    required this.temp,
-    required this.date,
-  });
-}
+import 'package:hiking_app/domain/models/weather_model.dart'; // ✅ Import the correct model
 
 class DailyForecastStrip extends StatelessWidget {
   final List<WeatherForecast> forecasts;
@@ -231,7 +432,7 @@ class DailyForecastStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 130,
+      height: 100,
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         scrollDirection: Axis.horizontal,
@@ -278,14 +479,14 @@ class DailyForecastStrip extends StatelessWidget {
                 Text(
                   '${forecast.temp.round()}°',
                   style: const TextStyle(
-                    fontSize: 18,
+                    fontSize: 17,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
                   dayLabel,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12,
                     color: Colors.grey.shade600,
                     fontWeight: FontWeight.w500,
                   ),
