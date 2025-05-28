@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../services/auth_service.dart';
+import '../../../services/user/auth_service.dart';
 import 'profile_setup_screen.dart';
 
 /*This page should be replaced with home screen - especially built for testing */

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../services/auth_service.dart';
+import '../../../services/user/auth_service.dart';
 import 'otp_screen.dart';
 import 'display_name_screen.dart';
-import 'home_screen.dart';
+import '../home_screen.dart';
 
 /* Edit line 257 to redirect to the home page if registered user */
 class AuthScreen extends StatefulWidget {

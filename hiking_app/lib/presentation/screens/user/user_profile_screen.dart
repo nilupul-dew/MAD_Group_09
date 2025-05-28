@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:hiking_app/presentation/screens/authentication_screen.dart';
+import 'package:hiking_app/presentation/screens/user/authentication_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../../services/auth_service.dart';
+import '../../../services/user/auth_service.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});

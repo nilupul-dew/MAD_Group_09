@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/auth_service.dart';
+import '../../../services/user/auth_service.dart';
 import 'display_name_screen.dart';
 
 class OTPScreen extends StatefulWidget {
