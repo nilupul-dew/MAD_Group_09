@@ -64,7 +64,7 @@ class WeatherForecast {
     return WeatherForecast(
       condition: json['weather'][0]['main'],
       temp: json['main']['temp'].toDouble(),
-      date: DateTime.parse(json['dt_txt']), // For daily forecasts
+      date: DateTime.parse(json['dt_txt']),
     );
   }
 }
