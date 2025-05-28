@@ -123,7 +123,7 @@ class _CommunityScreenState extends State<GroupTripScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(color: Colors.grey[300]!),
                     ),
                     child: TextField(
