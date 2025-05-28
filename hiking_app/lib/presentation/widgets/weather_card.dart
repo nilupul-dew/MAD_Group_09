@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hiking_app/data/firebase_services/weather_service.dart';
-import 'package:hiking_app/domain/models/weather_model.dart';
+//import 'package:hiking_app/domain/models/weather_model.dart';
 
 class WeatherCard extends StatefulWidget {
   final double latitude;
