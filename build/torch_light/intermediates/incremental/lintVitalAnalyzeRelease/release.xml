@@ -1,0 +1,31 @@
+<variant
+    name="release"
+    package="com.svprdga.torchlight"
+    minSdkVersion="23"
+    targetSdkVersion="23"
+    mergedManifest="D:\SANKALPA\Documents\camping app\sospage\build\torch_light\intermediates\merged_manifest\release\processReleaseManifest\AndroidManifest.xml"
+    proguardFiles="D:\SANKALPA\Documents\camping app\sospage\build\torch_light\intermediates\default_proguard_files\global\proguard-android.txt-8.7.0"
+    partialResultsDir="D:\SANKALPA\Documents\camping app\sospage\build\torch_light\intermediates\lint_vital_partial_results\release\lintVitalAnalyzeRelease\out"
+    desugaredMethodsFiles="C:\Users\SANKALPA\.gradle\caches\8.10.2\transforms\80c0ce501e855105843834e8784492fd\transformed\D8BackportedDesugaredMethods.txt">
+  <buildFeatures
+      namespacing="REQUIRED"/>
+  <sourceProviders>
+    <sourceProvider
+        manifests="src\main\AndroidManifest.xml"
+        javaDirectories="src\main\java;src\main\kotlin;src\release\java;src\release\kotlin"
+        resDirectories="src\main\res;src\release\res"
+        assetsDirectories="src\main\assets;src\release\assets"/>
+  </sourceProviders>
+  <testSourceProviders>
+  </testSourceProviders>
+  <testFixturesSourceProviders>
+  </testFixturesSourceProviders>
+  <artifact
+      classOutputs="D:\SANKALPA\Documents\camping app\sospage\build\torch_light\intermediates\javac\release\compileReleaseJavaWithJavac\classes;D:\SANKALPA\Documents\camping app\sospage\build\torch_light\tmp\kotlin-classes\release;D:\SANKALPA\Documents\camping app\sospage\build\torch_light\intermediates\compile_r_class_jar\release\generateReleaseRFile\R.jar"
+      type="MAIN"
+      applicationId="com.svprdga.torchlight"
+      generatedSourceFolders="D:\SANKALPA\Documents\camping app\sospage\build\torch_light\generated\ap_generated_sources\release\out"
+      generatedResourceFolders="D:\SANKALPA\Documents\camping app\sospage\build\torch_light\generated\res\resValues\release"
+      desugaredMethodsFiles="C:\Users\SANKALPA\.gradle\caches\8.10.2\transforms\80c0ce501e855105843834e8784492fd\transformed\D8BackportedDesugaredMethods.txt">
+  </artifact>
+</variant>
