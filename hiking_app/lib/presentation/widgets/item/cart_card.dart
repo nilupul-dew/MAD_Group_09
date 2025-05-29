@@ -1,7 +1,7 @@
 // lib/presentation/widgets/cart_card.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:hiking_app/presentation/widgets/quantity_selector.dart'; // Ensure this path is correct
+import 'package:hiking_app/presentation/widgets/item/quantity_selector.dart'; // Ensure this path is correct
 
 class CartCard extends StatelessWidget {
   final String cartItemId;

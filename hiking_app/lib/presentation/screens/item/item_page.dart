@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:hiking_app/data/firebase_services/item_firestore_service.dart';
+import 'package:hiking_app/data/firebase_services/item/item_firestore_service.dart';
 import 'package:hiking_app/domain/models/gear_item.dart'; // Assuming your Item model is here, or adjust to 'item.dart'
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Keep if you use Firebase directly here, but usually ItemFirestoreService handles it
 import 'package:firebase_auth/firebase_auth.dart'; // Keep if you use Firebase Auth directly here
-import 'package:hiking_app/presentation/widgets/quantity_selector.dart';
+import 'package:hiking_app/presentation/widgets/item/quantity_selector.dart';
 
 class GearItemDetailScreen extends StatefulWidget {
   final Item item;
@@ -23,7 +23,7 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
   int _rentalDays = 1;
   DateTime _selectedDate = DateTime.now();
 
-  final String _testUserId = 'temp_test_user_id_001'; // For testing purposes
+  final String currentUser = 'temp_test_user_id_002'; // For testing purposes
   final ItemFirestoreService _firestoreService = ItemFirestoreService(); // Instantiate the service
 
   // Determine the main image URL to display
@@ -58,7 +58,7 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
     // }
     // final String userId = currentUser.uid;
 
-    final String userId = _testUserId; // Using test user ID for now
+    final String userId = currentUser; // Using test user ID for now
 
     if (_quantity == 0 || _rentalDays == 0) {
       ScaffoldMessenger.of(context).showSnackBar(

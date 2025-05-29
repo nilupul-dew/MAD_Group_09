@@ -1,10 +1,10 @@
 // lib/presentation/screens/search_screen.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:hiking_app/presentation/screens/item_page.dart'; // Assumed GearItemDetailScreen is here
+import 'package:hiking_app/presentation/screens/item/item_page.dart'; // Assumed GearItemDetailScreen is here
 import 'package:hiking_app/domain/models/gear_item.dart'; // Still using Item as the model
-import 'package:hiking_app/data/firebase_services/search_firestore_service.dart';
-import 'package:hiking_app/presentation/widgets/gear_item_card.dart'; // Import your reusable widget
+import 'package:hiking_app/data/firebase_services/item/search_firestore_service.dart';
+import 'package:hiking_app/presentation/widgets/item/gear_item_card.dart'; // Import your reusable widget
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});

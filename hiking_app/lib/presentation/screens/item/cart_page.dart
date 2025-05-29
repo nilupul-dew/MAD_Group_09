@@ -2,13 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Still needed for QuerySnapshot/DocumentSnapshot types for StreamBuilder
 import 'package:firebase_auth/firebase_auth.dart'; // Keep if you plan to use FirebaseAuth later
-import 'package:hiking_app/presentation/screens/search_page.dart';
-import 'package:hiking_app/presentation/widgets/cart_card.dart';
+import 'package:hiking_app/presentation/screens/item/search_page.dart';
+import 'package:hiking_app/presentation/widgets/item/cart_card.dart';
 import 'package:intl/intl.dart';
 
 // Import your new service and model
 import 'package:hiking_app/domain/models/cart_item.dart';
-import 'package:hiking_app/data/firebase_services/cart_firestore_service.dart';
+import 'package:hiking_app/data/firebase_services/item/cart_firestore_service.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({Key? key}) : super(key: key);
@@ -18,8 +18,8 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  final String _testUserId =
-      'temp_test_user_id_001'; // Make sure this matches item_page.dart
+  final String currentUser =
+      'temp_test_user_id_002'; // Make sure this matches item_page.dart
 
   // Instantiate your CartFirestoreService
   late final CartFirestoreService _cartFirestoreService;
@@ -36,7 +36,7 @@ class _CartScreenState extends State<CartScreen> {
   @override
   Widget build(BuildContext context) {
     // String? userId = currentUser?.uid; // Use this when auth is ready
-    String userId = _testUserId; // For testing with hardcoded ID
+    String userId = currentUser; // For testing with hardcoded ID
 
     if (userId.isEmpty) {
       return Scaffold(
@@ -299,7 +299,7 @@ class _CartScreenState extends State<CartScreen> {
     int newQuantity,
     String itemName,
   ) async {
-    final String userId = _testUserId;
+    final String userId = currentUser;
     try {
       await _cartFirestoreService.updateCartItemQuantityAndStock(
         userId,
@@ -328,7 +328,7 @@ class _CartScreenState extends State<CartScreen> {
     String gearItemId,
     int quantityInCart,
   ) async {
-    final String userId = _testUserId;
+    final String userId = currentUser;
     try {
       await _cartFirestoreService.removeCartItemAndReturnStock(
         userId,
@@ -349,7 +349,7 @@ class _CartScreenState extends State<CartScreen> {
 
   // --- NEW: _checkout function using CartFirestoreService ---
   Future<void> _checkout(List<CartItem> items, double orderTotal) async {
-    final String userId = _testUserId;
+    final String userId = currentUser;
     if (items.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

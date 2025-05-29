@@ -1,10 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:hiking_app/data/firebase_services/add_sample_data.dart';
+import 'package:hiking_app/data/firebase_services/item/add_sample_data.dart';
 import 'package:hiking_app/firebase_options.dart';
-import 'package:hiking_app/presentation/screens/cart_page.dart';
-import 'package:hiking_app/presentation/screens/search_page.dart';
+import 'package:hiking_app/presentation/screens/item/cart_page.dart';
+import 'package:hiking_app/presentation/screens/item/search_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
