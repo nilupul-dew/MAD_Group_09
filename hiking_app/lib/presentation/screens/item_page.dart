@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:hiking_app/data/firebase_services/item_firestore_service.dart';
-import 'package:hiking_app/domain/models/gear_item.dart';
+import 'package:hiking_app/domain/models/gear_item.dart'; // Assuming your Item model is here, or adjust to 'item.dart'
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Keep if you use Firebase directly here, but usually ItemFirestoreService handles it
+import 'package:firebase_auth/firebase_auth.dart'; // Keep if you use Firebase Auth directly here
 import 'package:hiking_app/presentation/widgets/quantity_selector.dart';
 
 class GearItemDetailScreen extends StatefulWidget {
-  final Item item; // Changed to use the Item model
-  // No need for itemId separately if it's part of the Item model
+  final Item item;
 
   const GearItemDetailScreen({
     Key? key,
-    required this.item, // Now requires an Item object
+    required this.item,
   }) : super(key: key);
 
   @override
@@ -26,6 +25,20 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
 
   final String _testUserId = 'temp_test_user_id_001'; // For testing purposes
   final ItemFirestoreService _firestoreService = ItemFirestoreService(); // Instantiate the service
+
+  // Determine the main image URL to display
+  // Use the first image from the 'image' list, or a placeholder if the list is empty.
+  String get _mainImageUrl {
+    String selectedUrl;
+    if (widget.item.image.isNotEmpty) {
+      selectedUrl = widget.item.image[0];
+      print('DEBUG: ItemPage - Main Image URL from widget.item.image[0]: $selectedUrl');
+    } else {
+      selectedUrl = 'https://via.placeholder.com/400x300/CCCCCC/000000?text=No+Image';
+      print('DEBUG: ItemPage - Main Image URL (default placeholder): $selectedUrl');
+    }
+    return selectedUrl;
+  }
 
   @override
   void initState() {
@@ -60,7 +73,8 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
         userId: userId,
         itemId: widget.item.id,
         itemName: widget.item.name,
-        itemImageUrl: widget.item.imageUrl,
+        // FIX: Pass the first image URL from the list, or a placeholder if no images
+        itemImageUrl: _mainImageUrl, // Use the derived main image URL
         itemRentPricePerDay: widget.item.rentPricePerDay,
         quantity: _quantity,
         rentalDays: _rentalDays,
@@ -113,9 +127,10 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
               width: double.infinity,
               color: Colors.grey[300],
               child: Image.network(
-                item.imageUrl,
+                _mainImageUrl, // Use the derived main image URL
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
+                  print('DEBUG: ItemPage - Main image loading error for URL: $_mainImageUrl - Error: $error');
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -135,6 +150,40 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                 },
               ),
             ),
+            // OPTIONAL: Display all images as a horizontal scrollable list
+            if (item.image.length > 1) // Only show if there's more than one image
+              SizedBox(
+                height: 100, // Height for the horizontal thumbnail row
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: item.image.length,
+                  itemBuilder: (context, index) {
+                    final String thumbnailUrl = item.image[index];
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          // Optional: Implement logic to change the main image displayed
+                          // based on the selected thumbnail, if this were a stateful widget
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            thumbnailUrl, // Display each image from the list
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              print('DEBUG: ItemPage - Thumbnail image loading error for URL: $thumbnailUrl - Error: $error');
+                              return const Icon(Icons.error_outline, size: 40);
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -408,6 +457,7 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),

@@ -8,6 +8,19 @@ class GearItemCard extends StatelessWidget {
 
   const GearItemCard({super.key, required this.item, required this.onTap});
 
+  // Helper getter to safely get the first image URL
+  String get _cardImageUrl {
+    String selectedUrl;
+    if (item.image.isNotEmpty) {
+      selectedUrl = item.image[0];
+      print('DEBUG: GearItemCard - Image URL from item.image[0]: $selectedUrl');
+    } else {
+      selectedUrl = 'https://via.placeholder.com/150/CCCCCC/000000?text=No+Image';
+      print('DEBUG: GearItemCard - Image URL (default placeholder): $selectedUrl');
+    }
+    return selectedUrl;
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -24,11 +37,12 @@ class GearItemCard extends StatelessWidget {
                 top: Radius.circular(16),
               ),
               child: Image.network(
-                item.imageUrl,
+                _cardImageUrl, // Use the helper getter here
                 height: 120,
                 width: double.infinity,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
+                  print('DEBUG: GearItemCard - Image loading error for URL: $_cardImageUrl - Error: $error');
                   return Container(
                     height: 120,
                     color: Colors.grey[300],
@@ -67,7 +81,7 @@ class GearItemCard extends StatelessWidget {
                           ),
                           TextSpan(
                             text: '${item.availableQty}',
-                            style: TextStyle(color: Colors.green),
+                            style: const TextStyle(color: Colors.green),
                           ),
                         ],
                       ),
