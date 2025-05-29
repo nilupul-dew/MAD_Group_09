@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../presentation/screens/group_trip_form.dart';
+import '../screens/groupTrip/group_trip_form.dart';
 
 class GroupTripCard extends StatefulWidget {
   final Map<String, dynamic> data;

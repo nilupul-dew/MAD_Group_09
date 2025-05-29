@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hiking_app/data/firebase_services/item/item_firestore_service.dart';
 import 'package:hiking_app/domain/models/item/gear_item.dart'; // Assuming your Item model is here, or adjust to 'item.dart'
+import 'package:hiking_app/presentation/screens/app_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Keep if you use Firebase Auth directly here
 import 'package:hiking_app/presentation/widgets/item/quantity_selector.dart';
@@ -109,15 +110,7 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
     final double totalPrice = item.rentPricePerDay * _rentalDays * _quantity;
 
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text('Product'),
-      ),
+      appBar: CustomAppBar(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

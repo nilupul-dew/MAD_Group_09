@@ -123,7 +123,6 @@ class HomePageContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 100,
         automaticallyImplyLeading: false,
         titleSpacing: 0,
         title: CustomAppBar(),

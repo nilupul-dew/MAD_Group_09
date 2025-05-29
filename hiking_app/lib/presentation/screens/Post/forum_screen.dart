@@ -3,7 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:hiking_app/data/firebase_services/Post/post_firebase.dart';
 import 'package:hiking_app/data/firebase_services/user/auth_service.dart';
 import 'package:hiking_app/presentation/screens/app_bar.dart';
-import 'package:hiking_app/presentation/screens/group_trip_screen.dart';
+import 'package:hiking_app/presentation/screens/groupTrip/group_trip_screen.dart';
 import 'package:hiking_app/presentation/screens/user/user_profile_screen.dart';
 import 'package:hiking_app/presentation/widgets/Post/post_add.dart';
 import 'package:hiking_app/presentation/widgets/Post/post_search_screen.dart';

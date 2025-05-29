@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../presentation/widgets/group_trip_card.dart';
-import '../../presentation/widgets/loading_widget.dart';
-import '../../presentation/widgets/empty_state_widget.dart';
-import '../../presentation/widgets/error_widget.dart';
-import '../../presentation/screens/group_trip_form.dart';
+import 'package:hiking_app/presentation/screens/app_bar.dart';
+import '../../widgets/group_trip_card.dart';
+import '../../widgets/loading_widget.dart';
+import '../../widgets/empty_state_widget.dart';
+import '../../widgets/error_widget.dart';
+import 'group_trip_form.dart';
 
 class GroupTripScreen extends StatefulWidget {
   const GroupTripScreen({super.key});
@@ -71,9 +72,9 @@ class _CommunityScreenState extends State<GroupTripScreen> {
           .collection('group_trips')
           .doc(tripId)
           .update({
-            'members': FieldValue.arrayUnion([uid]),
-            'memberCount': FieldValue.increment(1),
-          });
+        'members': FieldValue.arrayUnion([uid]),
+        'memberCount': FieldValue.increment(1),
+      });
 
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
@@ -102,14 +103,7 @@ class _CommunityScreenState extends State<GroupTripScreen> {
 
     return Scaffold(
       backgroundColor: Colors.grey[200],
-      appBar: AppBar(
-        title: const Text(
-          'Group Trips',
-          style: TextStyle(color: Colors.black, fontSize: 18),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 1,
-      ),
+      appBar: CustomAppBar(),
       body: Column(
         children: [
           // Search Bar Section
@@ -132,16 +126,15 @@ class _CommunityScreenState extends State<GroupTripScreen> {
                         hintText: 'Search groups...',
                         hintStyle: TextStyle(color: Colors.grey[500]),
                         prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
-                        suffixIcon:
-                            _isSearching
-                                ? IconButton(
-                                  icon: Icon(
-                                    Icons.clear,
-                                    color: Colors.grey[500],
-                                  ),
-                                  onPressed: _clearSearch,
-                                )
-                                : null,
+                        suffixIcon: _isSearching
+                            ? IconButton(
+                                icon: Icon(
+                                  Icons.clear,
+                                  color: Colors.grey[500],
+                                ),
+                                onPressed: _clearSearch,
+                              )
+                            : null,
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -179,11 +172,10 @@ class _CommunityScreenState extends State<GroupTripScreen> {
           // Results Section
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
-              stream:
-                  FirebaseFirestore.instance
-                      .collection('group_trips')
-                      .orderBy('createdAt', descending: true)
-                      .snapshots(),
+              stream: FirebaseFirestore.instance
+                  .collection('group_trips')
+                  .orderBy('createdAt', descending: true)
+                  .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return CustomErrorWidget(error: snapshot.error.toString());
@@ -198,11 +190,10 @@ class _CommunityScreenState extends State<GroupTripScreen> {
                 }
 
                 // Filter documents based on search query
-                final filteredDocs =
-                    snapshot.data!.docs.where((doc) {
-                      final data = doc.data() as Map<String, dynamic>;
-                      return _matchesSearch(data);
-                    }).toList();
+                final filteredDocs = snapshot.data!.docs.where((doc) {
+                  final data = doc.data() as Map<String, dynamic>;
+                  return _matchesSearch(data);
+                }).toList();
 
                 if (filteredDocs.isEmpty && _isSearching) {
                   return Center(

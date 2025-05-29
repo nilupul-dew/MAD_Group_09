@@ -1,6 +1,8 @@
 // lib/presentation/screens/cart_page.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // Keep if you plan to use FirebaseAuth later
+import 'package:hiking_app/presentation/screens/app_bar.dart';
+import 'package:hiking_app/presentation/screens/item/checkout_page.dart';
 import 'package:hiking_app/presentation/screens/item/search_page.dart';
 import 'package:hiking_app/presentation/widgets/item/cart_card.dart';
 
@@ -40,7 +42,7 @@ class _CartScreenState extends State<CartScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: CustomAppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -48,14 +50,6 @@ class _CartScreenState extends State<CartScreen> {
           },
         ),
         title: const Text('My cart'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {
-              // Handle more options
-            },
-          ),
-        ],
       ),
       body: StreamBuilder<List<CartItem>>(
         // Now stream List<CartItem> directly
@@ -356,7 +350,13 @@ class _CartScreenState extends State<CartScreen> {
         const SnackBar(content: Text('Order placed successfully!')),
       );
       // Optional: Navigate to an order confirmation screen
-      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => OrderConfirmationScreen()));
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              const CheckoutPage(), // Just navigate to CheckoutPage without arguments
+        ),
+      );
     } catch (e) {
       print('Error during checkout: $e');
       ScaffoldMessenger.of(context).showSnackBar(

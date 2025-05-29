@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hiking_app/domain/models/location-models/place_model.dart';
+import 'package:hiking_app/presentation/screens/app_bar.dart';
 import 'package:hiking_app/presentation/widgets/location-widgets/weather_card.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -112,10 +113,8 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: CustomAppBar(
         title: Text(widget.place.name),
-        backgroundColor: const Color.fromARGB(255, 243, 243, 243),
-        foregroundColor: Colors.black,
       ),
       body: SingleChildScrollView(
         child: Column(

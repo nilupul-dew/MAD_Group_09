@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hiking_app/domain/models/location-models/place_model.dart';
+import 'package:hiking_app/presentation/screens/app_bar.dart';
 import 'package:hiking_app/presentation/screens/location-screens/place_detail_screen.dart';
 import 'package:hiking_app/domain/location-viewmodels/place_viewmodel.dart';
 import 'package:provider/provider.dart';
@@ -213,13 +214,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: CustomAppBar(
         title: const Text(
           'Campsites & Hiking Areas',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Color.fromARGB(255, 7, 7, 7)),
         ),
-        backgroundColor: const Color.fromARGB(255, 24, 21, 44),
-        centerTitle: true,
       ),
       body: Consumer<PlaceViewModel>(
         builder: (context, viewModel, _) {

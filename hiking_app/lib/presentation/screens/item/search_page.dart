@@ -1,6 +1,7 @@
 // lib/presentation/screens/search_screen.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:hiking_app/presentation/screens/app_bar.dart';
 import 'dart:math';
 
 import 'package:hiking_app/presentation/screens/item/item_page.dart'; // Assumed GearItemDetailScreen is here
@@ -353,7 +354,7 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Search")),
+      appBar: CustomAppBar(),
       body: Column(
         children: [
           Padding(

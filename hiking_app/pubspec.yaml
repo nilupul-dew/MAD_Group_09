@@ -87,6 +87,11 @@ flutter:
     - assets/images/backpack1-.png
     - assets/images/hammoch-.png
     - assets/images/logo1.png
+    - assets/images/
+    # - assets/images/partial_payment_icon
+    # - assets/images/google_pay_icon
+    # - assets/images/card_icon
+    # - assets/images/cash_delivery_icon
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
