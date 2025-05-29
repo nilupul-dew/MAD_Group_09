@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'presentation/screens/user/authentication_screen.dart';
 import 'presentation/screens/home_screen.dart';
 import 'presentation/screens/user/display_name_screen.dart';
+import 'domain/location-viewmodels/place_viewmodel.dart'; // Add this import
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,16 +19,22 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print("🚀 MyApp build method called");
-    return MaterialApp(
-      title: 'Flutter Auth App',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.orange, useMaterial3: true),
-      home: const AuthWrapper(),
-      routes: {
-        '/auth': (context) => const AuthScreen(),
-        '/home': (context) => const HomeScreen(),
-        '/display-name': (context) => const DisplayNameScreen(),
-      },
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => PlaceViewModel()),
+        // Add other providers here if you have more ViewModels
+      ],
+      child: MaterialApp(
+        title: 'Flutter Auth App',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(primarySwatch: Colors.orange, useMaterial3: true),
+        home: const AuthWrapper(),
+        routes: {
+          '/auth': (context) => const AuthScreen(),
+          '/home': (context) => const HomeScreen(),
+          '/display-name': (context) => const DisplayNameScreen(),
+        },
+      ),
     );
   }
 }

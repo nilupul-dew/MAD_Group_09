@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hiking_app/presentation/screens/Post/forum_screen.dart';
+import 'package:hiking_app/presentation/screens/location-screens/explore_screen.dart';
 import 'package:hiking_app/presentation/screens/user/user_profile_screen.dart';
 import 'package:hiking_app/presentation/widgets/bottom_nav_bar.dart';
 import 'package:hiking_app/presentation/widgets/item_card.dart';
@@ -18,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static final List<Widget> _pages = <Widget>[
     HomePageContent(),
     Center(child: Text('Items')),
-    Center(child: Text('Locations')),
+    Center(child: const ExploreScreen()),
     Center(child: ForumScreen()),
   ];
 
