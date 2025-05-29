@@ -1,0 +1,4 @@
+#Tue May 27 09:44:04 IST 2025
+base.0=D\:\\SANKALPA\\Documents\\camping app\\sospage\\build\\app\\intermediates\\dex\\release\\minifyReleaseWithR8\\classes.dex
+path.0=classes.dex
+renamed.0=classes.dex
