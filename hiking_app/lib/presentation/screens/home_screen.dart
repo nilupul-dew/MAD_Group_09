@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hiking_app/presentation/screens/Post/forum_screen.dart';
-import 'package:hiking_app/presentation/screens/item/cart_page.dart';
+import 'package:hiking_app/presentation/screens/app_bar.dart';
 import 'package:hiking_app/presentation/screens/item/search_page.dart';
 import 'package:hiking_app/presentation/screens/location-screens/explore_screen.dart';
-import 'package:hiking_app/presentation/screens/user/user_profile_screen.dart';
 import 'package:hiking_app/presentation/widgets/bottom_nav_bar.dart';
 import 'package:hiking_app/presentation/widgets/item_card.dart';
 //import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -123,62 +122,29 @@ class HomePageContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100),
-        child: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 1,
-          automaticallyImplyLeading: false,
-          title: Row(
-            children: [
-              Image.asset('assets/images/logo1.png', height: 80),
-              SizedBox(width: 8),
-              Text(
-                'RentalGear',
-                style: TextStyle(
-                  color: const Color.fromARGB(255, 0, 0, 0),
-                  fontWeight: FontWeight.bold,
-                ),
+      appBar: AppBar(
+        toolbarHeight: 100,
+        automaticallyImplyLeading: false,
+        titleSpacing: 0,
+        title: CustomAppBar(),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(50),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(20),
               ),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.shopping_cart_outlined, color: Colors.black),
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => CartScreen()),
-              ),
-            ),
-            IconButton(
-              icon: Icon(Icons.notifications_none, color: Colors.black),
-              onPressed: () {},
-            ),
-            IconButton(
-              icon: Icon(Icons.account_circle, color: Colors.black),
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => UserProfileScreen()),
-              ),
-            ),
-          ],
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(50),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-              child: Container(
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search camping gear...',
-                    prefixIcon: Icon(Icons.search),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 10),
-                  ),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Search camping gear...',
+                  prefixIcon: Icon(Icons.search),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(vertical: 10),
                 ),
               ),
             ),

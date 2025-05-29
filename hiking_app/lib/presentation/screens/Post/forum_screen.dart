@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:hiking_app/data/firebase_services/Post/post_firebase.dart';
 import 'package:hiking_app/data/firebase_services/user/auth_service.dart';
+import 'package:hiking_app/presentation/screens/app_bar.dart';
+import 'package:hiking_app/presentation/screens/group_trip_screen.dart';
 import 'package:hiking_app/presentation/screens/user/user_profile_screen.dart';
 import 'package:hiking_app/presentation/widgets/Post/post_add.dart';
 import 'package:hiking_app/presentation/widgets/Post/post_search_screen.dart';
@@ -81,6 +83,7 @@ class _ForumScreenState extends State<ForumScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CustomAppBar(),
       body: Container(
         color: const Color.fromARGB(
             255, 211, 209, 209), // Set your desired background color here
@@ -189,10 +192,21 @@ class _ForumScreenState extends State<ForumScreen> {
                               const SizedBox(width: 8),
 
                               // 👥 Group Trip Button (for future)
-                              const CircleAvatar(
+                              CircleAvatar(
                                 radius: 20,
-                                backgroundColor: Color(0xFFF5F5F5),
-                                child: Icon(Icons.group, color: Colors.black),
+                                backgroundColor: const Color(0xFFF5F5F5),
+                                child: IconButton(
+                                  icon: const Icon(Icons.group,
+                                      color: Colors.black),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => GroupTripScreen(),
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
                             ],
                           ),
