@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hiking_app/presentation/screens/Post/forum_screen.dart';
+import 'package:hiking_app/presentation/screens/item/cart_page.dart';
+import 'package:hiking_app/presentation/screens/item/search_page.dart';
 import 'package:hiking_app/presentation/screens/location-screens/explore_screen.dart';
 import 'package:hiking_app/presentation/screens/user/user_profile_screen.dart';
 import 'package:hiking_app/presentation/widgets/bottom_nav_bar.dart';
@@ -18,8 +20,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   static final List<Widget> _pages = <Widget>[
     HomePageContent(),
-    Center(child: Text('Items')),
-    Center(child: const ExploreScreen()),
+    Center(child: SearchScreen()),
+    Center(child: ExploreScreen()),
     Center(child: ForumScreen()),
   ];
 
@@ -143,7 +145,10 @@ class HomePageContent extends StatelessWidget {
           actions: [
             IconButton(
               icon: Icon(Icons.shopping_cart_outlined, color: Colors.black),
-              onPressed: () => Navigator.pushNamed(context, '/cart'),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CartScreen()),
+              ),
             ),
             IconButton(
               icon: Icon(Icons.notifications_none, color: Colors.black),

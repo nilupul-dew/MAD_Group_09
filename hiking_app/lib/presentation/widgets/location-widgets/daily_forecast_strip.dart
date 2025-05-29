@@ -33,7 +33,7 @@ class DailyForecastStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 95,
+      height: 100,
       child: Center(
         // 👈 Wrap with Center
         child: ListView.separated(

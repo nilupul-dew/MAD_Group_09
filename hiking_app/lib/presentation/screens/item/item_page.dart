@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hiking_app/data/firebase_services/item/item_firestore_service.dart';
 import 'package:hiking_app/domain/models/item/gear_item.dart'; // Assuming your Item model is here, or adjust to 'item.dart'
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Keep if you use Firebase directly here, but usually ItemFirestoreService handles it
 import 'package:firebase_auth/firebase_auth.dart'; // Keep if you use Firebase Auth directly here
 import 'package:hiking_app/presentation/widgets/item/quantity_selector.dart';
 
@@ -23,7 +22,7 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
   int _rentalDays = 1;
   DateTime _selectedDate = DateTime.now();
 
-  final String currentUser = 'temp_test_user_id_002'; // For testing purposes
+  User? get currentUser => FirebaseAuth.instance.currentUser;
   final ItemFirestoreService _firestoreService =
       ItemFirestoreService(); // Instantiate the service
 
@@ -52,17 +51,14 @@ class _GearItemDetailScreenState extends State<GearItemDetailScreen> {
   }
 
   Future<void> _addToCart() async {
-    // In a real app, you would get the current user's ID from FirebaseAuth
-    // User? currentUser = FirebaseAuth.instance.currentUser;
-    // if (currentUser == null) {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     const SnackBar(content: Text('Please log in to add items to cart.')),
-    //   );
-    //   return;
-    // }
-    // final String userId = currentUser.uid;
+    final String? userId = currentUser?.uid; // Get the user's UID
 
-    final String userId = currentUser; // Using test user ID for now
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please log in to add items to cart.')),
+      );
+      return;
+    }
 
     if (_quantity == 0 || _rentalDays == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
