@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -16,13 +18,22 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final AuthService _authService = AuthService();
   String? _selectedGender;
   String? _selectedCountry;
-  File? _profileImage;
+  Uint8List? _selectedImageBytes;
+  String? _selectedImageName;
   bool _isLoading = false;
 
   final List<String> _genders = ['Male', 'Female', 'Other'];
   final List<String> _countries = [
-    'Sri Lanka', 'India', 'United States', 'United Kingdom', 
-    'Canada', 'Australia', 'Germany', 'France', 'Japan', 'Other'
+    'Sri Lanka',
+    'India',
+    'United States',
+    'United Kingdom',
+    'Canada',
+    'Australia',
+    'Germany',
+    'France',
+    'Japan',
+    'Other'
   ];
 
   @override
@@ -53,7 +64,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             const SizedBox(height: 32),
-            
+
             // Profile Image Section
             Center(
               child: GestureDetector(
@@ -61,18 +72,20 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 child: CircleAvatar(
                   radius: 50,
                   backgroundColor: Colors.grey[200],
-                  backgroundImage: _profileImage != null 
-                      ? FileImage(_profileImage!) 
+                  backgroundImage: _selectedImageBytes != null
+                      ? MemoryImage(_selectedImageBytes!)
                       : null,
-                  child: _profileImage == null
-                      ? const Icon(Icons.add_a_photo, size: 40, color: Colors.grey)
+                  child: _selectedImageBytes == null
+                      ? const Icon(Icons.add_a_photo,
+                          size: 40, color: Colors.grey)
                       : null,
                 ),
               ),
             ),
             const SizedBox(height: 8),
             const Center(
-              child: Text("Tap to add profile photo", style: TextStyle(color: Colors.grey)),
+              child: Text("Tap to add profile photo",
+                  style: TextStyle(color: Colors.grey)),
             ),
             const SizedBox(height: 32),
 
@@ -144,10 +157,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    
+
     if (image != null) {
+      final bytes = await File(image.path).readAsBytes();
       setState(() {
-        _profileImage = File(image.path);
+        _selectedImageBytes = bytes;
       });
     }
   }
@@ -160,9 +174,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         address: _addressController.text.trim(),
         gender: _selectedGender,
         country: _selectedCountry,
-        profileImage: _profileImage,
+        profileImage: _selectedImageBytes,
+        imageName: _selectedImageName,
       );
-      
+
       _navigateToHome();
     } catch (e) {
       _showError(e.toString());

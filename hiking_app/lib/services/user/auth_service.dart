@@ -4,7 +4,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'dart:io';
+import 'dart:convert';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+// ignore: depend_on_referenced_packages
+import 'package:http/http.dart' as http;
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -25,11 +28,10 @@ class AuthService {
       }
       if (phoneNumber != null) {
         // For phone numbers, we'll check Firestore
-        final query =
-            await _firestore
-                .collection('users')
-                .where('phone', isEqualTo: phoneNumber)
-                .get();
+        final query = await _firestore
+            .collection('users')
+            .where('phone', isEqualTo: phoneNumber)
+            .get();
         return query.docs.isNotEmpty;
       }
       return false;
@@ -161,8 +163,10 @@ class AuthService {
     String? address,
     String? gender,
     String? country,
-    File? profileImage,
+    Uint8List? profileImage,
+    String? imageName,
   }) async {
+    print("🔄 Updating user profile...$profileImage,$imageName");
     final user = _auth.currentUser;
     if (user == null) throw Exception('No user logged in');
 
@@ -173,20 +177,23 @@ class AuthService {
     if (country != null) updateData['country'] = country;
 
     // Upload profile image if provided
-    if (profileImage != null) {
-      try {
-        final ref = _storage.ref().child('profile_images/${user.uid}');
-        await ref.putFile(profileImage);
-        final downloadUrl = await ref.getDownloadURL();
 
-        // Update Firebase Auth profile
-        await user.updatePhotoURL(downloadUrl);
-
-        // Update Firestore
-        updateData['profileImage'] = downloadUrl;
-      } catch (e) {
-        throw Exception('Failed to upload profile image: $e');
+    try {
+      // Upload new image if provided
+      if (profileImage != null) {
+        final uploadedUrl = await uploadToImgBB(
+            profileImage, imageName ?? 'profile_image_${user.uid}.jpg');
+        if (uploadedUrl != null && uploadedUrl.isNotEmpty) {
+          updateData['profileImage'] = uploadedUrl;
+          print("🔄 Uploaded image URL: $uploadedUrl");
+        } else {
+          print(
+            "⚠️ Image upload failed or returned null. Keeping existing image.",
+          );
+        }
       }
+    } catch (e) {
+      throw Exception('Failed to upload profile image: $e');
     }
 
     // Update Firestore document
@@ -279,6 +286,49 @@ class AuthService {
       await user.delete();
     } catch (e) {
       throw Exception('Failed to delete account: $e');
+    }
+  }
+
+  Future<String?> uploadToImgBB(Uint8List imageBytes, String fileName) async {
+    const apiKey = '7a6786581dabb83cf3d9fef912b12b8f';
+
+    try {
+      final base64Image = base64Encode(imageBytes);
+      final response = await http.post(
+        Uri.parse('https://api.imgbb.com/1/upload'),
+        body: {'key': apiKey, 'image': base64Image, 'name': fileName},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final imageUrl = data['data']['url'];
+        print("✅ Image uploaded to ImgBB: $imageUrl");
+        return imageUrl;
+      } else {
+        print("❌ ImgBB upload failed: ${response.body}");
+      }
+    } catch (e) {
+      print("❌ Error uploading to ImgBB: $e");
+    }
+    return null;
+  }
+
+  // 🟣 Compress image to reduce size
+  Future<Uint8List?> compressImage(Uint8List originalBytes) async {
+    try {
+      final compressed = await FlutterImageCompress.compressWithList(
+        originalBytes,
+        quality: 60,
+        minWidth: 800,
+        minHeight: 800,
+      );
+      print(
+        "📉 Compressed from ${originalBytes.lengthInBytes} → ${compressed.lengthInBytes} bytes",
+      );
+      return compressed;
+    } catch (e) {
+      print("❌ Compression failed: $e");
+      return originalBytes;
     }
   }
 }

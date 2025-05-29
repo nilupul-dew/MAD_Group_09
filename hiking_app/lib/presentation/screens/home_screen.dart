@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hiking_app/presentation/screens/user/user_profile_screen.dart';
 import 'package:hiking_app/presentation/widgets/bottom_nav_bar.dart';
 import 'package:hiking_app/presentation/widgets/item_card.dart';
 //import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -148,7 +149,10 @@ class HomePageContent extends StatelessWidget {
             ),
             IconButton(
               icon: Icon(Icons.account_circle, color: Colors.black),
-              onPressed: () => Navigator.pushNamed(context, '/profile'),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => UserProfileScreen()),
+              ),
             ),
           ],
           bottom: PreferredSize(
@@ -286,13 +290,12 @@ class HomePageContent extends StatelessWidget {
                                 142,
                               ),
                               onTap: () => (),
-                              onCartTap:
-                                  () => Navigator.pushNamed(context, '/cart'),
-                              onFavoriteTap:
-                                  () =>
-                                      Navigator.pushNamed(context, '/wishlist'),
-                              onShareTap:
-                                  () => Navigator.pushNamed(context, '/share'),
+                              onCartTap: () =>
+                                  Navigator.pushNamed(context, '/cart'),
+                              onFavoriteTap: () =>
+                                  Navigator.pushNamed(context, '/wishlist'),
+                              onShareTap: () =>
+                                  Navigator.pushNamed(context, '/share'),
                             ),
                           ),
                           SizedBox(width: spacing), // spacing between two cards
@@ -312,13 +315,12 @@ class HomePageContent extends StatelessWidget {
                                 119,
                               ),
                               onTap: () => (),
-                              onCartTap:
-                                  () => Navigator.pushNamed(context, '/cart'),
-                              onFavoriteTap:
-                                  () =>
-                                      Navigator.pushNamed(context, '/wishlist'),
-                              onShareTap:
-                                  () => Navigator.pushNamed(context, '/share'),
+                              onCartTap: () =>
+                                  Navigator.pushNamed(context, '/cart'),
+                              onFavoriteTap: () =>
+                                  Navigator.pushNamed(context, '/wishlist'),
+                              onShareTap: () =>
+                                  Navigator.pushNamed(context, '/share'),
                             ),
                           ),
                         ],
@@ -394,13 +396,12 @@ class HomePageContent extends StatelessWidget {
                                 123,
                               ),
                               onTap: () => (),
-                              onCartTap:
-                                  () => Navigator.pushNamed(context, '/cart'),
-                              onFavoriteTap:
-                                  () =>
-                                      Navigator.pushNamed(context, '/wishlist'),
-                              onShareTap:
-                                  () => Navigator.pushNamed(context, '/share'),
+                              onCartTap: () =>
+                                  Navigator.pushNamed(context, '/cart'),
+                              onFavoriteTap: () =>
+                                  Navigator.pushNamed(context, '/wishlist'),
+                              onShareTap: () =>
+                                  Navigator.pushNamed(context, '/share'),
                             ),
                           ),
                           SizedBox(
@@ -419,13 +420,12 @@ class HomePageContent extends StatelessWidget {
                                 159,
                               ),
                               onTap: () => (),
-                              onCartTap:
-                                  () => Navigator.pushNamed(context, '/cart'),
-                              onFavoriteTap:
-                                  () =>
-                                      Navigator.pushNamed(context, '/wishlist'),
-                              onShareTap:
-                                  () => Navigator.pushNamed(context, '/share'),
+                              onCartTap: () =>
+                                  Navigator.pushNamed(context, '/cart'),
+                              onFavoriteTap: () =>
+                                  Navigator.pushNamed(context, '/wishlist'),
+                              onShareTap: () =>
+                                  Navigator.pushNamed(context, '/share'),
                             ),
                           ),
                           SizedBox(
@@ -444,13 +444,12 @@ class HomePageContent extends StatelessWidget {
                                 237,
                               ),
                               onTap: () => (),
-                              onCartTap:
-                                  () => Navigator.pushNamed(context, '/cart'),
-                              onFavoriteTap:
-                                  () =>
-                                      Navigator.pushNamed(context, '/wishlist'),
-                              onShareTap:
-                                  () => Navigator.pushNamed(context, '/share'),
+                              onCartTap: () =>
+                                  Navigator.pushNamed(context, '/cart'),
+                              onFavoriteTap: () =>
+                                  Navigator.pushNamed(context, '/wishlist'),
+                              onShareTap: () =>
+                                  Navigator.pushNamed(context, '/share'),
                             ),
                           ),
                           SizedBox(
@@ -469,13 +468,12 @@ class HomePageContent extends StatelessWidget {
                                 158,
                               ),
                               onTap: () => (),
-                              onCartTap:
-                                  () => Navigator.pushNamed(context, '/cart'),
-                              onFavoriteTap:
-                                  () =>
-                                      Navigator.pushNamed(context, '/wishlist'),
-                              onShareTap:
-                                  () => Navigator.pushNamed(context, '/share'),
+                              onCartTap: () =>
+                                  Navigator.pushNamed(context, '/cart'),
+                              onFavoriteTap: () =>
+                                  Navigator.pushNamed(context, '/wishlist'),
+                              onShareTap: () =>
+                                  Navigator.pushNamed(context, '/share'),
                             ),
                           ),
                         ],
@@ -484,11 +482,10 @@ class HomePageContent extends StatelessWidget {
                       Align(
                         alignment: Alignment.bottomRight,
                         child: GestureDetector(
-                          onTap:
-                              () => Navigator.pushNamed(
-                                context,
-                                '/recommendations',
-                              ),
+                          onTap: () => Navigator.pushNamed(
+                            context,
+                            '/recommendations',
+                          ),
                           child: Text(
                             'See more',
                             style: TextStyle(
@@ -693,17 +690,17 @@ class ImageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return imagePath.startsWith('http')
         ? Image.network(
-          imagePath,
-          height: 80,
-          width: double.infinity,
-          fit: BoxFit.cover,
-        )
+            imagePath,
+            height: 80,
+            width: double.infinity,
+            fit: BoxFit.cover,
+          )
         : Image.asset(
-          imagePath,
-          height: 80,
-          width: double.infinity,
-          fit: BoxFit.cover,
-        );
+            imagePath,
+            height: 80,
+            width: double.infinity,
+            fit: BoxFit.cover,
+          );
   }
 }
 
