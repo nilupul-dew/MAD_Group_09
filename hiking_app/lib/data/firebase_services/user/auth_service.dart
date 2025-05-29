@@ -40,6 +40,69 @@ class AuthService {
     }
   }
 
+  // Load user data from Firestore
+  static Future<Map<String, dynamic>?> getUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return null;
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (!doc.exists) return null;
+
+      final data = doc.data()!;
+      return {
+        'uid': user.uid,
+        'firstName': data['firstName'],
+        'lastName': data['lastName'],
+        'email': user.email,
+        'address': data['address'],
+        'gender': data['gender'],
+        'country': data['country'],
+        'profileImage': data['profileImage'], // <- IMAGE URL
+      };
+    } catch (e) {
+      print('❌ Failed to load user data: $e');
+      return null;
+    }
+  }
+
+  static Future<Map<String, dynamic>?> getUserDataById(String userId) async {
+    if (userId.isEmpty) return null;
+
+    try {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (!doc.exists) {
+        print('❌ User with ID $userId not found');
+        return null;
+      }
+
+      final data = doc.data()!;
+      return {
+        'uid': userId,
+        'firstName': data['firstName'],
+        'lastName': data['lastName'],
+        'email': data['email'],
+        'address': data['address'],
+        'gender': data['gender'],
+        'country': data['country'],
+        'profileImage': data['profileImage'],
+        'createdAt': data['createdAt'],
+        'updatedAt': data['updatedAt'],
+      };
+    } catch (e) {
+      print('❌ Failed to load user data for ID $userId: $e');
+      return null;
+    }
+  }
+
   // Email Sign Up (new users)
   Future<UserCredential> signUpWithEmailAndPassword({
     required String email,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hiking_app/data/firebase_services/user/auth_service.dart';
 import 'package:hiking_app/presentation/widgets/Post/post_action_buttons.dart';
 import 'package:hiking_app/presentation/widgets/Post/post_engagementBar.dart';
 import 'package:hiking_app/presentation/widgets/Post/post_options.dart';
@@ -19,19 +20,44 @@ class _PostTileState extends State<PostTile>
     with SingleTickerProviderStateMixin {
   bool isLiked = false;
   int likeCount = 0;
-
+  String? _currentProfileId;
+  // User profile data for the post author
+  String? _profileImageUrl;
+  String? _profileName;
   // Theme colors based on #E3641F
   static const Color primaryOrange = Color(0xFFE3641F);
-  static const Color lightOrange = Color(0xFFFF8A50);
   static const Color darkOrange = Color(0xFFB8441A);
   static const Color orangeAccent = Color(0xFFFFF3EF);
 
   @override
   void initState() {
     super.initState();
-    likeCount = (widget.post.id.hashCode % 50) + 1; // Simulate like count
+    _loadCurrentUser();
+    _loadPostUser();
   }
 
+  // Load current user data for profile image and id
+  Future<void> _loadCurrentUser() async {
+    final userData = await AuthService.getUserData();
+    if (userData != null) {
+      setState(() {
+        _currentProfileId = userData['uid'] ?? '';
+      });
+    }
+  }
+
+  // Load post author's user data for profile image and name
+  Future<void> _loadPostUser() async {
+    final userData = await AuthService.getUserDataById(widget.post.userId);
+    if (userData != null) {
+      setState(() {
+        _profileImageUrl = userData['profileImage'];
+        _profileName = '${userData['firstName']} ${userData['lastName']}';
+      });
+    }
+  }
+
+  // Check if the current user is the post owner
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -69,7 +95,7 @@ class _PostTileState extends State<PostTile>
           buildEngagementBar(context, widget.post.id),
 
           // Action Buttons
-          buildActionButtons(context, widget.post),
+          buildActionButtons(context, widget.post, _currentProfileId ?? ''),
         ],
       ),
     );
@@ -80,19 +106,17 @@ class _PostTileState extends State<PostTile>
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          // User Avatar
-          Container(
-            height: 44,
-            width: 44,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [primaryOrange, lightOrange],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: const Icon(Icons.person, color: Colors.white, size: 24),
+          // 👤 User Avatar
+          CircleAvatar(
+            radius: 22,
+            backgroundColor: Colors.grey[200],
+            backgroundImage:
+                _profileImageUrl != null && _profileImageUrl!.isNotEmpty
+                    ? NetworkImage(_profileImageUrl!)
+                    : null,
+            child: _profileImageUrl == null || _profileImageUrl!.isEmpty
+                ? const Icon(Icons.person, color: Colors.grey)
+                : null,
           ),
 
           const SizedBox(width: 12),
@@ -103,7 +127,7 @@ class _PostTileState extends State<PostTile>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Vasudeva Nanayakkara', // TODO: Replace with actual user name
+                  _profileName ?? 'Anonymous',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -149,18 +173,18 @@ class _PostTileState extends State<PostTile>
           ),
 
           // Menu Button
-          if (widget.post.userId == 'user123')
+          if (widget.post.userId ==
+              _currentProfileId) // Check if current user is the post owner
             // Replace with actual user ID check
             Material(
               color: Colors.transparent,
               child: InkWell(
                 borderRadius: BorderRadius.circular(20),
-                onTap:
-                    () => PostOptionsWidget.showPostOptions(
-                      context: context,
-                      postId: widget.post.id,
-                      onDelete: widget.onDelete,
-                    ),
+                onTap: () => PostOptionsWidget.showPostOptions(
+                  context: context,
+                  postId: widget.post.id,
+                  onDelete: widget.onDelete,
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(8),
                   child: Icon(
@@ -214,29 +238,28 @@ class _PostTileState extends State<PostTile>
               widget.post.imageUrl!,
               width: double.infinity,
               fit: BoxFit.cover,
-              errorBuilder:
-                  (context, error, stackTrace) => Container(
-                    height: 200,
-                    color: Colors.grey[100],
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.broken_image_outlined,
-                          size: 48,
-                          color: Colors.grey[400],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Failed to load image',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
+              errorBuilder: (context, error, stackTrace) => Container(
+                height: 200,
+                color: Colors.grey[100],
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.broken_image_outlined,
+                      size: 48,
+                      color: Colors.grey[400],
                     ),
-                  ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Failed to load image',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               loadingBuilder: (context, child, loadingProgress) {
                 if (loadingProgress == null) return child;
                 return Container(
@@ -247,11 +270,10 @@ class _PostTileState extends State<PostTile>
                       valueColor: const AlwaysStoppedAnimation<Color>(
                         primaryOrange,
                       ),
-                      value:
-                          loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                  loadingProgress.expectedTotalBytes!
-                              : null,
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
                     ),
                   ),
                 );

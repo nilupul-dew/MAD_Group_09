@@ -7,7 +7,8 @@ import 'package:hiking_app/presentation/widgets/Post/post_comment_sheet.dart';
 import 'package:hiking_app/presentation/widgets/Post/post_like_handlie.dart';
 import 'package:share_plus/share_plus.dart' as share_plus;
 
-Widget buildActionButtons(BuildContext context, Post post) {
+Widget buildActionButtons(
+    BuildContext context, Post post, String currentUserId) {
   return Container(
     margin: const EdgeInsets.only(top: 4),
     padding: const EdgeInsets.symmetric(vertical: 4),
@@ -20,9 +21,10 @@ Widget buildActionButtons(BuildContext context, Post post) {
       children: [
         Expanded(
           child: LikeButtonWidget(
-            postId: post.id,
-            userId: 'user123', // TODO: Replace with actual logged-in user ID
-          ),
+              postId: post.id,
+              userId:
+                  currentUserId // TODO: Replace with actual logged-in user ID
+              ),
         ),
         Container(width: 0.5, height: 24, color: Colors.grey.withOpacity(0.3)),
         Expanded(
@@ -34,7 +36,8 @@ Widget buildActionButtons(BuildContext context, Post post) {
                 context: context,
                 backgroundColor: Colors.transparent,
                 isScrollControlled: true,
-                builder: (_) => CommentsBottomSheet(postId: post.id),
+                builder: (_) => CommentsBottomSheet(
+                    postId: post.id, currentUserId: currentUserId),
               );
             },
           ),
@@ -44,12 +47,11 @@ Widget buildActionButtons(BuildContext context, Post post) {
           child: _PostActionButton(
             icon: Icons.share_outlined,
             label: 'Share',
-            onTap:
-                () => _showShareOptions(
-                  context,
-                  post.id,
-                  'user123',
-                ), // TODO: Replace 'user123' with actual logged-in user ID
+            onTap: () => _showShareOptions(
+              context,
+              post.id,
+              currentUserId,
+            ), // TODO: Replace 'user123' with actual logged-in user ID
           ),
         ),
       ],
@@ -117,59 +119,58 @@ void _showShareOptions(BuildContext context, String postId, String userId) {
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
-    builder:
-        (context) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    builder: (context) => Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 8),
+            height: 4,
+            width: 40,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.only(top: 8),
-                height: 4,
-                width: 40,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  'Share Post',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.copy, color: Color(0xFFE3641F)),
-                title: const Text('Copy Link'),
-                onTap: () async {
-                  final link =
-                      'https://hikingapp.com/post/$postId'; // Replace with actual link format
-                  await Clipboard.setData(ClipboardData(text: link));
-                  Navigator.pop(context);
-                  _logShare(); // Log share to Firestore
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Link copied to clipboard')),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.share, color: Color(0xFFE3641F)),
-                title: const Text('Share via...'),
-                onTap: () async {
-                  final link =
-                      'https://hikingapp.com/post/$postId'; // Replace as needed
-                  await share_plus.Share.share(link);
-                  Navigator.pop(context);
-                  _logShare(); // Log share to Firestore
-                },
-              ),
-              const SizedBox(height: 8),
-            ],
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'Share Post',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ),
-        ),
+          ListTile(
+            leading: const Icon(Icons.copy, color: Color(0xFFE3641F)),
+            title: const Text('Copy Link'),
+            onTap: () async {
+              final link =
+                  'https://hikingapp.com/post/$postId'; // Replace with actual link format
+              await Clipboard.setData(ClipboardData(text: link));
+              Navigator.pop(context);
+              _logShare(); // Log share to Firestore
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Link copied to clipboard')),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.share, color: Color(0xFFE3641F)),
+            title: const Text('Share via...'),
+            onTap: () async {
+              final link =
+                  'https://hikingapp.com/post/$postId'; // Replace as needed
+              await share_plus.Share.share(link);
+              Navigator.pop(context);
+              _logShare(); // Log share to Firestore
+            },
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    ),
   );
 }

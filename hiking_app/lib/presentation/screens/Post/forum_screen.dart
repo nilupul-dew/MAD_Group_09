@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:hiking_app/data/firebase_services/Post/post_firebase.dart';
+import 'package:hiking_app/data/firebase_services/user/auth_service.dart';
+import 'package:hiking_app/presentation/screens/user/user_profile_screen.dart';
 import 'package:hiking_app/presentation/widgets/Post/post_add.dart';
 import 'package:hiking_app/presentation/widgets/Post/post_search_screen.dart';
 import '../../widgets/Post/post_tile.dart';
@@ -20,11 +22,14 @@ class _ForumScreenState extends State<ForumScreen> {
   bool _isLoading = true;
   bool _showFAB = true;
   final ScrollController _scrollController = ScrollController();
+  String? _profileImageUrl;
 
+  // Initialize the scroll controller and load posts
   @override
   void initState() {
     super.initState();
     _loadPosts();
+    _loadUserImage();
 
     _scrollController.addListener(() {
       final direction = _scrollController.position.userScrollDirection;
@@ -37,6 +42,17 @@ class _ForumScreenState extends State<ForumScreen> {
     });
   }
 
+  Future<void> _loadUserImage() async {
+    final userData = await AuthService.getUserData();
+    if (userData != null) {
+      setState(() {
+        _profileImageUrl = userData['profileImage'] ?? userData['photoURL'];
+      });
+    }
+    print("🔍 User profile image URL: $_profileImageUrl");
+  }
+
+  // Load posts from Firebase
   void _loadPosts() async {
     setState(() => _isLoading = true);
 
@@ -87,24 +103,27 @@ class _ForumScreenState extends State<ForumScreen> {
                           title: Row(
                             children: [
                               // 👤 User Avatar
-                              Container(
-                                height: 44,
-                                width: 44,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFFFFA726),
-                                      Color(0xFFFFCC80),
-                                    ], // primaryOrange & lightOrange
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                ),
-                                child: const Icon(
-                                  Icons.person,
-                                  color: Colors.white,
-                                  size: 24,
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            UserProfileScreen()),
+                                  );
+                                },
+                                child: CircleAvatar(
+                                  radius: 22,
+                                  backgroundColor: Colors.grey[200],
+                                  backgroundImage: _profileImageUrl != null &&
+                                          _profileImageUrl!.isNotEmpty
+                                      ? NetworkImage(_profileImageUrl!)
+                                      : null,
+                                  child: _profileImageUrl == null ||
+                                          _profileImageUrl!.isEmpty
+                                      ? const Icon(Icons.person,
+                                          color: Colors.grey)
+                                      : null,
                                 ),
                               ),
 

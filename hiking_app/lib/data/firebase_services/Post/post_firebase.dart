@@ -58,30 +58,26 @@ class FirebaseForumService {
   Future<List<Post>> fetchPosts() async {
     print("🔄 Fetching posts from Firestore...");
     try {
-      final querySnapshot =
-          await _firestore
-              .collection(_collection)
-              .orderBy('timestamp', descending: true)
-              .get();
+      final querySnapshot = await _firestore
+          .collection(_collection)
+          .orderBy('timestamp', descending: true)
+          .get();
 
-      final posts =
-          querySnapshot.docs.map((doc) {
-            final data = doc.data();
-            return Post(
-              id: doc.id,
-              userId: data['userId'] ?? '',
-              title: data['title'] ?? '',
-              content: data['content'] ?? '',
-              category: data['category'] ?? '',
-              tags: List<String>.from(data['tags'] ?? []),
-              imageUrl: data['imageUrl'],
-              timestamp:
-                  data['timestamp'] is Timestamp
-                      ? (data['timestamp'] as Timestamp).toDate()
-                      : DateTime.tryParse(data['timestamp'] ?? '') ??
-                          DateTime.now(),
-            );
-          }).toList();
+      final posts = querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        return Post(
+          id: doc.id,
+          userId: data['userId'] ?? '',
+          title: data['title'] ?? '',
+          content: data['content'] ?? '',
+          category: data['category'] ?? '',
+          tags: List<String>.from(data['tags'] ?? []),
+          imageUrl: data['imageUrl'],
+          timestamp: data['timestamp'] is Timestamp
+              ? (data['timestamp'] as Timestamp).toDate()
+              : DateTime.tryParse(data['timestamp'] ?? '') ?? DateTime.now(),
+        );
+      }).toList();
 
       print("✅ Loaded ${posts.length} posts from Firestore.");
       return posts;
@@ -121,7 +117,7 @@ class FirebaseForumService {
         'timestamp': Timestamp.fromDate(post.timestamp),
       });
 
-      print("✅ Post added with ID: ${docRef.id}");
+      print("✅ Post added post ID: ${docRef.id}, UserId: ${post.userId}");
     } catch (e) {
       print("❌ Error adding post: $e");
       rethrow;
@@ -154,11 +150,9 @@ class FirebaseForumService {
             category: data['category'] ?? '',
             tags: List<String>.from(data['tags'] ?? []),
             imageUrl: data['imageUrl'],
-            timestamp:
-                data['timestamp'] is Timestamp
-                    ? (data['timestamp'] as Timestamp).toDate()
-                    : DateTime.tryParse(data['timestamp'] ?? '') ??
-                        DateTime.now(),
+            timestamp: data['timestamp'] is Timestamp
+                ? (data['timestamp'] as Timestamp).toDate()
+                : DateTime.tryParse(data['timestamp'] ?? '') ?? DateTime.now(),
           );
         }
       }
