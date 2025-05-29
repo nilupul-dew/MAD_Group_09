@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("🚀 MyApp build method called");
     return MaterialApp(
       title: 'Flutter Auth App',
       debugShowCheckedModeBanner: false,
