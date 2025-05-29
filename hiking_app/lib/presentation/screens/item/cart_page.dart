@@ -350,7 +350,7 @@ class _CartScreenState extends State<CartScreen> {
     try {
       await _cartFirestoreService.createOrder(userId!, items, orderTotal);
       await _cartFirestoreService.clearUserCartAndReturnStock(
-        userId!,
+        userId,
       ); // Clear cart after successful order
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Order placed successfully!')),
