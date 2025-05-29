@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../domain/models/Post/post_model.dart';
 import 'package:hiking_app/data/firebase_services/Post/post_firebase.dart';
 import 'post_tile.dart';
-import 'package:speech_to_text/speech_to_text.dart' as stt;
+//import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class PostSearchScreen extends StatefulWidget {
   const PostSearchScreen({super.key});
@@ -22,15 +22,15 @@ class _PostSearchScreenState extends State<PostSearchScreen> {
   List<String> _suggestions = [];
   List<String> _allTags = [];
 
-  //voice input
-  late stt.SpeechToText _speech;
-  bool _isListening = false;
-  String _voiceInput = "";
+  // //voice input
+  // late stt.SpeechToText _speech;
+  // bool _isListening = false;
+  // String _voiceInput = "";
 
   @override
   void initState() {
     super.initState();
-    _speech = stt.SpeechToText();
+    //_speech = stt.SpeechToText();
     _loadRecentSearches();
     _loadAllTags();
   }
@@ -74,14 +74,12 @@ class _PostSearchScreenState extends State<PostSearchScreen> {
     final queryWords = query.split(' ');
 
     setState(() {
-      _searchResults =
-          results.where((post) {
-            final lowerTags =
-                post.tags.map((tag) => tag.toLowerCase()).toList();
-            return queryWords.any(
-              (word) => lowerTags.any((tag) => tag.contains(word)),
-            );
-          }).toList();
+      _searchResults = results.where((post) {
+        final lowerTags = post.tags.map((tag) => tag.toLowerCase()).toList();
+        return queryWords.any(
+          (word) => lowerTags.any((tag) => tag.contains(word)),
+        );
+      }).toList();
       _suggestions.clear();
     });
 
@@ -91,10 +89,9 @@ class _PostSearchScreenState extends State<PostSearchScreen> {
   void _updateSuggestions(String input) {
     final normalized = input.trim().toLowerCase();
     setState(() {
-      _suggestions =
-          _allTags
-              .where((tag) => tag.toLowerCase().contains(normalized))
-              .toList();
+      _suggestions = _allTags
+          .where((tag) => tag.toLowerCase().contains(normalized))
+          .toList();
     });
   }
 
@@ -114,39 +111,39 @@ class _PostSearchScreenState extends State<PostSearchScreen> {
     await prefs.remove('recent_searches');
   }
 
-  //Voice to text functionality
-  void _startListening() async {
-    bool available = await _speech.initialize(
-      onStatus: (val) => print('🔊 STATUS: $val'),
-      onError: (val) => print('❌ ERROR: $val'),
-    );
-    if (available) {
-      print('🎤 Voice input initialized');
-      setState(() => _isListening = true);
-      _speech.listen(
-        onResult: (val) {
-          print('🎤 onResult triggered');
-          setState(() {
-            _voiceInput = val.recognizedWords;
-            _searchController.text = _voiceInput;
-          });
-          print('🎤 Recognized words: $_voiceInput');
-          if (val.hasConfidenceRating && val.confidence > 0) {
-            _searchPosts(_voiceInput);
-          }
-        },
-      );
-      // Automatically stop after 10 seconds
-      Timer(const Duration(seconds: 10), () {
-        _stopListening();
-      });
-    }
-  }
+  // //Voice to text functionality
+  // void _startListening() async {
+  //   bool available = await _speech.initialize(
+  //     onStatus: (val) => print('🔊 STATUS: $val'),
+  //     onError: (val) => print('❌ ERROR: $val'),
+  //   );
+  //   if (available) {
+  //     print('🎤 Voice input initialized');
+  //     setState(() => _isListening = true);
+  //     _speech.listen(
+  //       onResult: (val) {
+  //         print('🎤 onResult triggered');
+  //         setState(() {
+  //           _voiceInput = val.recognizedWords;
+  //           _searchController.text = _voiceInput;
+  //         });
+  //         print('🎤 Recognized words: $_voiceInput');
+  //         if (val.hasConfidenceRating && val.confidence > 0) {
+  //           _searchPosts(_voiceInput);
+  //         }
+  //       },
+  //     );
+  //     // Automatically stop after 10 seconds
+  //     Timer(const Duration(seconds: 10), () {
+  //       _stopListening();
+  //     });
+  //   }
+  // }
 
-  void _stopListening() {
-    _speech.stop();
-    setState(() => _isListening = false);
-  }
+  // void _stopListening() {
+  //   _speech.stop();
+  //   setState(() => _isListening = false);
+  // }
 
   @override
   void dispose() {
@@ -183,10 +180,10 @@ class _PostSearchScreenState extends State<PostSearchScreen> {
                 _searchPosts(_searchController.text);
               },
             ),
-            IconButton(
-              icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
-              onPressed: _isListening ? _stopListening : _startListening,
-            ),
+            // IconButton(
+            //   icon: Icon(_isListening ? Icons.mic : Icons.mic_none),
+            //   onPressed: _isListening ? _stopListening : _startListening,
+            // ),
           ],
         ),
       ),
@@ -197,70 +194,66 @@ class _PostSearchScreenState extends State<PostSearchScreen> {
               padding: const EdgeInsets.all(8.0),
               child: Wrap(
                 spacing: 8,
-                children:
-                    _suggestions
-                        .map(
-                          (s) => ActionChip(
-                            label: Text(s),
-                            onPressed: () {
-                              _searchController.text = s;
-                              _searchPosts(s);
-                            },
-                          ),
-                        )
-                        .toList(),
+                children: _suggestions
+                    .map(
+                      (s) => ActionChip(
+                        label: Text(s),
+                        onPressed: () {
+                          _searchController.text = s;
+                          _searchPosts(s);
+                        },
+                      ),
+                    )
+                    .toList(),
               ),
             ),
           Expanded(
-            child:
-                _searchResults.isNotEmpty
-                    ? ListView.builder(
-                      itemCount: _searchResults.length,
-                      itemBuilder:
-                          (context, index) =>
-                              PostTile(post: _searchResults[index]),
-                    )
-                    : Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                'Recent Searches',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+            child: _searchResults.isNotEmpty
+                ? ListView.builder(
+                    itemCount: _searchResults.length,
+                    itemBuilder: (context, index) =>
+                        PostTile(post: _searchResults[index]),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Recent Searches',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: _clearAllRecentSearches,
+                              child: const Text("Clear All"),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          children: _recentSearches
+                              .map(
+                                (query) => InputChip(
+                                  label: Text(query),
+                                  onPressed: () {
+                                    _searchController.text = query;
+                                    _searchPosts(query);
+                                  },
+                                  onDeleted: () => _removeSearch(query),
                                 ),
-                              ),
-                              TextButton(
-                                onPressed: _clearAllRecentSearches,
-                                child: const Text("Clear All"),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Wrap(
-                            spacing: 8,
-                            children:
-                                _recentSearches
-                                    .map(
-                                      (query) => InputChip(
-                                        label: Text(query),
-                                        onPressed: () {
-                                          _searchController.text = query;
-                                          _searchPosts(query);
-                                        },
-                                        onDeleted: () => _removeSearch(query),
-                                      ),
-                                    )
-                                    .toList(),
-                          ),
-                        ],
-                      ),
+                              )
+                              .toList(),
+                        ),
+                      ],
                     ),
+                  ),
           ),
         ],
       ),

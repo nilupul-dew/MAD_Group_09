@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../../services/user/auth_service.dart';
+import '../../../data/firebase_services/user/auth_service.dart';
 import 'profile_setup_screen.dart';
 
 /*This page should be replaced with home screen - especially built for testing */
@@ -85,13 +85,12 @@ class _DisplayNameScreenState extends State<DisplayNameScreen> {
                   backgroundColor: Colors.orange,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child:
-                    _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                          "Continue",
-                          style: TextStyle(fontSize: 16),
-                        ),
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        "Continue",
+                        style: TextStyle(fontSize: 16),
+                      ),
               ),
             ),
           ],

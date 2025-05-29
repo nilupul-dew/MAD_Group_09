@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../../../services/user/auth_service.dart';
+import '../../../data/firebase_services/user/auth_service.dart';
 import '../home_screen.dart';
 
 class ProfileSetupScreen extends StatefulWidget {

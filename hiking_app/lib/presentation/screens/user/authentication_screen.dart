@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../../services/user/auth_service.dart';
+import '../../../data/firebase_services/user/auth_service.dart';
 import 'otp_screen.dart';
 import 'display_name_screen.dart';
 import '../home_screen.dart';
@@ -41,11 +41,10 @@ class _AuthScreenState extends State<AuthScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder:
-                  (_) => OTPScreen(
-                    phoneNumber: fullPhoneNumber,
-                    verificationId: verificationId,
-                  ),
+              builder: (_) => OTPScreen(
+                phoneNumber: fullPhoneNumber,
+                verificationId: verificationId,
+              ),
             ),
           );
         },
@@ -140,10 +139,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                 ? Icons.visibility
                                 : Icons.visibility_off,
                           ),
-                          onPressed:
-                              () => setDialogState(() {
-                                isPasswordVisible = !isPasswordVisible;
-                              }),
+                          onPressed: () => setDialogState(() {
+                            isPasswordVisible = !isPasswordVisible;
+                          }),
                         ),
                       ),
                     ),
@@ -178,73 +176,71 @@ class _AuthScreenState extends State<AuthScreen> {
                   child: const Text("Cancel"),
                 ),
                 ElevatedButton(
-                  onPressed:
-                      isDialogLoading
-                          ? null
-                          : () async {
-                            final email = emailController.text.trim();
-                            final password = passwordController.text.trim();
+                  onPressed: isDialogLoading
+                      ? null
+                      : () async {
+                          final email = emailController.text.trim();
+                          final password = passwordController.text.trim();
 
-                            if (email.isEmpty || password.isEmpty) {
-                              _showError('Enter both email and password');
-                              return;
-                            }
+                          if (email.isEmpty || password.isEmpty) {
+                            _showError('Enter both email and password');
+                            return;
+                          }
 
-                            if (password.length < 6) {
-                              _showError(
-                                'Password must be at least 6 characters',
-                              );
-                              return;
-                            }
+                          if (password.length < 6) {
+                            _showError(
+                              'Password must be at least 6 characters',
+                            );
+                            return;
+                          }
 
-                            setDialogState(() => isDialogLoading = true);
+                          setDialogState(() => isDialogLoading = true);
 
-                            try {
-                              late final userCredential;
+                          try {
+                            late final userCredential;
 
-                              if (_isSignUp) {
-                                final userExists = await _authService
-                                    .userExists(email: email);
-                                if (userExists) {
-                                  _showError(
-                                    'User already exists. Please sign in instead.',
-                                  );
-                                  setState(() => _isSignUp = false);
-                                  Navigator.pop(context);
-                                  return;
-                                }
-
-                                userCredential = await _authService
-                                    .signUpWithEmailAndPassword(
-                                      email: email,
-                                      password: password,
-                                    );
-                              } else {
-                                userCredential = await _authService
-                                    .signInWithEmailAndPassword(
-                                      email: email,
-                                      password: password,
-                                    );
-                              }
-
-                              if (userCredential.user != null) {
+                            if (_isSignUp) {
+                              final userExists =
+                                  await _authService.userExists(email: email);
+                              if (userExists) {
+                                _showError(
+                                  'User already exists. Please sign in instead.',
+                                );
+                                setState(() => _isSignUp = false);
                                 Navigator.pop(context);
-                                _handleSuccessfulAuth(userCredential.user!);
+                                return;
                               }
-                            } catch (e) {
-                              _showError(e.toString());
-                            } finally {
-                              setDialogState(() => isDialogLoading = false);
+
+                              userCredential =
+                                  await _authService.signUpWithEmailAndPassword(
+                                email: email,
+                                password: password,
+                              );
+                            } else {
+                              userCredential =
+                                  await _authService.signInWithEmailAndPassword(
+                                email: email,
+                                password: password,
+                              );
                             }
-                          },
-                  child:
-                      isDialogLoading
-                          ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                          : Text(_isSignUp ? "Sign up" : "Sign in"),
+
+                            if (userCredential.user != null) {
+                              Navigator.pop(context);
+                              _handleSuccessfulAuth(userCredential.user!);
+                            }
+                          } catch (e) {
+                            _showError(e.toString());
+                          } finally {
+                            setDialogState(() => isDialogLoading = false);
+                          }
+                        },
+                  child: isDialogLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Text(_isSignUp ? "Sign up" : "Sign in"),
                 ),
               ],
             );
@@ -257,8 +253,7 @@ class _AuthScreenState extends State<AuthScreen> {
   void _handleSuccessfulAuth(user) {
     // Check if this is a new user (needs display name setup)
     // For new users, displayName is usually null or empty
-    final isNewUser =
-        user.displayName == null ||
+    final isNewUser = user.displayName == null ||
         user.displayName!.isEmpty ||
         user.metadata.creationTime?.difference(DateTime.now()).inMinutes.abs() <
             2;
@@ -343,18 +338,17 @@ class _AuthScreenState extends State<AuthScreen> {
                         borderRadius: BorderRadius.circular(6),
                       ),
                     ),
-                    child:
-                        _isLoading
-                            ? const CircularProgressIndicator(
+                    child: _isLoading
+                        ? const CircularProgressIndicator(
+                            color: Colors.white,
+                          )
+                        : const Text(
+                            "Continue with Phone",
+                            style: TextStyle(
+                              fontSize: 16,
                               color: Colors.white,
-                            )
-                            : const Text(
-                              "Continue with Phone",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
                             ),
+                          ),
                   ),
                 ),
 
@@ -382,7 +376,6 @@ class _AuthScreenState extends State<AuthScreen> {
                 const SizedBox(height: 12),
                 _socialButton(
                   icon: FontAwesomeIcons.googlePlusG,
-
                   label: "Continue with Google",
                   onPressed: _isLoading ? null : _handleGoogleSignIn,
                 ),
@@ -425,12 +418,11 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Widget _buildCountryPicker() {
     return InkWell(
-      onTap:
-          () => showCountryPicker(
-            context: context,
-            showPhoneCode: true,
-            onSelect: (country) => setState(() => selectedCountry = country),
-          ),
+      onTap: () => showCountryPicker(
+        context: context,
+        showPhoneCode: true,
+        onSelect: (country) => setState(() => selectedCountry = country),
+      ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
         decoration: BoxDecoration(

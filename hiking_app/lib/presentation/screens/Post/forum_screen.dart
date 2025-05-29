@@ -65,141 +65,144 @@ class _ForumScreenState extends State<ForumScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _posts.isEmpty
-              ? const Center(child: Text("No posts yet. Add the first post!"))
-              : RefreshIndicator(
-                onRefresh: () async => _loadPosts(),
-                child: CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    SliverAppBar(
-                      floating: true,
-                      snap: true,
-                      backgroundColor: Colors.white,
-                      elevation: 1,
-                      automaticallyImplyLeading: false,
-                      titleSpacing: 16,
-                      title: Row(
-                        children: [
-                          // 👤 User Avatar
-                          Container(
-                            height: 44,
-                            width: 44,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: const LinearGradient(
-                                colors: [
-                                  Color(0xFFFFA726),
-                                  Color(0xFFFFCC80),
-                                ], // primaryOrange & lightOrange
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                            ),
-                            child: const Icon(
-                              Icons.person,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-
-                          const SizedBox(width: 12),
-
-                          // 🔍 Search field (non-interactive placeholder)
-                          Expanded(
-                            child: GestureDetector(
-                              onTap: () {
-                                // Open Search Screen
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const PostSearchScreen(),
-                                  ),
-                                );
-                              },
-                              child: Container(
-                                height: 40,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
+      body: Container(
+        color: const Color.fromARGB(
+            255, 211, 209, 209), // Set your desired background color here
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _posts.isEmpty
+                ? const Center(child: Text("No posts yet. Add the first post!"))
+                : RefreshIndicator(
+                    onRefresh: () async => _loadPosts(),
+                    child: CustomScrollView(
+                      controller: _scrollController,
+                      slivers: [
+                        SliverAppBar(
+                          floating: true,
+                          snap: true,
+                          backgroundColor: Colors.white,
+                          elevation: 1,
+                          automaticallyImplyLeading: false,
+                          titleSpacing: 16,
+                          title: Row(
+                            children: [
+                              // 👤 User Avatar
+                              Container(
+                                height: 44,
+                                width: 44,
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(24),
-                                  border: Border.all(
-                                    color: Colors.grey.shade300,
+                                  shape: BoxShape.circle,
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFFFFA726),
+                                      Color(0xFFFFCC80),
+                                    ], // primaryOrange & lightOrange
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
                                 ),
-                                alignment: Alignment.centerLeft,
-                                child: const Text(
-                                  "Where's your next adventure?",
-                                  style: TextStyle(
-                                    color: Colors.black54,
-                                    fontSize: 14,
+                                child: const Icon(
+                                  Icons.person,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                              ),
+
+                              const SizedBox(width: 12),
+
+                              // 🔍 Search field (non-interactive placeholder)
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    // Open Search Screen
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const PostSearchScreen(),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    height: 40,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(24),
+                                      border: Border.all(
+                                        color: Colors.grey.shade300,
+                                      ),
+                                    ),
+                                    alignment: Alignment.centerLeft,
+                                    child: const Text(
+                                      "Where's your next adventure?",
+                                      style: TextStyle(
+                                        color: Colors.black54,
+                                        fontSize: 14,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
+
+                              const SizedBox(width: 12),
+
+                              // ➕ Add Post Button
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundColor: const Color(0xFFF5F5F5),
+                                child: IconButton(
+                                  icon: const Icon(Icons.add,
+                                      color: Colors.black),
+                                  onPressed: () async {
+                                    final result = await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => AddPostScreen(),
+                                      ),
+                                    );
+                                    if (result == true) _loadPosts();
+                                  },
+                                ),
+                              ),
+
+                              const SizedBox(width: 8),
+
+                              // 👥 Group Trip Button (for future)
+                              const CircleAvatar(
+                                radius: 20,
+                                backgroundColor: Color(0xFFF5F5F5),
+                                child: Icon(Icons.group, color: Colors.black),
+                              ),
+                            ],
                           ),
-
-                          const SizedBox(width: 12),
-
-                          // ➕ Add Post Button
-                          CircleAvatar(
-                            radius: 20,
-                            backgroundColor: const Color(0xFFF5F5F5),
-                            child: IconButton(
-                              icon: const Icon(Icons.add, color: Colors.black),
-                              onPressed: () async {
+                        ),
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, i) => PostTile(
+                              post: _posts[i],
+                              onDelete: _loadPosts,
+                              onEdit: () async {
                                 final result = await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => AddPostScreen(),
+                                    builder: (context) => AddPostScreen(
+                                      isEditing: true,
+                                      post: _posts[i],
+                                    ),
                                   ),
                                 );
                                 if (result == true) _loadPosts();
                               },
                             ),
+                            childCount: _posts.length,
                           ),
-
-                          const SizedBox(width: 8),
-
-                          // 👥 Group Trip Button (for future)
-                          const CircleAvatar(
-                            radius: 20,
-                            backgroundColor: Color(0xFFF5F5F5),
-                            child: Icon(Icons.group, color: Colors.black),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, i) => PostTile(
-                          post: _posts[i],
-                          onDelete: _loadPosts,
-                          onEdit: () async {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => AddPostScreen(
-                                      isEditing: true,
-                                      post: _posts[i],
-                                    ),
-                              ),
-                            );
-                            if (result == true) _loadPosts();
-                          },
                         ),
-                        childCount: _posts.length,
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                  ),
+      ),
     );
   }
 }

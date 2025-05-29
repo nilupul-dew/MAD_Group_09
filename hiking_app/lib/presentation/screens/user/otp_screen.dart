@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import '../../../services/user/auth_service.dart';
+import '../../../data/firebase_services/user/auth_service.dart';
 import 'display_name_screen.dart';
 
 class OTPScreen extends StatefulWidget {
   final String phoneNumber;
   final String verificationId;
-  
+
   const OTPScreen({
-    super.key, 
+    super.key,
     required this.phoneNumber,
     required this.verificationId,
   });
