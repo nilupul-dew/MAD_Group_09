@@ -131,7 +131,7 @@ class HomePageContent extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(50),
+          preferredSize: Size.fromHeight(55),
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
             child: Container(
@@ -145,7 +145,7 @@ class HomePageContent extends StatelessWidget {
                   hintText: 'Search camping gear...',
                   prefixIcon: Icon(Icons.search),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 10),
+                  contentPadding: EdgeInsets.symmetric(vertical: 5),
                 ),
               ),
             ),

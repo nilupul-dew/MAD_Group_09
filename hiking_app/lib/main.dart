@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
         // Add other providers here if you have more ViewModels
       ],
       child: MaterialApp(
-        title: 'Flutter Auth App',
+        title: 'Amba Camping',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(primarySwatch: Colors.orange, useMaterial3: true),
         home: const AuthWrapper(),

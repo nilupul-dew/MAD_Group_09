@@ -79,7 +79,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                     color: Color.fromARGB(181, 18, 18, 18),
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,
-                    fontSize: 17,
+                    fontSize: 16,
                     shadows: [
                       Shadow(
                         offset: Offset(3.0, 2.0),
