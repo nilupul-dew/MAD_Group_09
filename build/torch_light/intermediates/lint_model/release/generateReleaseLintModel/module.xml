@@ -1,0 +1,19 @@
+<lint-module
+    format="1"
+    dir="C:\Users\SANKALPA\AppData\Local\Pub\Cache\hosted\pub.dev\torch_light-1.1.0\android"
+    name=":torch_light"
+    type="LIBRARY"
+    maven="com.svprdga.torchlight:torch_light:1.0-SNAPSHOT"
+    agpVersion="8.7.0"
+    buildFolder="D:\SANKALPA\Documents\camping app\sospage\build\torch_light"
+    bootClassPath="C:\Users\SANKALPA\AppData\Local\Android\Sdk\platforms\android-34\android.jar;C:\Users\SANKALPA\AppData\Local\Android\Sdk\build-tools\34.0.0\core-lambda-stubs.jar"
+    javaSourceLevel="1.8"
+    compileTarget="android-34"
+    neverShrinking="true">
+  <lintOptions
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true"/>
+  <variant name="release"/>
+</lint-module>
