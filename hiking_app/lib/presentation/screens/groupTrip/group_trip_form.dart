@@ -7,7 +7,7 @@ class GroupTripForm extends StatefulWidget {
   final Map<String, dynamic>? initialData;
 
   const GroupTripForm({Key? key, this.tripId, this.initialData})
-    : super(key: key);
+      : super(key: key);
 
   @override
   State<GroupTripForm> createState() => _GroupTripFormState();
@@ -143,10 +143,9 @@ class _GroupTripFormState extends State<GroupTripForm> {
   Future<void> _selectDate(bool isStart) async {
     final date = await showDatePicker(
       context: context,
-      initialDate:
-          isStart
-              ? _startDate ?? DateTime.now()
-              : _endDate ?? _startDate ?? DateTime.now(),
+      initialDate: isStart
+          ? _startDate ?? DateTime.now()
+          : _endDate ?? _startDate ?? DateTime.now(),
       firstDate: isStart ? DateTime.now() : _startDate ?? DateTime.now(),
       lastDate: DateTime(2100),
     );
@@ -347,16 +346,16 @@ class _GroupTripFormState extends State<GroupTripForm> {
   }
 
   Widget _sectionHeader(String text) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 16),
-    child: Text(
-      text,
-      style: TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.bold,
-        color: Colors.black,
-      ),
-    ),
-  );
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+      );
 
   Widget _buildTextField(
     String label,

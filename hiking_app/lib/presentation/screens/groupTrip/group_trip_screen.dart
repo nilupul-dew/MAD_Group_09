@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:hiking_app/data/firebase_services/notification_service.dart';
 import 'package:hiking_app/presentation/screens/app_bar.dart';
 import '../../widgets/groupTrip/group_trip_card.dart';
@@ -206,24 +205,25 @@ class _CommunityScreenState extends State<GroupTripScreen> {
               ],
             ),
           ),
+          SizedBox(height: 4),
           //Text
-          Text(
-            //todo : align left and add space between text feld and above container
-            "Group Trips",
-            style: GoogleFonts.montserrat(
-              color: Color.fromARGB(239, 18, 18, 18),
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-              fontSize: 18,
-              shadows: [
-                Shadow(
-                  offset: Offset(3.0, 2.0),
-                  blurRadius: 4.0,
-                  color: Colors.black26,
-                ),
-              ],
-            ),
-          ),
+          // Text(
+          //   " Group Trips",
+          //   textAlign: TextAlign.left,
+          //   style: GoogleFonts.montserrat(
+          //     color: Color.fromARGB(239, 18, 18, 18),
+          //     fontWeight: FontWeight.bold,
+          //     letterSpacing: 0.5,
+          //     fontSize: 22,
+          //     shadows: [
+          //       Shadow(
+          //         offset: Offset(1.0, 1.0),
+          //         blurRadius: 4.0,
+          //         color: Colors.black26,
+          //       ),
+          //     ],
+          //   ),
+          // ),
           // Results Section
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
