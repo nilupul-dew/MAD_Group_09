@@ -53,8 +53,17 @@ dependencies:
   video_player: ^2.9.5
   chewie: ^1.11.3
   string_similarity: ^2.1.1
+  torch_light: ^1.1.0
+  audioplayers: ^6.4.0
+  geolocator: ^12.0.0
+  google_fonts: ^6.2.1
+  flutter_launcher_icons: ^0.14.3
   #speech_to_text: ^6.6.0
 
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/AmbaLogo.png"
 
 dev_dependencies:
   flutter_test:
@@ -89,10 +98,7 @@ flutter:
     - assets/images/hammoch-.png
     - assets/images/logo1.png
     - assets/images/
-    # - assets/images/partial_payment_icon
-    # - assets/images/google_pay_icon
-    # - assets/images/card_icon
-    # - assets/images/cash_delivery_icon
+    - assets/sounds/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -3,6 +3,7 @@ import 'package:hiking_app/presentation/screens/Post/forum_screen.dart';
 import 'package:hiking_app/presentation/screens/app_bar.dart';
 import 'package:hiking_app/presentation/screens/item/search_page.dart';
 import 'package:hiking_app/presentation/screens/location-screens/explore_screen.dart';
+import 'package:hiking_app/presentation/screens/sos/sos_page.dart';
 import 'package:hiking_app/presentation/widgets/bottom_nav_bar.dart';
 import 'package:hiking_app/presentation/widgets/item_card.dart';
 //import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -81,9 +82,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: FloatingActionButton.extended(
                       heroTag: 'sos',
                       onPressed: () {
-                        ScaffoldMessenger.of(
+                        Navigator.push(
                           context,
-                        ).showSnackBar(SnackBar(content: Text("SOS tapped")));
+                          MaterialPageRoute(builder: (context) => SOSPage()),
+                        );
                       },
                       icon: Icon(
                         Icons.warning,

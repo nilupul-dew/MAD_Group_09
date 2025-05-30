@@ -217,7 +217,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add New Post'),
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Colors.deepOrangeAccent,
         foregroundColor: Colors.white,
       ),
       body: Form(
@@ -369,7 +369,7 @@ class _AddPostScreenState extends State<AddPostScreen> {
               ElevatedButton(
                 onPressed: _isLoading ? null : _submitPost,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
+                  backgroundColor: Colors.deepOrangeAccent,
                   foregroundColor: Colors.white,
                   minimumSize: const Size(double.infinity, 50),
                 ),

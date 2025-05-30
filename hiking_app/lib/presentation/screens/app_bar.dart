@@ -4,6 +4,7 @@ import 'package:hiking_app/data/firebase_services/user/auth_service.dart';
 import 'package:hiking_app/presentation/screens/item/cart_page.dart';
 import 'package:hiking_app/presentation/screens/notification_screen.dart';
 import 'package:hiking_app/presentation/screens/user/user_profile_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final int cartItemCount;
@@ -69,29 +70,25 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   onTap: () {
                     Navigator.of(context).pushNamed('/home');
                   },
-                  child: Image.asset('assets/images/logo1.png', height: 50),
+                  child: Image.asset('assets/images/AmbaLogo.png', height: 50),
                 ),
                 const SizedBox(width: 8),
-                RichText(
-                  text: const TextSpan(
-                    text: "CAMP",
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 238, 97, 3),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: "SITE",
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 18, 18, 18),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        ),
+                Text(
+                  "AMBA CAMPING",
+                  style: GoogleFonts.montserrat(
+                    color: Color.fromARGB(181, 18, 18, 18),
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                    fontSize: 17,
+                    shadows: [
+                      Shadow(
+                        offset: Offset(3.0, 2.0),
+                        blurRadius: 4.0,
+                        color: Colors.black26,
                       ),
                     ],
                   ),
-                ),
+                )
               ],
             ),
           ),
