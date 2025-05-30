@@ -1,0 +1,2 @@
+D:/SANKALPA/Documents/camping app/sospage/android/app/.cxx/Debug/4w3v3p5x/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/SANKALPA/Documents/camping app/sospage/android/app/.cxx/Debug/4w3v3p5x/armeabi-v7a/CMakeFiles/rebuild_cache.dir

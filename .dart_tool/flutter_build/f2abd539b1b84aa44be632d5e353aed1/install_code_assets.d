@@ -1,0 +1,1 @@
+ D:\\SANKALPA\\Documents\\camping\ app\\sospage\\.dart_tool\\flutter_build\\f2abd539b1b84aa44be632d5e353aed1\\native_assets.json: 

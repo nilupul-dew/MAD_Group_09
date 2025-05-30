@@ -63,6 +63,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '197394069399',
     projectId: 'campinggearapp-e8103',
     storageBucket: 'campinggearapp-e8103.firebasestorage.app',
+    androidClientId:
+        '197394069399-5q2nan9uutochf9bsprr819n8qt2nhi2.apps.googleusercontent.com',
+    iosClientId:
+        '197394069399-ssbs21k268d8n36t6v25rjl19c38s9si.apps.googleusercontent.com',
     iosBundleId: 'com.example.hikingApp',
   );
 
@@ -72,6 +76,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '197394069399',
     projectId: 'campinggearapp-e8103',
     storageBucket: 'campinggearapp-e8103.firebasestorage.app',
+    androidClientId:
+        '197394069399-5q2nan9uutochf9bsprr819n8qt2nhi2.apps.googleusercontent.com',
+    iosClientId:
+        '197394069399-ssbs21k268d8n36t6v25rjl19c38s9si.apps.googleusercontent.com',
     iosBundleId: 'com.example.hikingApp',
   );
 
