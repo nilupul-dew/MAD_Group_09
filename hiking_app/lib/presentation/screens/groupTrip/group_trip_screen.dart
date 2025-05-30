@@ -135,13 +135,13 @@ class _CommunityScreenState extends State<GroupTripScreen> {
         children: [
           // Search Bar Section
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(7),
             color: Colors.white,
             child: Row(
               children: [
                 // Back Button
                 IconButton(
-                  icon: const Icon(Icons.arrow_back, size: 28),
+                  icon: const Icon(Icons.arrow_back, size: 22),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -149,6 +149,7 @@ class _CommunityScreenState extends State<GroupTripScreen> {
                 // Search Bar
                 Expanded(
                   child: Container(
+                    height: 40,
                     decoration: BoxDecoration(
                       color: Colors.grey[100],
                       borderRadius: BorderRadius.circular(24),
@@ -159,7 +160,8 @@ class _CommunityScreenState extends State<GroupTripScreen> {
                       decoration: InputDecoration(
                         hintText: 'Search groups...',
                         hintStyle: TextStyle(color: Colors.grey[500]),
-                        prefixIcon: Icon(Icons.search, color: Colors.grey[500]),
+                        prefixIcon: Icon(Icons.search,
+                            size: 22, color: Colors.grey[500]),
                         suffixIcon: _isSearching
                             ? IconButton(
                                 icon: Icon(
@@ -172,7 +174,7 @@ class _CommunityScreenState extends State<GroupTripScreen> {
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
-                          vertical: 12,
+                          vertical: 13.0,
                         ),
                       ),
                       style: const TextStyle(fontSize: 14),
@@ -182,14 +184,14 @@ class _CommunityScreenState extends State<GroupTripScreen> {
                 const SizedBox(width: 12),
                 // Add Group Button
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.add, color: Colors.black, size: 24),
+                    icon: const Icon(Icons.add, color: Colors.black, size: 22),
                     onPressed: () {
                       Navigator.push(
                         context,
