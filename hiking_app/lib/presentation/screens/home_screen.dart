@@ -145,7 +145,7 @@ class HomePageContent extends StatelessWidget {
                   hintText: 'Search camping gear...',
                   prefixIcon: Icon(Icons.search),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(vertical: 5),
+                  contentPadding: EdgeInsets.symmetric(vertical: 6.7),
                 ),
               ),
             ),
