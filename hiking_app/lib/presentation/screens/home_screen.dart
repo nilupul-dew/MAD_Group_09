@@ -143,7 +143,7 @@ class HomePageContent extends StatelessWidget {
               child: TextField(
                 decoration: InputDecoration(
                   hintText: 'Search camping gear...',
-                  prefixIcon: Icon(Icons.search),
+                  prefixIcon: Icon(Icons.search, size: 22),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(vertical: 6.7),
                 ),
