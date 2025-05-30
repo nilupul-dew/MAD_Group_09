@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hiking_app/data/firebase_services/Post/post_firebase.dart';
+import 'package:hiking_app/domain/models/Post/post_model.dart';
 import 'package:hiking_app/domain/models/location-models/place_model.dart';
 import 'package:hiking_app/presentation/screens/app_bar.dart';
+import 'package:hiking_app/presentation/widgets/Post/post_tile.dart';
 import 'package:hiking_app/presentation/widgets/location-widgets/weather_card.dart';
+import 'package:string_similarity/string_similarity.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:video_player/video_player.dart';
@@ -23,6 +27,7 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
   int _currentIndex = 0;
+  List<Post> _relatedPosts = [];
 
   final Map<String, IconData> categoryIcons = {
     'Mountains': Icons.terrain,
@@ -58,6 +63,7 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
       );
       _videoController!.initialize().then((_) => setState(() {}));
     }
+    _loadCommunityThoughts(widget.place.name);
   }
 
   @override
@@ -76,6 +82,26 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
     } else {
       throw 'Could not open maps.';
     }
+  }
+
+  Future<void> _loadCommunityThoughts(String locationName) async {
+    final locationTag = locationName.trim().toLowerCase();
+    final firebaseForumService = FirebaseForumService();
+    final posts = await firebaseForumService.fetchPosts();
+
+    setState(() {
+      _relatedPosts = posts.where((post) {
+        final tags = post.tags.map((tag) => tag.toLowerCase()).toList();
+        return tags.any((tag) {
+          final similarity =
+              StringSimilarity.compareTwoStrings(tag, locationTag);
+          return similarity > 0.6; // Adjust threshold as needed
+        });
+      }).toList();
+    });
+    print(
+      "🔄 Loaded ${_relatedPosts.length} related posts for '$locationName'. All tags: ${_relatedPosts.map((post) => post.tags).toList()}",
+    );
   }
 
   @override
@@ -113,13 +139,28 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
     }
 
     return Scaffold(
-      appBar: CustomAppBar(
-        title: Text(widget.place.name),
-      ),
+      appBar: CustomAppBar(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                Expanded(
+                  child: Text(
+                    widget.place.name,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             CarouselSlider(
               items: mediaItems,
               options: CarouselOptions(
@@ -140,7 +181,6 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                 },
               ),
             ),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: mediaItems.asMap().entries.map((entry) {
@@ -163,7 +203,6 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                 );
               }).toList(),
             ),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -174,7 +213,6 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Row(
@@ -222,7 +260,6 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 4),
             const Divider(
               color: Color.fromARGB(255, 219, 219, 219), // subtle gray line
@@ -230,7 +267,6 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
               indent: 60, // same horizontal margin as Padding
               endIndent: 60,
             ),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Center(
@@ -297,16 +333,13 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                 ),
               ),
             ),
-
             const Divider(
               color: Color.fromARGB(255, 219, 219, 219), // subtle gray line
               thickness: 0.4, // thin line
               indent: 60, // same horizontal margin as Padding
               endIndent: 60,
             ),
-
             const SizedBox(height: 25),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Center(
@@ -320,9 +353,7 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 35),
-
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
@@ -337,10 +368,25 @@ class _PlaceDetailScreenState extends State<PlaceDetailScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 20),
-
-            //Todo-- add customer post or feedback
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Text(
+                    'Community Thoughts',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey, // Grey text color
+                    ),
+                  ),
+                ),
+                ..._relatedPosts.map((post) => PostTile(post: post)).toList(),
+              ],
+            )
           ],
         ),
       ),

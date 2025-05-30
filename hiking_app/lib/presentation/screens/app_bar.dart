@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hiking_app/data/firebase_services/user/auth_service.dart';
 import 'package:hiking_app/presentation/screens/item/cart_page.dart';
+import 'package:hiking_app/presentation/screens/notification_screen.dart';
 import 'package:hiking_app/presentation/screens/user/user_profile_screen.dart';
 
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final int cartItemCount;
   final VoidCallback? onCartPressed;
   final VoidCallback? onNotificationPressed;
   final VoidCallback? onProfilePressed;
   final ValueChanged<String>? onSearchChanged;
-  final Widget? leading;
   final Widget? title;
+
   const CustomAppBar({
     Key? key,
     this.cartItemCount = 0,
@@ -17,12 +20,36 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.onNotificationPressed,
     this.onProfilePressed,
     this.onSearchChanged,
-    this.leading,
     this.title,
   }) : super(key: key);
 
   @override
   Size get preferredSize => const Size.fromHeight(56);
+
+  @override
+  State<CustomAppBar> createState() => _CustomAppBarState();
+}
+
+class _CustomAppBarState extends State<CustomAppBar> {
+  String? _profileImageUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserProfileImage();
+  }
+
+  Future<void> _fetchUserProfileImage() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      final data = await AuthService.getUserDataById(currentUser.uid);
+      if (data != null && mounted) {
+        setState(() {
+          _profileImageUrl = data['profileImage'];
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,23 +59,37 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       title: Row(
         children: [
-          Image.asset('assets/images/logo1.png', height: 50), // Reduced from 90
-          const SizedBox(width: 8),
-          RichText(
-            text: const TextSpan(
-              text: "CAMP",
-              style: TextStyle(
-                color: Color.fromARGB(255, 238, 97, 3),
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).pushNamed('/home');
+            },
+            child: Row(
               children: [
-                TextSpan(
-                  text: "SITE",
-                  style: TextStyle(
-                    color: Color.fromARGB(255, 18, 18, 18),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
+                GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pushNamed('/home');
+                  },
+                  child: Image.asset('assets/images/logo1.png', height: 50),
+                ),
+                const SizedBox(width: 8),
+                RichText(
+                  text: const TextSpan(
+                    text: "CAMP",
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 238, 97, 3),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: "SITE",
+                        style: TextStyle(
+                          color: Color.fromARGB(255, 18, 18, 18),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -59,26 +100,49 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         _buildIconButton(
           icon: Icons.shopping_cart_outlined,
-          onPressed: onCartPressed ??
+          onPressed: widget.onCartPressed ??
               () {
                 Navigator.push(
                     context, MaterialPageRoute(builder: (_) => CartScreen()));
               },
-          badgeText: '$cartItemCount',
+          badgeText: '${widget.cartItemCount}',
         ),
         _buildIconButton(
           icon: Icons.notifications_none,
-          onPressed: onNotificationPressed,
-          showBadge: true,
-        ),
-        _buildIconButton(
-          icon: Icons.account_circle_rounded,
-          iconSize: 30,
-          onPressed: onProfilePressed ??
+          iconColor: Colors.black,
+          onPressed: widget.onNotificationPressed ??
               () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => UserProfileScreen()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => NotificationsScreen(),
+                  ),
+                );
               },
+        ),
+        Padding(
+          padding: const EdgeInsets.all(6.0),
+          child: GestureDetector(
+            onTap: widget.onProfilePressed ??
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => UserProfileScreen()),
+                  );
+                },
+            child: CircleAvatar(
+              radius: 20,
+              backgroundColor: Colors.grey[200],
+              backgroundImage:
+                  _profileImageUrl != null && _profileImageUrl!.isNotEmpty
+                      ? NetworkImage(_profileImageUrl!)
+                      : null,
+              child: _profileImageUrl == null || _profileImageUrl!.isEmpty
+                  ? const Icon(Icons.person, color: Colors.grey)
+                  : null,
+            ),
+          ),
         ),
       ],
     );
@@ -90,6 +154,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     String? badgeText,
     bool showBadge = false,
     double iconSize = 22,
+    Color? iconColor,
   }) {
     return Padding(
       padding: const EdgeInsets.all(6.0),
@@ -119,7 +184,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: IconButton(
               iconSize: iconSize,
               padding: EdgeInsets.zero,
-              icon: Icon(icon),
+              icon: Icon(icon, color: iconColor),
               onPressed: onPressed,
             ),
           ),

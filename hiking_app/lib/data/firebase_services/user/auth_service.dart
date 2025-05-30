@@ -305,20 +305,60 @@ class AuthService {
 
   // Save user data to Firestore
   Future<void> _saveUserData(User user, String provider) async {
-    await _firestore.collection('users').doc(user.uid).set({
+    // First check if user document exists and has a custom profile image
+    final existingDoc =
+        await _firestore.collection('users').doc(user.uid).get();
+
+    Map<String, dynamic> userData = {
       'userId': user.uid,
       'email': user.email ?? '',
       'phone': user.phoneNumber ?? '',
-      'profileImage': user.photoURL ?? '',
       'signInProvider': provider,
       'createdDate': FieldValue.serverTimestamp(),
-      'firstName': '',
-      'lastName': '',
-      'address': '',
-      'gender': '',
-      'country': '',
-    }, SetOptions(merge: true));
+    };
+
+    // Only set profileImage if user doesn't have one already
+    if (!existingDoc.exists ||
+        existingDoc.data()?['profileImage'] == null ||
+        existingDoc.data()?['profileImage'] == '') {
+      userData['profileImage'] = user.photoURL ?? '';
+    }
+    if (existingDoc['firstName'] == null || existingDoc['firstName'] == '') {
+      userData['firstName'] = '';
+    }
+    if (existingDoc['lastName'] == null || existingDoc['lastName'] == '') {
+      userData['lastName'] = '';
+    }
+    if (existingDoc['address'] == null || existingDoc['address'] == '') {
+      userData['address'] = '';
+    }
+    if (existingDoc['gender'] == null || existingDoc['gender'] == '') {
+      userData['gender'] = '';
+    }
+    if (existingDoc['country'] == null || existingDoc['country'] == '') {
+      userData['country'] = '';
+    }
+
+    await _firestore
+        .collection('users')
+        .doc(user.uid)
+        .set(userData, SetOptions(merge: true));
   }
+  // Future<void> _saveUserData(User user, String provider) async {
+  //   await _firestore.collection('users').doc(user.uid).set({
+  //     'userId': user.uid,
+  //     'email': user.email ?? '',
+  //     'phone': user.phoneNumber ?? '',
+  //     'profileImage': user.photoURL ?? '',
+  //     'signInProvider': provider,
+  //     'createdDate': FieldValue.serverTimestamp(),
+  //     'firstName': '',
+  //     'lastName': '',
+  //     'address': '',
+  //     'gender': '',
+  //     'country': '',
+  //   }, SetOptions(merge: true));
+  // }
 
   // Reset password
   Future<void> resetPassword(String email) async {

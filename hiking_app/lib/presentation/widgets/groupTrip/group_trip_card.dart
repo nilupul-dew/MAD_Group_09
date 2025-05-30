@@ -1,6 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../screens/groupTrip/group_trip_form.dart';
+import 'package:hiking_app/data/firebase_services/user/auth_service.dart';
+import '../../screens/groupTrip/group_trip_form.dart';
 
 class GroupTripCard extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -25,6 +27,25 @@ class GroupTripCard extends StatefulWidget {
 class _GroupTripCardState extends State<GroupTripCard> {
   bool _isExpanded = false;
   final orangeColor = const Color.fromARGB(255, 255, 87, 34);
+  String? _profileImageUrl;
+  String? _profileName;
+
+  Future<void> _loadUser() async {
+    String tripOwnerId = widget.data['createdBy'];
+    final userData = await AuthService.getUserDataById(tripOwnerId);
+    if (userData != null) {
+      setState(() {
+        _profileImageUrl = userData['profileImage'];
+        _profileName = '${userData['firstName']} ${userData['lastName']}';
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,10 +56,10 @@ class _GroupTripCardState extends State<GroupTripCard> {
     final createdAt = (widget.data['createdAt'] as Timestamp).toDate();
     final timeAgo = _getTimeAgo(createdAt);
     final category = widget.data['tripType'] ?? 'General';
-    // Temporary test version
-    final isCurrentUserOwner = widget.userId == 'testUser123';
-    // Production version
-    //final isCurrentUserOwner = userId == data['userId'];
+    final tripOwnerId = widget.data['createdBy'];
+    // Check if the current user is the post owner
+    final isCurrentUserOwner =
+        tripOwnerId == FirebaseAuth.instance.currentUser?.uid;
 
     return Card(
       elevation: 3,
@@ -52,10 +73,17 @@ class _GroupTripCardState extends State<GroupTripCard> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // 👤 User Avatar
                 CircleAvatar(
-                  radius: 20,
+                  radius: 22,
                   backgroundColor: Colors.grey[200],
-                  child: Icon(Icons.person, color: Colors.grey[600]),
+                  backgroundImage:
+                      _profileImageUrl != null && _profileImageUrl!.isNotEmpty
+                          ? NetworkImage(_profileImageUrl!)
+                          : null,
+                  child: _profileImageUrl == null || _profileImageUrl!.isEmpty
+                      ? const Icon(Icons.person, color: Colors.grey)
+                      : null,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -63,7 +91,7 @@ class _GroupTripCardState extends State<GroupTripCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.data['userName'] ?? 'Nuwan Perera',
+                        _profileName ?? 'Anonymous',
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,

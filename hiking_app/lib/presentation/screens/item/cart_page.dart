@@ -42,15 +42,7 @@ class _CartScreenState extends State<CartScreen> {
     }
 
     return Scaffold(
-      appBar: CustomAppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text('My cart'),
-      ),
+      appBar: CustomAppBar(),
       body: StreamBuilder<List<CartItem>>(
         // Now stream List<CartItem> directly
         stream: _cartFirestoreService.getCartItemsStream(userId),

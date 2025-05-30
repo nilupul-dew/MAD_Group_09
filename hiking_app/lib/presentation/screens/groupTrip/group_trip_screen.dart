@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hiking_app/data/firebase_services/notification_service.dart';
 import 'package:hiking_app/presentation/screens/app_bar.dart';
-import '../../widgets/group_trip_card.dart';
-import '../../widgets/loading_widget.dart';
-import '../../widgets/empty_state_widget.dart';
-import '../../widgets/error_widget.dart';
+import '../../widgets/groupTrip/group_trip_card.dart';
+import '../../widgets/groupTrip/loading_widget.dart';
+import '../../widgets/groupTrip/empty_state_widget.dart';
+import '../../widgets/groupTrip/error_widget.dart';
 import 'group_trip_form.dart';
 
 class GroupTripScreen extends StatefulWidget {
@@ -68,10 +69,10 @@ class _CommunityScreenState extends State<GroupTripScreen> {
         builder: (context) => const Center(child: CircularProgressIndicator()),
       );
 
-      await FirebaseFirestore.instance
-          .collection('group_trips')
-          .doc(tripId)
-          .update({
+      final docRef =
+          FirebaseFirestore.instance.collection('group_trips').doc(tripId);
+
+      await docRef.update({
         'members': FieldValue.arrayUnion([uid]),
         'memberCount': FieldValue.increment(1),
       });
@@ -84,6 +85,32 @@ class _CommunityScreenState extends State<GroupTripScreen> {
           duration: Duration(seconds: 2),
         ),
       );
+
+      // Fetch the updated document
+      final docSnapshot = await docRef.get();
+      final data = docSnapshot.data();
+
+      if (data != null) {
+        String createdBy = data['createdBy'] ?? 'unknown';
+        String title = data['title'] ?? 'unknown';
+        List<dynamic> members = data['members'] ?? [];
+        int memberCount = data['memberCount'] ?? -1;
+        int maxMembers = data['maxMembers'] ?? -1;
+
+        if (maxMembers == memberCount) {
+          await NotificationService.groupTripFullNotification(
+              tripId: tripId,
+              tripTitle: title,
+              createdBy: createdBy,
+              members: members);
+        } else {
+          await NotificationService.memberJoinedGroupTripNotification(
+              tripId: tripId,
+              tripTitle: title,
+              createdBy: createdBy,
+              joinedUserId: uid);
+        }
+      }
     } catch (e) {
       Navigator.pop(context);
       print('Join error: $e');
@@ -112,6 +139,13 @@ class _CommunityScreenState extends State<GroupTripScreen> {
             color: Colors.white,
             child: Row(
               children: [
+                // Back Button
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, size: 28),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
                 // Search Bar
                 Expanded(
                   child: Container(

@@ -85,8 +85,7 @@ class _ForumScreenState extends State<ForumScreen> {
     return Scaffold(
       appBar: CustomAppBar(),
       body: Container(
-        color: const Color.fromARGB(
-            255, 211, 209, 209), // Set your desired background color here
+        color: const Color.fromARGB(255, 211, 209, 209),
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _posts.isEmpty
