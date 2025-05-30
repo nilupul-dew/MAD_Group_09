@@ -208,6 +208,7 @@ class _CommunityScreenState extends State<GroupTripScreen> {
           ),
           //Text
           Text(
+            //todo : align left and add space between text feld and above container
             "Group Trips",
             style: GoogleFonts.montserrat(
               color: Color.fromARGB(239, 18, 18, 18),

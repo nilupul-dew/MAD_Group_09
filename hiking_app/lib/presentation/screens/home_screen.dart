@@ -303,7 +303,12 @@ class HomePageContent extends StatelessWidget {
                       Align(
                         alignment: Alignment.bottomRight,
                         child: GestureDetector(
-                          onTap: () => Navigator.pushNamed(context, '/popular'),
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ExploreScreen(),
+                            ),
+                          ),
                           child: Text(
                             'See more',
                             style: TextStyle(
@@ -456,9 +461,11 @@ class HomePageContent extends StatelessWidget {
                       Align(
                         alignment: Alignment.bottomRight,
                         child: GestureDetector(
-                          onTap: () => Navigator.pushNamed(
+                          onTap: () => Navigator.push(
                             context,
-                            '/recommendations',
+                            MaterialPageRoute(
+                              builder: (context) => ExploreScreen(),
+                            ),
                           ),
                           child: Text(
                             'See more',
