@@ -1,4 +1,4 @@
-# CampMate - Mobile Application for Renting Camping Gear
+# Amba Camping - Mobile Application for Renting Camping Gear
 
 Welcome to the official repository for **CampMate**, a mobile application developed by Group 09 at NSBM Green University as part of the Mobile Application Development (SE303-3) module.
 
